@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getCollection, getCollections } from "@/lib/queries/collections";
 import { getInStockDiscountedProducts } from "@/lib/queries/products";
 import ProductCard from "@/components/ProductCard";
+import { absoluteUrl } from "@/lib/seo";
 
 export const revalidate = 300;
 
@@ -41,9 +42,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { handle } = await params;
   const collection = await getCollection(handle, { first: 1 });
   if (!collection) return { title: "Collection Not Found" };
+  const title = collection.seo.title || collection.title;
+  const description = collection.seo.description || collection.description;
+  const url = `/collections/${collection.handle}`;
   return {
-    title: collection.seo.title || collection.title,
-    description: collection.seo.description || collection.description,
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      url,
+      images: collection.image
+        ? [
+            {
+              url: collection.image.url,
+              width: collection.image.width,
+              height: collection.image.height,
+              alt: collection.title,
+            },
+          ]
+        : undefined,
+    },
   };
 }
 
@@ -77,8 +98,32 @@ export default async function CollectionPage({ params, searchParams }: Props) {
       })
     : collection.products.edges.map((e) => e.node);
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Collections",
+        item: absoluteUrl("/collections"),
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: collection.title,
+        item: absoluteUrl(`/collections/${collection.handle}`),
+      },
+    ],
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       {/* Header */}
       <div className="mb-10">
         <h1 className="text-4xl md:text-5xl font-black text-[#0B0F14] uppercase tracking-tight">

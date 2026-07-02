@@ -291,29 +291,27 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-[#263445] flex flex-col sm:flex-row justify-between items-center gap-6">
+        <div className="mt-12 pt-8 border-t border-[#263445]">
+          <Image
+            src="/tabby-tamara-%26-pay-method.jpg"
+            alt="Accepted payment methods: Google Pay, Visa, American Express, Mastercard, tamara and tabby — get it now, pay later"
+            width={2400}
+            height={120}
+            className="w-full h-auto"
+          />
+        </div>
+
+        <div className="mt-8 pt-8 border-t border-[#263445] flex flex-col sm:flex-row justify-between items-center gap-6">
           <p className="text-xs text-[#C7D0DA] order-2 sm:order-1">
             &copy; {new Date().getFullYear()} JNK Nutrition. All rights
             reserved.
           </p>
-          <div className="flex items-center gap-4 order-1 sm:order-2">
-            <div className="flex items-center gap-2">
-              <Image
-                src="/mastercard-visa-apple-pay-google-pay-popular-payment-systems-finance-system-app-bank-card-illustration-free-vector (1).jpg"
-                alt="Accepted payment methods: Visa, Mastercard, Apple Pay, Google Pay"
-                width={220}
-                height={40}
-                className="h-8 w-auto rounded"
-              />
-            </div>
-            <span className="h-4 w-px bg-[#263445]" />
-            <Link
-              href="/account"
-              className="text-xs text-[#C7D0DA] hover:text-white transition-colors"
-            >
-              My Account
-            </Link>
-          </div>
+          <Link
+            href="/account"
+            className="text-xs text-[#C7D0DA] hover:text-white transition-colors order-1 sm:order-2"
+          >
+            My Account
+          </Link>
         </div>
       </div>
     </footer>

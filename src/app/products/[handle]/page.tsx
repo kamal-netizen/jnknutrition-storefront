@@ -6,6 +6,7 @@ import {
   getProductRecommendations,
 } from "@/lib/queries/products";
 import ProductDetails from "@/components/ProductDetails";
+import { absoluteUrl } from "@/lib/seo";
 
 export const revalidate = 300;
 
@@ -24,14 +25,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) return { title: "Product Not Found" };
 
   const image = product.images.edges[0]?.node;
+  const title = product.seo.title || product.title;
+  const description = product.seo.description || product.description;
+  const url = `/products/${product.handle}`;
+  const images = image
+    ? [{ url: image.url, width: image.width, height: image.height, alt: product.title }]
+    : undefined;
+
   return {
-    title: product.seo.title || product.title,
-    description: product.seo.description || product.description,
-    openGraph: image
-      ? {
-          images: [{ url: image.url, width: image.width, height: image.height }],
-        }
-      : undefined,
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      url,
+      images,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: image ? [image.url] : undefined,
+    },
   };
 }
 
@@ -44,22 +61,53 @@ export default async function ProductPage({ params }: Props) {
   const recommendations = await getProductRecommendations(product.id);
   const images = product.images.edges.map((e) => e.node);
 
+  const productUrl = absoluteUrl(`/products/${product.handle}`);
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.title,
     description: product.description,
     image: images.map((i) => i.url),
+    url: productUrl,
+    sku: product.variants.edges[0]?.node.id,
     brand: { "@type": "Brand", name: product.vendor || "JNK Nutrition" },
     offers: {
       "@type": "AggregateOffer",
       priceCurrency: product.priceRange.minVariantPrice.currencyCode,
       lowPrice: product.priceRange.minVariantPrice.amount,
       highPrice: product.priceRange.maxVariantPrice.amount,
+      offerCount: product.variants.edges.length,
+      url: productUrl,
       availability: product.availableForSale
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
     },
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: absoluteUrl("/"),
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Products",
+        item: absoluteUrl("/products"),
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: product.title,
+        item: productUrl,
+      },
+    ],
   };
 
   return (
@@ -67,6 +115,10 @@ export default async function ProductPage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <ProductDetails
         product={product}

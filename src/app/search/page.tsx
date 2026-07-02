@@ -8,6 +8,7 @@ import { SEARCH_PAGE_SIZE, SORT_OPTIONS } from "./constants";
 export const metadata: Metadata = {
   title: "Search",
   description: "Search JNK Nutrition products.",
+  robots: { index: false, follow: true },
 };
 
 type Props = {
