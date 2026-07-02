@@ -71,6 +71,7 @@ const SHOP_LINKS = [
 
 const INFO_LINKS = [
   { label: "About Us", href: "/pages/about" },
+  { label: "Wholesale", href: "/pages/wholesale" },
   { label: "Blog", href: "/blogs/news" },
   { label: "FAQ", href: "/pages/faq" },
   { label: "Contact", href: "/pages/contact" },
@@ -99,13 +100,13 @@ const TRUST = [
 
 const APP_LINKS = [
   {
-    href: "https://apps.apple.com",
+    href: "https://apps.apple.com/us/app/jnk-nutrition/id6743687638",
     Icon: AppleIcon,
     line1: "Download on the",
     line2: "App Store",
   },
   {
-    href: "https://play.google.com",
+    href: "https://play.google.com/store/apps/details?id=com.simicart.jnknutrition",
     Icon: GooglePlayIcon,
     line1: "Get it on",
     line2: "Google Play",

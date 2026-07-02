@@ -39,6 +39,16 @@ import {
 } from "@/lib/nav";
 import type { Collection } from "@/lib/queries/collections";
 
+const APP_STORE_URL = "https://apps.apple.com/us/app/jnk-nutrition/id6743687638";
+const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=com.simicart.jnknutrition";
+
+function getAppStoreUrl() {
+  if (typeof navigator === "undefined") return PLAY_STORE_URL;
+  const ua = navigator.userAgent || "";
+  return /iPhone|iPad|iPod|Macintosh/i.test(ua) ? APP_STORE_URL : PLAY_STORE_URL;
+}
+
 const MOBILE_SECTIONS = [
   {
     label: "Shop by Goals",
@@ -146,13 +156,22 @@ export default function Header({
       {/* Announcement bar */}
       <div className="bg-[#082D4C] border-b border-[#0D3E66]">
         <div className="max-w-7xl mx-auto px-4 h-9 flex items-center justify-center gap-2">
-          <span className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.15em] text-[#F9D20F]">
-            FREE SHIPPING ON ORDERS OVER AED150
+          <span className="text-[11px] sm:text-xs uppercase tracking-[0.15em] text-[#C7D0DA]">
+            Free shipping on orders over{" "}
+            <span className="font-bold text-[#F9D20F]">AED150</span>
           </span>
-          <span className="hidden md:inline text-[#0D3E66]">•</span>
-          <span className="hidden md:inline text-[11px] sm:text-xs font-bold uppercase tracking-[0.15em] text-[#C7D0DA]">
-            SUBSCRIBE &amp; SAVE 15%
-          </span>
+          <span className="hidden md:inline h-4 w-px bg-[#3A5B7A]" aria-hidden="true" />
+          <a
+            href={PLAY_STORE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              e.currentTarget.href = getAppStoreUrl();
+            }}
+            className="hidden md:inline text-[11px] sm:text-xs uppercase tracking-[0.15em] text-[#C7D0DA] transition-colors hover:text-[#F9D20F]"
+          >
+            Download the <span className="font-bold text-white">JNK App</span>
+          </a>
         </div>
       </div>
 

@@ -109,7 +109,7 @@ export default function DesktopNav({
                 onClick={() =>
                   setOpenMenu((cur) => (cur === menu.id ? null : menu.id))
                 }
-                className="flex items-center gap-1 text-sm font-bold uppercase tracking-wide text-[#64748B] hover:text-[#0B0F14] transition-colors relative group py-6 cursor-pointer bg-transparent border-0"
+                className="flex items-center gap-1 text-[13px] font-semibold uppercase tracking-[0.08em] text-[#475569] hover:text-[#0B0F14] transition-colors relative group py-6 cursor-pointer bg-transparent border-0"
               >
                 {menu.label}
                 <span
@@ -127,7 +127,7 @@ export default function DesktopNav({
             key={link.href}
             href={link.href}
             onMouseEnter={close}
-            className="text-sm font-bold uppercase tracking-wide text-[#64748B] hover:text-[#0B0F14] transition-colors relative group py-6"
+            className="text-[13px] font-semibold uppercase tracking-[0.08em] text-[#475569] hover:text-[#0B0F14] transition-colors relative group py-6"
           >
             {link.label}
             <span className="absolute bottom-4 left-0 w-0 h-0.5 bg-[#F9D20F] transition-all duration-200 group-hover:w-full" />
