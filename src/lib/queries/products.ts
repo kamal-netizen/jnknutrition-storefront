@@ -1,0 +1,204 @@
+import { storefrontFetch } from "@/lib/shopify";
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+export type MoneyV2 = {
+  amount: string;
+  currencyCode: string;
+};
+
+export type ProductImage = {
+  url: string;
+  altText: string | null;
+  width: number;
+  height: number;
+};
+
+export type ProductVariant = {
+  id: string;
+  title: string;
+  availableForSale: boolean;
+  price: MoneyV2;
+  compareAtPrice: MoneyV2 | null;
+  selectedOptions: { name: string; value: string }[];
+  image: ProductImage | null;
+};
+
+export type Product = {
+  id: string;
+  title: string;
+  handle: string;
+  description: string;
+  descriptionHtml: string;
+  tags: string[];
+  vendor: string;
+  productType: string;
+  availableForSale: boolean;
+  priceRange: {
+    minVariantPrice: MoneyV2;
+    maxVariantPrice: MoneyV2;
+  };
+  images: { edges: { node: ProductImage }[] };
+  variants: { edges: { node: ProductVariant }[] };
+  seo: { title: string; description: string };
+};
+
+export type ProductConnection = {
+  pageInfo: { hasNextPage: boolean; endCursor: string | null };
+  edges: { node: Product }[];
+};
+
+// ─── Fragments ───────────────────────────────────────────────────────────────
+
+const PRODUCT_FRAGMENT = `
+  fragment ProductFragment on Product {
+    id
+    title
+    handle
+    description
+    descriptionHtml
+    tags
+    vendor
+    productType
+    availableForSale
+    priceRange {
+      minVariantPrice { amount currencyCode }
+      maxVariantPrice { amount currencyCode }
+    }
+    images(first: 10) {
+      edges {
+        node { url altText width height }
+      }
+    }
+    variants(first: 100) {
+      edges {
+        node {
+          id
+          title
+          availableForSale
+          price { amount currencyCode }
+          compareAtPrice { amount currencyCode }
+          selectedOptions { name value }
+          image { url altText width height }
+        }
+      }
+    }
+    seo { title description }
+  }
+`;
+
+// ─── Queries ─────────────────────────────────────────────────────────────────
+
+const GET_PRODUCT = `
+  ${PRODUCT_FRAGMENT}
+  query GetProduct($handle: String!) {
+    product(handle: $handle) {
+      ...ProductFragment
+    }
+  }
+`;
+
+const GET_PRODUCTS = `
+  ${PRODUCT_FRAGMENT}
+  query GetProducts(
+    $first: Int!
+    $after: String
+    $sortKey: ProductSortKeys
+    $reverse: Boolean
+    $query: String
+  ) {
+    products(
+      first: $first
+      after: $after
+      sortKey: $sortKey
+      reverse: $reverse
+      query: $query
+    ) {
+      pageInfo { hasNextPage endCursor }
+      edges { node { ...ProductFragment } }
+    }
+  }
+`;
+
+const GET_PRODUCT_RECOMMENDATIONS = `
+  ${PRODUCT_FRAGMENT}
+  query GetProductRecommendations($productId: ID!) {
+    productRecommendations(productId: $productId) {
+      ...ProductFragment
+    }
+  }
+`;
+
+// ─── Fetchers ────────────────────────────────────────────────────────────────
+
+export async function getProduct(handle: string): Promise<Product | null> {
+  const data = await storefrontFetch<{ product: Product | null }>(GET_PRODUCT, {
+    handle,
+  });
+  return data.product;
+}
+
+export async function getProducts(options: {
+  first?: number;
+  after?: string;
+  sortKey?: string;
+  reverse?: boolean;
+  query?: string;
+}): Promise<ProductConnection> {
+  const data = await storefrontFetch<{ products: ProductConnection }>(
+    GET_PRODUCTS,
+    { first: 24, ...options }
+  );
+  return data.products;
+}
+
+/** True when any variant is priced below its compare-at (an active discount). */
+export function isDiscounted(product: Product): boolean {
+  return product.variants.edges.some(({ node }) => {
+    const compare = node.compareAtPrice
+      ? parseFloat(node.compareAtPrice.amount)
+      : 0;
+    return compare > parseFloat(node.price.amount);
+  });
+}
+
+/**
+ * Fetch in-stock products that currently have a discount, aggregated across the
+ * whole store (paginating until `max` are collected or the catalog is exhausted).
+ */
+export async function getInStockDiscountedProducts(options?: {
+  max?: number;
+  sortKey?: string;
+  reverse?: boolean;
+}): Promise<Product[]> {
+  const max = options?.max ?? 48;
+  const collected: Product[] = [];
+  let after: string | undefined;
+  let hasNextPage = true;
+
+  while (hasNextPage && collected.length < max) {
+    const conn = await getProducts({
+      first: 250,
+      after,
+      query: "available_for_sale:true",
+      sortKey: options?.sortKey ?? "BEST_SELLING",
+      reverse: options?.reverse ?? false,
+    });
+    for (const { node } of conn.edges) {
+      if (isDiscounted(node)) collected.push(node);
+    }
+    hasNextPage = conn.pageInfo.hasNextPage;
+    after = conn.pageInfo.endCursor ?? undefined;
+  }
+
+  return collected.slice(0, max);
+}
+
+export async function getProductRecommendations(
+  productId: string
+): Promise<Product[]> {
+  const data = await storefrontFetch<{
+    productRecommendations: Product[];
+  }>(GET_PRODUCT_RECOMMENDATIONS, { productId });
+  return data.productRecommendations.filter((p) => p.availableForSale);
+}
