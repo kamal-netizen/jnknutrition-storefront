@@ -208,7 +208,7 @@ export default function Footer() {
               {Array.from({ length: 5 }).map((_, i) => (
                 <StarIcon key={i} className="w-3.5 h-3.5" />
               ))}
-              <span className="ml-1.5 text-xs text-[#C7D0DA]">4.9 / 5</span>
+              <span className="ml-1.5 text-xs text-[#C7D0DA]">4.7 / 5</span>
             </div>
             <div className="flex flex-col sm:flex-row md:flex-col gap-3 mt-4">
               {APP_LINKS.map(({ href, Icon, line1, line2 }) => (
