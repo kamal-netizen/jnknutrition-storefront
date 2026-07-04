@@ -118,13 +118,13 @@ export default function Footer() {
     <footer className="bg-[#082D4C] border-t border-[#263445] mt-auto">
       {/* Trust badges */}
       <div className="border-b border-[#0D3E66]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {TRUST.map(({ Icon, title, text }) => (
-            <div key={title} className="flex items-center gap-3 justify-center sm:justify-start">
-              <Icon className="w-7 h-7 text-[#F9D20F] shrink-0" />
+            <div key={title} className="flex items-center gap-2 sm:gap-3">
+              <Icon className="w-5 h-5 sm:w-7 sm:h-7 text-[#F9D20F] shrink-0" aria-hidden="true" />
               <div>
-                <p className="text-sm font-bold text-white uppercase tracking-wide">{title}</p>
-                <p className="text-xs text-[#C7D0DA]">{text}</p>
+                <p className="text-xs sm:text-sm font-bold text-white uppercase tracking-wide leading-tight">{title}</p>
+                <p className="text-[10px] sm:text-xs text-[#C7D0DA] leading-tight">{text}</p>
               </div>
             </div>
           ))}
