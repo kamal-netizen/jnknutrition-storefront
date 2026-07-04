@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import FloatingSearch from "@/components/FloatingSearch";
 import { getCollections } from "@/lib/queries/collections";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, absoluteUrl } from "@/lib/seo";
 
@@ -101,6 +102,7 @@ export default async function RootLayout({
         <Header collections={collections} />
         <main className="flex-1">{children}</main>
         <Footer />
+        <FloatingSearch />
       </body>
     </html>
   );

@@ -7,6 +7,8 @@ import { useCartStore, useCartLines, useCartTotal, useCheckoutUrl } from "@/lib/
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import Price from "@/components/Price";
+import FreeShippingBar from "@/components/FreeShippingBar";
+import CartSuggestions from "@/components/CartSuggestions";
 
 export default function CartDrawer() {
   const { isOpen, closeCart, updateLine, removeLine, isLoading } = useCartStore();
@@ -31,6 +33,10 @@ export default function CartDrawer() {
             )}
           </SheetTitle>
         </SheetHeader>
+
+        {lines.length > 0 && (
+          <FreeShippingBar className="px-6 py-4 border-b border-[#E2E8F0]" />
+        )}
 
         {/* Lines */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
@@ -139,6 +145,13 @@ export default function CartDrawer() {
                 );
               })}
             </ul>
+          )}
+
+          {lines.length > 0 && (
+            <CartSuggestions
+              className="mt-6 pt-5 border-t border-[#E2E8F0]"
+              onNavigate={closeCart}
+            />
           )}
         </div>
 

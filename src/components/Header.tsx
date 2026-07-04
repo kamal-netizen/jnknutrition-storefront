@@ -158,7 +158,7 @@ export default function Header({
         <div className="max-w-7xl mx-auto px-4 h-9 flex items-center justify-center gap-2">
           <span className="text-[11px] sm:text-xs uppercase tracking-[0.15em] text-[#C7D0DA]">
             Free shipping on orders over{" "}
-            <span className="font-bold text-[#F9D20F]">AED150</span>
+            <span className="font-bold text-[#F9D20F]">AED149</span>
           </span>
           <span className="hidden md:inline h-4 w-px bg-[#3A5B7A]" aria-hidden="true" />
           <a
@@ -359,7 +359,7 @@ export default function Header({
                   <div className="flex items-center gap-2 px-5 py-3 bg-[#082D4C]">
                     <Truck className="w-4 h-4 text-[#F9D20F] shrink-0" />
                     <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#F9D20F]">
-                      Free shipping over AED150
+                      Free shipping over AED149
                     </span>
                   </div>
                   <div className="flex items-center justify-between px-5 py-4">

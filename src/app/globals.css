@@ -100,8 +100,15 @@
 }
 
 /* ─── UAE flag gradient banner ─────────────────────────────── */
+.uae-flag-wrap {
+  position: relative;
+  background:
+    radial-gradient(120% 140% at 50% 0%, rgba(0, 132, 61, 0.08), transparent 60%);
+}
+
 .uae-flag-banner {
   position: relative;
+  isolation: isolate;
   background:
     /* red hoist band on the left */
     linear-gradient(to right, #ef3340 0 22%, rgba(0, 0, 0, 0) 22%),
@@ -113,6 +120,10 @@
       #000000 66.667% 100%
     );
   background-repeat: no-repeat;
+  box-shadow:
+    inset 0 8px 18px -10px rgba(0, 0, 0, 0.35),
+    inset 0 -8px 18px -10px rgba(0, 0, 0, 0.35),
+    0 6px 20px -12px rgba(0, 0, 0, 0.45);
 }
 
 /* moving fold highlights → waving-cloth look (no horizontal scroll) */
@@ -120,12 +131,13 @@
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 1;
   background: repeating-linear-gradient(
-    90deg,
+    100deg,
     rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.14) 5%,
-    rgba(0, 0, 0, 0.14) 10%,
-    rgba(255, 255, 255, 0) 16%
+    rgba(255, 255, 255, 0.22) 4%,
+    rgba(0, 0, 0, 0.18) 9%,
+    rgba(255, 255, 255, 0) 15%
   );
   background-size: 220% 100%;
   mix-blend-mode: soft-light;
@@ -133,21 +145,82 @@
   pointer-events: none;
 }
 
+/* bright glancing light sweep across the flag */
+.uae-flag-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    75deg,
+    transparent 0%,
+    transparent 38%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 62%,
+    transparent 100%
+  );
+  background-size: 250% 100%;
+  mix-blend-mode: overlay;
+  animation: uae-sweep 5.5s ease-in-out infinite;
+}
+
 @keyframes uae-wave {
   0%,
   100% {
     background-position: 0% 0;
-    transform: skewY(-0.5deg);
   }
   50% {
     background-position: 28% 0;
-    transform: skewY(0.5deg);
+  }
+}
+
+@keyframes uae-sweep {
+  0% {
+    background-position: 130% 0;
+  }
+  55%,
+  100% {
+    background-position: -60% 0;
+  }
+}
+
+/* ─── Caption ──────────────────────────────────────────────── */
+.uae-flag-caption {
+  background: linear-gradient(
+    100deg,
+    #00843d 0%,
+    #0b0f14 30%,
+    #0b0f14 45%,
+    #ffffff 50%,
+    #0b0f14 55%,
+    #0b0f14 70%,
+    #ef3340 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: uae-text-shine 5.5s linear infinite;
+}
+
+@keyframes uae-text-shine {
+  0% {
+    background-position: 120% 0;
+  }
+  100% {
+    background-position: -20% 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .uae-flag-banner::before {
+  .uae-flag-banner,
+  .uae-flag-banner::before,
+  .uae-flag-shine,
+  .uae-flag-caption {
     animation: none;
     transform: none;
+  }
+  .uae-flag-caption {
+    background-position: 50% 0;
   }
 }

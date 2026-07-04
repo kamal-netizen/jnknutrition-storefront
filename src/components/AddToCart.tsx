@@ -6,6 +6,7 @@ import type { Product, ProductVariant } from "@/lib/queries/products";
 import { useCartStore } from "@/lib/store/cart";
 import { Button } from "@/components/ui/button";
 import Price from "@/components/Price";
+import TamaraWidget from "@/components/TamaraWidget";
 
 type Props = {
   product: Product;
@@ -42,10 +43,19 @@ export default function AddToCart({ product, onVariantChange }: Props) {
 
   const soldOut = !selectedVariant?.availableForSale;
 
+  const priceAmount = parseFloat(selectedVariant.price.amount);
+  const compareAmount = selectedVariant.compareAtPrice
+    ? parseFloat(selectedVariant.compareAtPrice.amount)
+    : 0;
+  const discountPercent =
+    compareAmount > priceAmount
+      ? Math.round(((compareAmount - priceAmount) / compareAmount) * 100)
+      : 0;
+
   return (
     <div className="space-y-6">
       {/* Price */}
-      <div className="flex items-baseline gap-3">
+      <div className="flex items-baseline flex-wrap gap-3">
         <Price
           amount={selectedVariant.price.amount}
           currencyCode={selectedVariant.price.currencyCode}
@@ -58,7 +68,18 @@ export default function AddToCart({ product, onVariantChange }: Props) {
             className="text-lg text-[#64748B] line-through"
           />
         )}
+        {discountPercent > 0 && (
+          <span className="rounded bg-[#F9D20F] px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-[#0B0F14]">
+            Save {discountPercent}%
+          </span>
+        )}
       </div>
+
+      {/* Tamara — buy now, pay later */}
+      <TamaraWidget
+        amount={selectedVariant.price.amount}
+        currencyCode={selectedVariant.price.currencyCode}
+      />
 
       {/* Variant selector */}
       {hasVariants && (

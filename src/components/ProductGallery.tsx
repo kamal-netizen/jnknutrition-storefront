@@ -40,7 +40,7 @@ export default function ProductGallery({ images, title, activeIndex: controlledI
           fill
           sizes="(max-width: 1024px) 100vw, 50vw"
           priority
-          className="object-cover"
+          className="object-contain p-4"
         />
       </div>
 
@@ -62,7 +62,7 @@ export default function ProductGallery({ images, title, activeIndex: controlledI
                 alt={image.altText ?? `${title} ${i + 1}`}
                 fill
                 sizes="20vw"
-                className="object-cover"
+                className="object-contain p-1"
               />
             </button>
           ))}

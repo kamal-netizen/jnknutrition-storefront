@@ -129,5 +129,8 @@ export const useCartLines = () =>
 export const useCartTotal = () =>
   useCartStore((s) => s.cart?.cost.totalAmount ?? null);
 
+export const useCartSubtotal = () =>
+  useCartStore((s) => s.cart?.cost.subtotalAmount ?? null);
+
 export const useCheckoutUrl = () =>
   useCartStore((s) => s.cart?.checkoutUrl ?? null);

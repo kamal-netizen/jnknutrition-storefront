@@ -12,6 +12,8 @@ import {
 } from "@/lib/store/cart";
 import { Button } from "@/components/ui/button";
 import Price from "@/components/Price";
+import FreeShippingBar from "@/components/FreeShippingBar";
+import CartSuggestions from "@/components/CartSuggestions";
 
 export default function CartPage() {
   const { updateLine, removeLine, refreshCart, isLoading } = useCartStore();
@@ -123,6 +125,8 @@ export default function CartPage() {
                 </div>
               );
             })}
+
+            <CartSuggestions className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-5" />
           </div>
 
           {/* Summary */}
@@ -144,6 +148,7 @@ export default function CartPage() {
               <p className="text-xs text-[#64748B]">
                 Shipping and taxes calculated at checkout.
               </p>
+              <FreeShippingBar className="rounded-md border border-[#E2E8F0] bg-white p-3" />
               <Button
                 render={<a href={checkoutUrl ?? "#"} />}
                 nativeButton={false}
