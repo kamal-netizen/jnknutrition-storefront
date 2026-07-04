@@ -110,6 +110,11 @@ export const useCartStore = create<CartStore>()(
       name: "jnk-cart",
       // Only persist the cartId — cart data is always fetched fresh
       partialize: (state) => ({ cartId: state.cartId }),
+      onRehydrateStorage: () => (state) => {
+        if (state?.cartId) {
+          state.refreshCart();
+        }
+      },
     }
   )
 );
