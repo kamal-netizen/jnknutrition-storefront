@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Truck, BadgeCheck, ShieldCheck, RotateCcw } from "lucide-react";
 import { getProducts } from "@/lib/queries/products";
 import { getCollection } from "@/lib/queries/collections";
 import type { Product } from "@/lib/queries/products";
@@ -82,40 +81,6 @@ export default async function Home() {
     <div className="flex flex-col">
       {/* Hero */}
       <HeroBanner />
-
-      {/* USP strip */}
-      <section aria-label="Why shop with us" className="border-b border-[#E2E8F0] bg-white">
-        <ul className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-3">
-          <li className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-[#0B0F14]">
-            <Truck className="w-5 h-5 text-[#F9D20F] shrink-0" aria-hidden="true" />
-            <span>
-              Free shipping{" "}
-              <span className="font-normal text-[#64748B]">over AED 149</span>
-            </span>
-          </li>
-          <li className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-[#0B0F14]">
-            <BadgeCheck className="w-5 h-5 text-[#F9D20F] shrink-0" aria-hidden="true" />
-            <span>
-              100% authentic{" "}
-              <span className="font-normal text-[#64748B]">brands</span>
-            </span>
-          </li>
-          <li className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-[#0B0F14]">
-            <ShieldCheck className="w-5 h-5 text-[#F9D20F] shrink-0" aria-hidden="true" />
-            <span>
-              Secure checkout{" "}
-              <span className="font-normal text-[#64748B]">&amp; Tamara</span>
-            </span>
-          </li>
-          <li className="flex items-center gap-2.5 text-xs sm:text-sm font-semibold text-[#0B0F14]">
-            <RotateCcw className="w-5 h-5 text-[#F9D20F] shrink-0" aria-hidden="true" />
-            <span>
-              Easy returns{" "}
-              <span className="font-normal text-[#64748B]">within 7 days</span>
-            </span>
-          </li>
-        </ul>
-      </section>
 
       {/* UAE flag gradient banner */}
       <div className="mt-6 sm:mt-8">
