@@ -132,5 +132,29 @@ export const useCartTotal = () =>
 export const useCartSubtotal = () =>
   useCartStore((s) => s.cart?.cost.subtotalAmount ?? null);
 
+/**
+ * Total compare-at savings across all lines (0 when nothing is discounted).
+ * Returns the amount and the cart currency code.
+ */
+export const useCartSavings = () =>
+  useCartStore(
+    useShallow((s) => {
+      const lines = s.cart?.lines.edges ?? [];
+      let amount = 0;
+      for (const { node: line } of lines) {
+        const compareAt = line.merchandise.compareAtPrice;
+        if (!compareAt) continue;
+        const diff =
+          parseFloat(compareAt.amount) -
+          parseFloat(line.cost.amountPerQuantity.amount);
+        if (diff > 0) amount += diff * line.quantity;
+      }
+      return {
+        amount,
+        currencyCode: s.cart?.cost.totalAmount.currencyCode ?? "AED",
+      };
+    })
+  );
+
 export const useCheckoutUrl = () =>
   useCartStore((s) => s.cart?.checkoutUrl ?? null);

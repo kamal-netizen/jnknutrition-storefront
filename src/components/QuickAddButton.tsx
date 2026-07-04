@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingBag, Check, Loader2 } from "lucide-react";
+import { ShoppingBag, Check, Loader2, Plus } from "lucide-react";
 import type { Product } from "@/lib/queries/products";
 import { useCartStore } from "@/lib/store/cart";
 import Price from "@/components/Price";
 
 type Props = {
   product: Product;
+  /** "bar" = full-width slide-up bar (desktop hover); "icon" = compact round button (mobile). */
+  variant?: "bar" | "icon";
 };
 
-export default function QuickAddButton({ product }: Props) {
+export default function QuickAddButton({ product, variant = "bar" }: Props) {
   const variants = product.variants.edges.map((e) => e.node);
   const { addLine, isLoading } = useCartStore();
   const [justAdded, setJustAdded] = useState(false);
@@ -24,6 +26,26 @@ export default function QuickAddButton({ product }: Props) {
     await addLine(defaultVariant.id, 1);
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 2000);
+  }
+
+  if (variant === "icon") {
+    if (soldOut) return null;
+    return (
+      <button
+        onClick={(e) => { e.preventDefault(); handleAdd(); }}
+        disabled={isLoading || justAdded}
+        aria-label={`Add ${product.title} to cart`}
+        className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F9D20F] text-[#0B0F14] shadow-card hover:bg-[#E7BF00] active:scale-95 transition-all disabled:opacity-70 focus-visible:outline-2 focus-visible:outline-[#F9D20F] focus-visible:outline-offset-1"
+      >
+        {justAdded ? (
+          <Check className="w-4 h-4" />
+        ) : isLoading ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <Plus className="w-4 h-4" strokeWidth={2.5} />
+        )}
+      </button>
+    );
   }
 
   return (

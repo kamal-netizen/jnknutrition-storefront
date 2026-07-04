@@ -43,6 +43,21 @@ const APP_STORE_URL = "https://apps.apple.com/us/app/jnk-nutrition/id6743687638"
 const PLAY_STORE_URL =
   "https://play.google.com/store/apps/details?id=com.simicart.jnknutrition";
 
+const ANNOUNCEMENTS: React.ReactNode[] = [
+  <>
+    Free shipping on orders over{" "}
+    <span className="font-bold text-[#F9D20F]">AED 149</span>
+  </>,
+  <>
+    <span className="font-bold text-[#F9D20F]">Same-day dispatch</span> on
+    orders before cut-off
+  </>,
+  <>
+    <span className="font-bold text-[#F9D20F]">100% authentic</span> brands
+    &mdash; UAE stock
+  </>,
+];
+
 function getAppStoreUrl() {
   if (typeof navigator === "undefined") return PLAY_STORE_URL;
   const ua = navigator.userAgent || "";
@@ -104,26 +119,40 @@ export default function Header({
   const [searching, setSearching] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
+  const [announcement, setAnnouncement] = useState(0);
   const searchRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Rotate announcement-bar USP messages
+  useEffect(() => {
+    const id = setInterval(
+      () => setAnnouncement((i) => (i + 1) % ANNOUNCEMENTS.length),
+      4000
+    );
+    return () => clearInterval(id);
+  }, []);
+
   // Predictive search with debounce
   useEffect(() => {
-    if (!query.trim()) {
-      setResults(null);
-      setSearching(false);
-      return;
-    }
-    setSearching(true);
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(async () => {
-      try {
-        const data = await predictiveSearch(query);
-        setResults(data);
-      } finally {
-        setSearching(false);
-      }
-    }, 280);
+    const trimmed = query.trim();
+    debounceRef.current = setTimeout(
+      async () => {
+        if (!trimmed) {
+          setResults(null);
+          setSearching(false);
+          return;
+        }
+        setSearching(true);
+        try {
+          const data = await predictiveSearch(trimmed);
+          setResults(data);
+        } finally {
+          setSearching(false);
+        }
+      },
+      trimmed ? 280 : 0
+    );
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
@@ -156,9 +185,12 @@ export default function Header({
       {/* Announcement bar */}
       <div className="bg-[#082D4C] border-b border-[#0D3E66]">
         <div className="max-w-7xl mx-auto px-4 h-9 flex items-center justify-center gap-2">
-          <span className="text-[11px] sm:text-xs uppercase tracking-[0.15em] text-[#C7D0DA]">
-            Free shipping on orders over{" "}
-            <span className="font-bold text-[#F9D20F]">AED149</span>
+          <span
+            key={announcement}
+            className="text-[11px] sm:text-xs uppercase tracking-[0.15em] text-[#C7D0DA] animate-in fade-in duration-500"
+            aria-live="polite"
+          >
+            {ANNOUNCEMENTS[announcement]}
           </span>
           <span className="hidden md:inline h-4 w-px bg-[#3A5B7A]" aria-hidden="true" />
           <a

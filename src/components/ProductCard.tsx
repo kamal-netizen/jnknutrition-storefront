@@ -90,9 +90,14 @@ export default function ProductCard({ product }: Props) {
           )}
         </div>
 
-        {/* Quick Add — slides up from bottom of image on hover/focus */}
-        <div className="absolute bottom-0 inset-x-0 translate-y-full group-hover:translate-y-0 group-focus-within:translate-y-0 transition-transform duration-200 ease-out">
+        {/* Quick Add — desktop: slides up from bottom of image on hover/focus */}
+        <div className="hidden sm:block absolute bottom-0 inset-x-0 translate-y-full group-hover:translate-y-0 group-focus-within:translate-y-0 transition-transform duration-200 ease-out">
           <QuickAddButton product={product} />
+        </div>
+
+        {/* Quick Add — mobile/touch: always-visible compact button */}
+        <div className="sm:hidden absolute bottom-2 right-2 z-[3]">
+          <QuickAddButton product={product} variant="icon" />
         </div>
       </div>
 

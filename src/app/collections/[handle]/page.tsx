@@ -144,23 +144,23 @@ export default async function CollectionPage({ params, searchParams }: Props) {
               <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F] mb-3">
                 Availability
               </h3>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Link
                   href={`/collections/${handle}?sort=${encodeURIComponent(selectedSort.label)}`}
-                  className={`text-sm transition-colors ${
+                  className={`inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                     available !== "true"
-                      ? "text-[#0B0F14] font-semibold"
-                      : "text-[#64748B] hover:text-[#0B0F14]"
+                      ? "bg-[#F9D20F] border-[#F9D20F] text-[#0B0F14] font-semibold"
+                      : "bg-white border-[#E2E8F0] text-[#64748B] hover:border-[#F9D20F] hover:text-[#0B0F14]"
                   }`}
                 >
                   All Products
                 </Link>
                 <Link
                   href={`/collections/${handle}?sort=${encodeURIComponent(selectedSort.label)}&available=true`}
-                  className={`text-sm transition-colors ${
+                  className={`inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                     available === "true"
-                      ? "text-[#0B0F14] font-semibold"
-                      : "text-[#64748B] hover:text-[#0B0F14]"
+                      ? "bg-[#F9D20F] border-[#F9D20F] text-[#0B0F14] font-semibold"
+                      : "bg-white border-[#E2E8F0] text-[#64748B] hover:border-[#F9D20F] hover:text-[#0B0F14]"
                   }`}
                 >
                   In Stock Only
@@ -173,15 +173,15 @@ export default async function CollectionPage({ params, searchParams }: Props) {
             <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F] mb-3">
               Sort By
             </h3>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-wrap gap-2">
               {SORT_OPTIONS.map((option) => (
                 <Link
                   key={option.label}
                   href={`/collections/${handle}?sort=${encodeURIComponent(option.label)}${available === "true" ? "&available=true" : ""}`}
-                  className={`text-sm transition-colors ${
+                  className={`inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                     option.label === selectedSort.label
-                      ? "text-[#0B0F14] font-semibold"
-                      : "text-[#64748B] hover:text-[#0B0F14]"
+                      ? "bg-[#F9D20F] border-[#F9D20F] text-[#0B0F14] font-semibold"
+                      : "bg-white border-[#E2E8F0] text-[#64748B] hover:border-[#F9D20F] hover:text-[#0B0F14]"
                   }`}
                 >
                   {option.label}

@@ -36,9 +36,9 @@ export default function SectionStrip({
         </div>
         <Link
           href={href}
-          className="shrink-0 text-sm font-bold text-[#F9D20F] hover:text-[#E7BF00] uppercase tracking-wide"
+          className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-[#E2E8F0] bg-white px-4 py-2 text-xs font-bold uppercase tracking-wide text-[#0B0F14] hover:border-[#F9D20F] hover:bg-[#FFFBEB] transition-colors"
         >
-          View All →
+          View All <span aria-hidden="true">→</span>
         </Link>
       </div>
 

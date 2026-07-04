@@ -2,29 +2,42 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 
 type Banner = {
   src: string;
   alt: string;
+  href: string;
+  cta: string;
+  external?: boolean;
 };
 
 const BANNERS: Banner[] = [
   {
     src: "/banners/Top Brands. Best Prices. Fast Results.jpg",
     alt: "Top Brands. Best Prices. Fast Results.",
+    href: "/products",
+    cta: "Shop Now",
   },
   {
     src: "/banners/core chamos eaa banner for jnk.jpg",
     alt: "Core Champs EAA",
+    href: "/collections/core-champs",
+    cta: "Shop Core Champs",
   },
   {
     src: "/banners/fat burn banner 2.jpg",
     alt: "Fat Burn",
+    href: "/collections/fat-burner",
+    cta: "Shop Fat Burners",
   },
   {
     src: "/banners/DOWNLOAD APP.jpg",
     alt: "Download the App",
+    href: "https://play.google.com/store/apps/details?id=com.simicart.jnknutrition",
+    cta: "Get the App",
+    external: true,
   },
 ];
 
@@ -59,22 +72,46 @@ export default function HeroBanner() {
           className="flex h-full transition-transform duration-500 ease-out"
           style={{ transform: `translateX(-${index * 100}%)` }}
         >
-          {BANNERS.map((banner, i) => (
-            <div
-              key={banner.src}
-              className="relative h-full w-full shrink-0"
-              aria-hidden={i !== index}
-            >
-              <Image
-                src={banner.src}
-                alt={banner.alt}
-                fill
-                priority={i === 0}
-                sizes="100vw"
-                className="object-contain"
-              />
-            </div>
-          ))}
+          {BANNERS.map((banner, i) => {
+            const linkProps = banner.external
+              ? { target: "_blank", rel: "noopener noreferrer" }
+              : {};
+            return (
+              <div
+                key={banner.src}
+                className="relative h-full w-full shrink-0"
+                aria-hidden={i !== index}
+              >
+                <Link
+                  href={banner.href}
+                  tabIndex={i === index ? 0 : -1}
+                  aria-label={banner.alt}
+                  className="absolute inset-0"
+                  {...linkProps}
+                >
+                  <Image
+                    src={banner.src}
+                    alt={banner.alt}
+                    fill
+                    priority={i === 0}
+                    sizes="100vw"
+                    className="object-contain"
+                  />
+                </Link>
+                {/* CTA pill — hidden on very small screens where the banner is short */}
+                <Link
+                  href={banner.href}
+                  tabIndex={-1}
+                  aria-hidden="true"
+                  {...linkProps}
+                  className="hidden sm:inline-flex absolute bottom-6 left-6 lg:bottom-10 lg:left-10 items-center gap-2 rounded-full bg-[#F9D20F] px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-[#0B0F14] shadow-card hover:bg-[#E7BF00] hover:shadow-card-hover transition-all"
+                >
+                  {banner.cta}
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            );
+          })}
         </div>
       </div>
 

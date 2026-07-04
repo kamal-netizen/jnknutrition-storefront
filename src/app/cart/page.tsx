@@ -3,12 +3,13 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { X, Minus, Plus, ShoppingBag } from "lucide-react";
+import { X, Minus, Plus, ShoppingBag, Lock, ShieldCheck } from "lucide-react";
 import {
   useCartStore,
   useCartLines,
   useCartTotal,
   useCheckoutUrl,
+  useCartSavings,
 } from "@/lib/store/cart";
 import { Button } from "@/components/ui/button";
 import Price from "@/components/Price";
@@ -20,6 +21,7 @@ export default function CartPage() {
   const lines = useCartLines();
   const total = useCartTotal();
   const checkoutUrl = useCheckoutUrl();
+  const savings = useCartSavings();
 
   useEffect(() => {
     refreshCart();
@@ -135,6 +137,14 @@ export default function CartPage() {
               <h2 className="text-lg font-bold text-[#0B0F14] uppercase tracking-tight">
                 Order Summary
               </h2>
+              {savings.amount > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-[#16A34A] font-semibold">You save</span>
+                  <span className="text-[#16A34A] font-bold tabular-nums">
+                    {savings.currencyCode} {savings.amount.toFixed(2)}
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between text-sm">
                 <span className="text-[#64748B]">Subtotal</span>
                 {total && (
@@ -155,8 +165,18 @@ export default function CartPage() {
                 disabled={!checkoutUrl || isLoading}
                 className="w-full h-12 bg-[#F9D20F] text-[#0B0F14] font-bold hover:bg-[#E7BF00] uppercase tracking-wide"
               >
-                {isLoading ? "Updating..." : "Proceed to Checkout"}
+                {isLoading ? (
+                  "Updating..."
+                ) : (
+                  <>
+                    <Lock className="w-4 h-4" /> Secure Checkout
+                  </>
+                )}
               </Button>
+              <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#64748B]">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#16A34A]" aria-hidden="true" />
+                <span>Secure payments · Tamara · Visa · Mastercard · Apple Pay</span>
+              </div>
               <Button
                 variant="ghost"
                 render={<Link href="/products" />}

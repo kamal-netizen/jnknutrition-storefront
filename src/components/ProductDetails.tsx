@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import {
   Truck,
@@ -12,6 +12,7 @@ import {
 import type { Product, ProductVariant } from "@/lib/queries/products";
 import ProductGallery from "@/components/ProductGallery";
 import AddToCart from "@/components/AddToCart";
+import StickyAddToCart from "@/components/StickyAddToCart";
 import ProductCard from "@/components/ProductCard";
 import { PRODUCT_FAQ } from "@/lib/product-faq";
 
@@ -25,7 +26,14 @@ export default function ProductDetails({ product, recommendations, descriptionHt
   const images = product.images.edges.map((e) => e.node);
   const [activeIndex, setActiveIndex] = useState(0);
 
+  const variants = product.variants.edges.map((e) => e.node);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
+    variants.find((v) => v.availableForSale) ?? variants[0]
+  );
+  const buyBoxRef = useRef<HTMLDivElement>(null);
+
   function handleVariantChange(variant: ProductVariant) {
+    setSelectedVariant(variant);
     if (!variant.image) return;
     const idx = images.findIndex((img) => img.url === variant.image!.url);
     if (idx !== -1) setActiveIndex(idx);
@@ -79,7 +87,7 @@ export default function ProductDetails({ product, recommendations, descriptionHt
             {product.title}
           </h1>
 
-          <div className="mt-6">
+          <div ref={buyBoxRef} className="mt-6">
             <AddToCart product={product} onVariantChange={handleVariantChange} />
           </div>
 
@@ -111,42 +119,61 @@ export default function ProductDetails({ product, recommendations, descriptionHt
             </span>
           </div>
 
-          {descriptionHtml && (
-            <div className="mt-10 pt-8 border-t border-[#E2E8F0]">
-              <h2 className="text-sm font-bold uppercase tracking-widest text-[#F9D20F] mb-4">
-                Details
-              </h2>
-              <div
-                className="prose prose-sm max-w-none text-[#64748B] [&_a]:text-[#F9D20F] [&_strong]:text-[#0B0F14]"
-                dangerouslySetInnerHTML={{ __html: descriptionHtml }}
-              />
-            </div>
-          )}
+          <div className="mt-10 divide-y divide-[#E2E8F0] border-y border-[#E2E8F0]">
+            {descriptionHtml && (
+              <details className="group py-5" open>
+                <summary className="flex cursor-pointer items-center justify-between gap-4 list-none text-sm font-bold uppercase tracking-widest text-[#0B0F14]">
+                  Details
+                  <ChevronRight
+                    className="w-4 h-4 text-[#F9D20F] shrink-0 transition-transform group-open:rotate-90"
+                    aria-hidden="true"
+                  />
+                </summary>
+                <div
+                  className="mt-4 prose prose-sm max-w-none text-[#64748B] [&_a]:text-[#F9D20F] [&_strong]:text-[#0B0F14]"
+                  dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+                />
+              </details>
+            )}
 
-          {/* Shipping & returns */}
-          <div className="mt-10 pt-8 border-t border-[#E2E8F0]">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-[#F9D20F] mb-4">
-              Shipping &amp; Returns
-            </h2>
-            <div className="space-y-3 text-sm text-[#64748B]">
-              <p>
-                <span className="font-bold text-[#0B0F14]">Fast delivery:</span>{" "}
-                Same-day dispatch on orders placed before the daily cut-off, with
-                delivery across the UAE in 1–3 working days.
-              </p>
-              <p>
-                <span className="font-bold text-[#0B0F14]">Free shipping:</span>{" "}
-                Enjoy free delivery on every order over AED&nbsp;149.
-              </p>
-              <p>
-                <span className="font-bold text-[#0B0F14]">Easy returns:</span>{" "}
-                Unopened items can be returned within 7 days of delivery. Damaged
-                or incorrect items are replaced free of charge.
-              </p>
-            </div>
+            {/* Shipping & returns */}
+            <details className="group py-5">
+              <summary className="flex cursor-pointer items-center justify-between gap-4 list-none text-sm font-bold uppercase tracking-widest text-[#0B0F14]">
+                Shipping &amp; Returns
+                <ChevronRight
+                  className="w-4 h-4 text-[#F9D20F] shrink-0 transition-transform group-open:rotate-90"
+                  aria-hidden="true"
+                />
+              </summary>
+              <div className="mt-4 space-y-3 text-sm text-[#64748B]">
+                <p>
+                  <span className="font-bold text-[#0B0F14]">Fast delivery:</span>{" "}
+                  Same-day dispatch on orders placed before the daily cut-off, with
+                  delivery across the UAE in 1–3 working days.
+                </p>
+                <p>
+                  <span className="font-bold text-[#0B0F14]">Free shipping:</span>{" "}
+                  Enjoy free delivery on every order over AED&nbsp;149.
+                </p>
+                <p>
+                  <span className="font-bold text-[#0B0F14]">Easy returns:</span>{" "}
+                  Unopened items can be returned within 7 days of delivery. Damaged
+                  or incorrect items are replaced free of charge.
+                </p>
+              </div>
+            </details>
           </div>
         </div>
       </div>
+
+      {/* Sticky mobile add-to-cart */}
+      {selectedVariant && (
+        <StickyAddToCart
+          product={product}
+          selectedVariant={selectedVariant}
+          watchRef={buyBoxRef}
+        />
+      )}
 
       {/* FAQ */}
       <section className="mt-20" aria-labelledby="product-faq-heading">

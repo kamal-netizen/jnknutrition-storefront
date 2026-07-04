@@ -99,6 +99,15 @@
   }
 }
 
+/* ─── Bottom-fixed UI coordination ─────────────────────────── */
+/* When the sticky add-to-cart bar is visible on mobile, lift the
+   floating search pill above it so the two never overlap. */
+@media (max-width: 1023px) {
+  body[data-sticky-atc] .jnk-floating-search {
+    bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 4.5rem) !important;
+  }
+}
+
 /* ─── UAE flag gradient banner ─────────────────────────────── */
 .uae-flag-wrap {
   position: relative;

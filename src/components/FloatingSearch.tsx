@@ -184,7 +184,7 @@ export default function FloatingSearch() {
   return (
     <div
       ref={containerRef}
-      className={`fixed left-1/2 z-40 -translate-x-1/2 transition-all duration-300 ease-out ${
+      className={`jnk-floating-search fixed left-1/2 z-40 -translate-x-1/2 transition-all duration-300 ease-out ${
         hidden && !open
           ? "pointer-events-none translate-y-24 opacity-0"
           : "translate-y-0 opacity-100"

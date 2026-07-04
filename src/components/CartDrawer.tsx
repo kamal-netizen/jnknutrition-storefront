@@ -1,9 +1,9 @@
 "use client";
 
-import { X, Minus, Plus, ShoppingBag } from "lucide-react";
+import { X, Minus, Plus, ShoppingBag, Lock, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useCartStore, useCartLines, useCartTotal, useCheckoutUrl } from "@/lib/store/cart";
+import { useCartStore, useCartLines, useCartTotal, useCheckoutUrl, useCartSavings } from "@/lib/store/cart";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import Price from "@/components/Price";
@@ -15,6 +15,7 @@ export default function CartDrawer() {
   const lines = useCartLines();
   const total = useCartTotal();
   const checkoutUrl = useCheckoutUrl();
+  const savings = useCartSavings();
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
@@ -158,6 +159,14 @@ export default function CartDrawer() {
         {/* Footer */}
         {lines.length > 0 && (
           <div className="px-6 py-5 border-t border-[#E2E8F0] space-y-4">
+            {savings.amount > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-[#16A34A] font-semibold">You save</span>
+                <span className="text-[#16A34A] font-bold tabular-nums">
+                  {savings.currencyCode} {savings.amount.toFixed(2)}
+                </span>
+              </div>
+            )}
             <div className="flex justify-between text-sm">
               <span className="text-[#64748B]">Subtotal</span>
               {total && (
@@ -175,10 +184,20 @@ export default function CartDrawer() {
               render={<a href={checkoutUrl ?? "#"} />}
               nativeButton={false}
               disabled={!checkoutUrl || isLoading}
-              className="w-full h-12 bg-[#F9D20F] text-[#0B0F14] text-sm font-bold hover:bg-[#E7BF00] uppercase tracking-wide shadow-card"
+              className="w-full h-13 bg-[#F9D20F] text-[#0B0F14] text-sm font-bold hover:bg-[#E7BF00] uppercase tracking-wide shadow-card"
             >
-              {isLoading ? "Updating..." : "Checkout"}
+              {isLoading ? (
+                "Updating..."
+              ) : (
+                <>
+                  <Lock className="w-4 h-4" /> Secure Checkout
+                </>
+              )}
             </Button>
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#64748B]">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#16A34A]" aria-hidden="true" />
+              <span>Secure payments · Tamara · Visa · Mastercard · Apple Pay</span>
+            </div>
             <Button
               variant="ghost"
               size="sm"
