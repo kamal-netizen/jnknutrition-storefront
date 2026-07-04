@@ -149,3 +149,30 @@ export async function getCollections(first = 20): Promise<Collection[]> {
   );
   return data.collections.edges.map((e) => e.node);
 }
+
+/**
+ * Fetch one page of a collection's products (with cursor) for "Load More"
+ * pagination. Returns null when the collection does not exist.
+ */
+export async function getCollectionProductsPage(
+  handle: string,
+  options: {
+    first: number;
+    after?: string;
+    sortKey?: string;
+    reverse?: boolean;
+    filters?: ProductFilterInput[];
+  }
+): Promise<{
+  products: Product[];
+  endCursor: string | null;
+  hasNextPage: boolean;
+} | null> {
+  const collection = await getCollection(handle, options);
+  if (!collection) return null;
+  return {
+    products: collection.products.edges.map((e) => e.node),
+    endCursor: collection.products.pageInfo.endCursor,
+    hasNextPage: collection.products.pageInfo.hasNextPage,
+  };
+}

@@ -1,7 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getProducts } from "@/lib/queries/products";
-import ProductCard from "@/components/ProductCard";
+import { getProductsPage, getProductFacets } from "@/lib/queries/products";
+import ProductFilters, {
+  ProductFilterChips,
+  type FacetValue,
+} from "@/components/ProductFilters";
+import PaginatedProductGrid from "@/components/PaginatedProductGrid";
+import {
+  SORT_OPTIONS,
+  parseProductFilters,
+  resolveSort,
+  buildProductsQuery,
+} from "@/lib/product-filters";
+import { loadMoreProducts } from "./actions";
 
 export const metadata: Metadata = {
   title: "All Products",
@@ -10,75 +21,103 @@ export const metadata: Metadata = {
 
 export const revalidate = 300;
 
-const SORT_OPTIONS = [
-  { label: "Best Selling", sortKey: "BEST_SELLING", reverse: false },
-  { label: "Newest", sortKey: "CREATED_AT", reverse: true },
-  { label: "Price: Low to High", sortKey: "PRICE", reverse: false },
-  { label: "Price: High to Low", sortKey: "PRICE", reverse: true },
-  { label: "A–Z", sortKey: "TITLE", reverse: false },
-];
-
 type Props = {
-  searchParams: Promise<{ sort?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 export default async function ProductsPage({ searchParams }: Props) {
-  const { sort } = await searchParams;
-  const selected =
-    SORT_OPTIONS.find((o) => o.label === sort) ?? SORT_OPTIONS[0];
+  const sp = await searchParams;
+  const filters = parseProductFilters(sp);
+  const sort = resolveSort(SORT_OPTIONS, filters.sortLabel);
 
-  const data = await getProducts({
-    first: 48,
-    sortKey: selected.sortKey,
-    reverse: selected.reverse,
-  });
-  const products = data.edges.map((e) => e.node);
+  const [facets, page] = await Promise.all([
+    getProductFacets(),
+    getProductsPage({
+      first: 24,
+      sortKey: sort.sortKey,
+      reverse: sort.reverse,
+      query: buildProductsQuery(filters),
+      onSaleOnly: filters.onSale,
+    }),
+  ]);
+  const products = page.products;
+
+  const vendorFacets: FacetValue[] = facets.vendors.map((v) => ({
+    value: v,
+    label: v,
+  }));
+  const typeFacets: FacetValue[] = facets.productTypes.map((t) => ({
+    value: t,
+    label: t,
+  }));
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
-        <div>
-          <h1 className="text-4xl md:text-5xl font-black text-[#0B0F14] uppercase tracking-tight">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
+      {/* Header banner */}
+      <div className="relative mb-8 overflow-hidden rounded-3xl border border-[#E2E8F0] bg-gradient-to-br from-[#0B0F14] via-[#111826] to-[#0B0F14] px-6 py-10 md:px-12 md:py-14">
+        <div
+          className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-[#F9D20F] opacity-20 blur-3xl"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute -bottom-20 left-1/3 h-56 w-56 rounded-full bg-[#F9D20F] opacity-10 blur-3xl"
+          aria-hidden
+        />
+        <div className="relative">
+          <p className="text-[11px] font-black uppercase tracking-[0.25em] text-[#F9D20F]">
+            The Full Range
+          </p>
+          <h1 className="mt-2 text-4xl md:text-6xl font-black uppercase leading-none tracking-tight text-white">
             All Products
           </h1>
-          <p className="mt-2 text-[#64748B]">{products.length} products</p>
-        </div>
-
-        {/* Sort */}
-        <div className="flex flex-wrap gap-2">
-          {SORT_OPTIONS.map((option) => (
-            <Link
-              key={option.label}
-              href={`/products?sort=${encodeURIComponent(option.label)}`}
-              className={`px-3 py-1.5 rounded text-xs font-medium border transition-colors ${
-                option.label === selected.label
-                  ? "bg-[#F9D20F] text-[#0B0F14] border-[#F9D20F]"
-                  : "bg-[#F5F7FA] text-[#64748B] border-[#E2E8F0] hover:border-[#F9D20F]"
-              }`}
-            >
-              {option.label}
-            </Link>
-          ))}
+          <p className="mt-3 max-w-xl text-sm md:text-base text-[#94A3B8]">
+            Premium supplements from the brands athletes trust. Filter by brand,
+            category, price and more to find exactly what you need.
+          </p>
         </div>
       </div>
 
-      {/* Grid */}
-      {products.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+      <ProductFilterChips basePath="/products" filters={filters} />
+
+      <div className="flex flex-col lg:flex-row gap-8">
+        <ProductFilters
+          basePath="/products"
+          filters={filters}
+          sortOptions={SORT_OPTIONS}
+          vendors={vendorFacets}
+          productTypes={typeFacets}
+          resultCount={products.length}
+        />
+
+        {/* Grid */}
+        <div className="flex-1 min-w-0">
+          {products.length > 0 ? (
+            <PaginatedProductGrid
+              key={JSON.stringify(filters)}
+              initialProducts={products}
+              initialCursor={page.endCursor}
+              initialHasNextPage={page.hasNextPage}
+              loadMore={loadMoreProducts.bind(null, filters)}
+            />
+          ) : (
+            <div className="rounded-2xl border border-dashed border-[#CBD5E1] bg-[#F8FAFC] p-12 text-center">
+              <p className="text-lg font-bold text-[#0B0F14]">
+                No products match your filters
+              </p>
+              <p className="mt-2 text-sm text-[#64748B]">
+                Try removing a filter or{" "}
+                <Link
+                  href="/products"
+                  className="font-semibold text-[#0B0F14] underline underline-offset-2 hover:text-[#F9D20F]"
+                >
+                  clear all
+                </Link>
+                .
+              </p>
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-10 text-center">
-          <p className="text-[#64748B]">
-            No products found. Ensure products are published to the{" "}
-            <span className="text-[#F9D20F] font-semibold">Headless</span> sales
-            channel in Shopify admin.
-          </p>
-        </div>
-      )}
+      </div>
     </div>
   );
 }

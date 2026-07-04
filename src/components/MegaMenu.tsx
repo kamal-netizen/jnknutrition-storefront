@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState, useCallback, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
@@ -306,14 +307,24 @@ function BrandsTab({ onNavigate }: { onNavigate: () => void }) {
             key={brand.handle}
             href={collectionHref(brand.handle)}
             onClick={onNavigate}
-            className="flex h-20 items-center justify-center rounded-xl border border-[#ECECEC] bg-[#FAFAFA] px-4 text-center text-sm font-black uppercase tracking-tight text-[#64748B] transition-colors hover:border-[#F9D20F] hover:bg-white hover:text-[#0B0F14]"
+            className="flex h-20 items-center justify-center rounded-xl border border-[#ECECEC] bg-white px-4 text-center text-sm font-black uppercase tracking-tight text-[#64748B] transition-colors hover:border-[#F9D20F] hover:bg-white hover:text-[#0B0F14]"
           >
-            {brand.name}
+            {brand.logo ? (
+              <Image
+                src={brand.logo}
+                alt={brand.name}
+                width={160}
+                height={80}
+                className="max-h-12 w-auto object-contain"
+              />
+            ) : (
+              brand.name
+            )}
           </Link>
         ))}
       </div>
       <Link
-        href="/collections"
+        href="/brands"
         onClick={onNavigate}
         className="mt-5 inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-[0.12em] text-[#082D4C] hover:text-[#0B0F14]"
       >

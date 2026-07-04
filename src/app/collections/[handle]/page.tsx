@@ -1,16 +1,36 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCollection, getCollections } from "@/lib/queries/collections";
-import { getInStockDiscountedProducts } from "@/lib/queries/products";
+import {
+  getCollection,
+  getCollections,
+  type Filter,
+} from "@/lib/queries/collections";
+import { getInStockDiscountedProducts, type Product } from "@/lib/queries/products";
 import ProductCard from "@/components/ProductCard";
+import ProductFilters, {
+  ProductFilterChips,
+  type FacetValue,
+} from "@/components/ProductFilters";
+import PaginatedProductGrid from "@/components/PaginatedProductGrid";
+import {
+  COLLECTION_SORT_OPTIONS,
+  parseProductFilters,
+  resolveSort,
+  toShopifyFilters,
+  productIsDiscounted,
+} from "@/lib/product-filters";
 import { absoluteUrl } from "@/lib/seo";
+import { loadMoreCollection } from "./actions";
 
 export const revalidate = 300;
 
 // Collections that should ignore their curated (often stale) product list and
 // instead surface every in-stock, discounted product across the whole store.
 const DISCOUNT_ONLY_HANDLES = new Set(["super-saver"]);
+
+// Like DISCOUNT_ONLY but the full filter sidebar is still rendered and URL
+// filter params (brand, type, price, sort) are honoured post-fetch.
+const AGGREGATE_DEALS_HANDLES = new Set(["today-deals"]);
 
 // Map collection sort keys to the equivalent ProductSortKeys used store-wide.
 const PRODUCT_SORT_KEY: Record<string, string> = {
@@ -22,16 +42,64 @@ const PRODUCT_SORT_KEY: Record<string, string> = {
 
 type Props = {
   params: Promise<{ handle: string }>;
-  searchParams: Promise<{ sort?: string; available?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-const SORT_OPTIONS = [
-  { label: "Featured", sortKey: "COLLECTION_DEFAULT", reverse: false },
-  { label: "Best Selling", sortKey: "BEST_SELLING", reverse: false },
-  { label: "Newest", sortKey: "CREATED", reverse: true },
-  { label: "Price: Low to High", sortKey: "PRICE", reverse: false },
-  { label: "Price: High to Low", sortKey: "PRICE", reverse: true },
-];
+// Extract brand/category facet options (with live counts) from Shopify's
+// collection `filters` response.
+function extractFacets(filters: Filter[]): {
+  vendors: FacetValue[];
+  productTypes: FacetValue[];
+} {
+  const vendors: FacetValue[] = [];
+  const productTypes: FacetValue[] = [];
+  for (const facet of filters) {
+    for (const value of facet.values) {
+      let parsed: Record<string, unknown>;
+      try {
+        parsed = JSON.parse(value.input) as Record<string, unknown>;
+      } catch {
+        continue;
+      }
+      if (typeof parsed.productVendor === "string") {
+        vendors.push({
+          value: parsed.productVendor,
+          label: value.label,
+          count: value.count,
+        });
+      } else if (typeof parsed.productType === "string") {
+        productTypes.push({
+          value: parsed.productType,
+          label: value.label,
+          count: value.count,
+        });
+      }
+    }
+  }
+  return { vendors, productTypes };
+}
+
+/** Derive vendor facets with counts from an arbitrary product list. */
+function buildVendorFacets(products: Product[]): FacetValue[] {
+  const counts = new Map<string, number>();
+  for (const p of products) {
+    if (p.vendor) counts.set(p.vendor, (counts.get(p.vendor) ?? 0) + 1);
+  }
+  return Array.from(counts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([value, count]) => ({ value, label: value, count }));
+}
+
+/** Derive product-type facets with counts from an arbitrary product list. */
+function buildTypeFacets(products: Product[]): FacetValue[] {
+  const counts = new Map<string, number>();
+  for (const p of products) {
+    if (p.productType) counts.set(p.productType, (counts.get(p.productType) ?? 0) + 1);
+  }
+  return Array.from(counts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([value, count]) => ({ value, label: value, count }));
+}
 
 export async function generateStaticParams() {
   const collections = await getCollections(50);
@@ -70,33 +138,69 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CollectionPage({ params, searchParams }: Props) {
   const { handle } = await params;
-  const { sort, available } = await searchParams;
-
-  const selectedSort =
-    SORT_OPTIONS.find((o) => o.label === sort) ?? SORT_OPTIONS[0];
+  const sp = await searchParams;
+  const filters = parseProductFilters(sp);
+  const selectedSort = resolveSort(COLLECTION_SORT_OPTIONS, filters.sortLabel);
 
   const discountOnly = DISCOUNT_ONLY_HANDLES.has(handle);
-
-  const filters = available === "true" ? [{ available: true }] : undefined;
+  const isAggregateDeal = AGGREGATE_DEALS_HANDLES.has(handle);
 
   const collection = await getCollection(handle, {
-    first: 48,
+    // Aggregate-deal pages only need collection metadata (title/SEO), not products.
+    first: isAggregateDeal ? 1 : 48,
     sortKey: selectedSort.sortKey,
     reverse: selectedSort.reverse,
-    filters,
+    filters: (discountOnly || isAggregateDeal) ? undefined : toShopifyFilters(filters),
   });
 
   if (!collection) notFound();
 
-  // Deal collections aggregate live in-stock discounted products store-wide
-  // instead of relying on the (often stale) curated collection list.
-  const products = discountOnly
-    ? await getInStockDiscountedProducts({
-        max: 48,
-        sortKey: PRODUCT_SORT_KEY[selectedSort.sortKey] ?? "BEST_SELLING",
-        reverse: selectedSort.reverse,
-      })
-    : collection.products.edges.map((e) => e.node);
+  let products: Product[];
+  let vendors: FacetValue[];
+  let productTypes: FacetValue[];
+
+  if (discountOnly) {
+    // Store-wide discounted products — no filter sidebar.
+    products = await getInStockDiscountedProducts({
+      max: 48,
+      sortKey: PRODUCT_SORT_KEY[selectedSort.sortKey] ?? "BEST_SELLING",
+      reverse: selectedSort.reverse,
+    });
+    vendors = [];
+    productTypes = [];
+  } else if (isAggregateDeal) {
+    // Aggregate all in-stock discounted products store-wide, then apply URL
+    // filter params post-fetch so the filter sidebar remains fully functional.
+    const allDiscounted = await getInStockDiscountedProducts({
+      max: 200,
+      sortKey: PRODUCT_SORT_KEY[selectedSort.sortKey] ?? "BEST_SELLING",
+      reverse: selectedSort.reverse,
+    });
+    vendors = buildVendorFacets(allDiscounted);
+    productTypes = buildTypeFacets(allDiscounted);
+    products = allDiscounted;
+    if (filters.vendors.length) {
+      products = products.filter((p) => filters.vendors.includes(p.vendor));
+    }
+    if (filters.productTypes.length) {
+      products = products.filter((p) => filters.productTypes.includes(p.productType));
+    }
+    if (filters.price) {
+      products = products.filter((p) => {
+        const price = parseFloat(p.priceRange.minVariantPrice.amount);
+        if (filters.price!.min != null && price < filters.price!.min) return false;
+        if (filters.price!.max != null && price > filters.price!.max) return false;
+        return true;
+      });
+    }
+  } else {
+    products = collection.products.edges.map((e) => e.node);
+    // On-sale is not a native Shopify filter input — apply it post-fetch.
+    if (filters.onSale) {
+      products = products.filter(productIsDiscounted);
+    }
+    ({ vendors, productTypes } = extractFacets(collection.products.filters));
+  }
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -125,7 +229,7 @@ export default async function CollectionPage({ params, searchParams }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       {/* Header */}
-      <div className="mb-10">
+      <div className="mb-8">
         <h1 className="text-4xl md:text-5xl font-black text-[#0B0F14] uppercase tracking-tight">
           {collection.title}
         </h1>
@@ -136,73 +240,53 @@ export default async function CollectionPage({ params, searchParams }: Props) {
         )}
       </div>
 
+      {!discountOnly && (
+        <ProductFilterChips
+          basePath={`/collections/${handle}`}
+          filters={filters}
+        />
+      )}
+
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filter sidebar */}
-        <aside className="lg:w-56 shrink-0 space-y-6">
-          {!discountOnly && (
-            <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-5">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F] mb-3">
-                Availability
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                <Link
-                  href={`/collections/${handle}?sort=${encodeURIComponent(selectedSort.label)}`}
-                  className={`inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                    available !== "true"
-                      ? "bg-[#F9D20F] border-[#F9D20F] text-[#0B0F14] font-semibold"
-                      : "bg-white border-[#E2E8F0] text-[#64748B] hover:border-[#F9D20F] hover:text-[#0B0F14]"
-                  }`}
-                >
-                  All Products
-                </Link>
-                <Link
-                  href={`/collections/${handle}?sort=${encodeURIComponent(selectedSort.label)}&available=true`}
-                  className={`inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                    available === "true"
-                      ? "bg-[#F9D20F] border-[#F9D20F] text-[#0B0F14] font-semibold"
-                      : "bg-white border-[#E2E8F0] text-[#64748B] hover:border-[#F9D20F] hover:text-[#0B0F14]"
-                  }`}
-                >
-                  In Stock Only
-                </Link>
-              </div>
-            </div>
-          )}
-
-          <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-5">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F] mb-3">
-              Sort By
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {SORT_OPTIONS.map((option) => (
-                <Link
-                  key={option.label}
-                  href={`/collections/${handle}?sort=${encodeURIComponent(option.label)}${available === "true" ? "&available=true" : ""}`}
-                  className={`inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                    option.label === selectedSort.label
-                      ? "bg-[#F9D20F] border-[#F9D20F] text-[#0B0F14] font-semibold"
-                      : "bg-white border-[#E2E8F0] text-[#64748B] hover:border-[#F9D20F] hover:text-[#0B0F14]"
-                  }`}
-                >
-                  {option.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </aside>
+        {!discountOnly && (
+          <ProductFilters
+            basePath={`/collections/${handle}`}
+            filters={filters}
+            sortOptions={COLLECTION_SORT_OPTIONS}
+            vendors={vendors}
+            productTypes={productTypes}
+            resultCount={products.length}
+          />
+        )}
 
         {/* Product grid */}
-        <div className="flex-1">
-          <p className="text-sm text-[#64748B] mb-4">{products.length} products</p>
+        <div className="flex-1 min-w-0">
           {products.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            (discountOnly || isAggregateDeal) ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+                {products.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            ) : (
+              <PaginatedProductGrid
+                key={`${handle}-${JSON.stringify(filters)}`}
+                initialProducts={products}
+                initialCursor={collection.products.pageInfo.endCursor}
+                initialHasNextPage={collection.products.pageInfo.hasNextPage}
+                loadMore={loadMoreCollection.bind(null, handle, filters)}
+                gridClassName="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6"
+              />
+            )
           ) : (
-            <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-10 text-center">
-              <p className="text-[#64748B]">No products in this collection.</p>
+            <div className="rounded-2xl border border-dashed border-[#CBD5E1] bg-[#F8FAFC] p-12 text-center">
+              <p className="text-lg font-bold text-[#0B0F14]">
+                No products match your filters
+              </p>
+              <p className="mt-2 text-sm text-[#64748B]">
+                Try removing a filter to see more products.
+              </p>
             </div>
           )}
         </div>

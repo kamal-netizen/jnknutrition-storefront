@@ -62,93 +62,123 @@ export default function HeroBanner() {
 
   return (
     <section
-      className="relative bg-[#F8FAFC] overflow-hidden"
+      className="relative bg-gradient-to-b from-[#0B0F14] via-[#0B0F14] to-[#F8FAFC] px-3 pt-3 pb-6 sm:px-5 sm:pt-5 sm:pb-8"
       aria-roledescription="carousel"
       aria-label="Promotional banners"
     >
-      {/* Aspect-ratio track (matches banner ~3.41:1 so images are never cropped) */}
-      <div className="relative w-full aspect-[41/12]">
+      <div className="relative mx-auto max-w-7xl">
+        {/* Glow accents behind the frame */}
         <div
-          className="flex h-full transition-transform duration-500 ease-out"
-          style={{ transform: `translateX(-${index * 100}%)` }}
-        >
-          {BANNERS.map((banner, i) => {
-            const linkProps = banner.external
-              ? { target: "_blank", rel: "noopener noreferrer" }
-              : {};
-            return (
+          className="pointer-events-none absolute -left-10 top-6 h-40 w-40 rounded-full bg-[#F9D20F] opacity-30 blur-3xl"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute -right-8 bottom-4 h-48 w-48 rounded-full bg-[#F9D20F] opacity-20 blur-3xl"
+          aria-hidden
+        />
+
+        {/* Gradient frame */}
+        <div className="relative rounded-[1.75rem] bg-gradient-to-br from-[#F9D20F]/60 via-white/10 to-[#F9D20F]/30 p-[1.5px] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)]">
+          <div className="relative overflow-hidden rounded-[1.7rem] bg-[#0B0F14]">
+            {/* Aspect-ratio track (matches banner ~3.41:1 so images are never cropped) */}
+            <div className="relative w-full aspect-[41/12]">
               <div
-                key={banner.src}
-                className="relative h-full w-full shrink-0"
-                aria-hidden={i !== index}
+                className="flex h-full transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                style={{ transform: `translateX(-${index * 100}%)` }}
               >
-                <Link
-                  href={banner.href}
-                  tabIndex={i === index ? 0 : -1}
-                  aria-label={banner.alt}
-                  className="absolute inset-0"
-                  {...linkProps}
-                >
-                  <Image
-                    src={banner.src}
-                    alt={banner.alt}
-                    fill
-                    priority={i === 0}
-                    sizes="100vw"
-                    className="object-contain"
-                  />
-                </Link>
-                {/* CTA pill — hidden on very small screens where the banner is short */}
-                <Link
-                  href={banner.href}
-                  tabIndex={-1}
-                  aria-hidden="true"
-                  {...linkProps}
-                  className="hidden sm:inline-flex absolute bottom-6 left-6 lg:bottom-10 lg:left-10 items-center gap-2 rounded-full bg-[#F9D20F] px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-[#0B0F14] shadow-card hover:bg-[#E7BF00] hover:shadow-card-hover transition-all"
-                >
-                  {banner.cta}
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
+                {BANNERS.map((banner, i) => {
+                  const linkProps = banner.external
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {};
+                  return (
+                    <div
+                      key={banner.src}
+                      className={`relative h-full w-full shrink-0 ${
+                        i === index ? "hero-slide-active" : ""
+                      }`}
+                      aria-hidden={i !== index}
+                    >
+                      <Link
+                        href={banner.href}
+                        tabIndex={i === index ? 0 : -1}
+                        aria-label={banner.alt}
+                        className="absolute inset-0"
+                        {...linkProps}
+                      >
+                        <Image
+                          src={banner.src}
+                          alt={banner.alt}
+                          fill
+                          priority={i === 0}
+                          sizes="(max-width: 1280px) 100vw, 1280px"
+                          className="object-cover"
+                        />
+                      </Link>
+                      {/* Bottom gradient scrim for CTA legibility */}
+                      <div
+                        className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/45 to-transparent"
+                        aria-hidden
+                      />
+                      {/* Glass CTA pill */}
+                      <Link
+                        href={banner.href}
+                        tabIndex={-1}
+                        aria-hidden="true"
+                        {...linkProps}
+                        className="hidden sm:inline-flex absolute bottom-6 left-6 lg:bottom-10 lg:left-10 items-center gap-2 rounded-full border border-white/30 bg-white/15 px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-white shadow-lg backdrop-blur-md transition-all hover:border-[#F9D20F] hover:bg-[#F9D20F] hover:text-[#0B0F14]"
+                      >
+                        {banner.cta}
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
+            </div>
+
+            {/* Prev / Next — glass buttons */}
+            <button
+              type="button"
+              onClick={() => go(index - 1)}
+              aria-label="Previous banner"
+              className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-white/15 text-white backdrop-blur-md transition-all hover:border-[#F9D20F] hover:bg-[#F9D20F] hover:text-[#0B0F14] z-10"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => go(index + 1)}
+              aria-label="Next banner"
+              className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-white/15 text-white backdrop-blur-md transition-all hover:border-[#F9D20F] hover:bg-[#F9D20F] hover:text-[#0B0F14] z-10"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+
+            {/* Segmented progress indicators */}
+            <div className="absolute bottom-4 inset-x-0 flex items-center justify-center gap-2 z-10">
+              {BANNERS.map((banner, i) => (
+                <button
+                  key={banner.src}
+                  type="button"
+                  onClick={() => go(i)}
+                  aria-label={`Go to banner ${i + 1}`}
+                  aria-current={i === index}
+                  className={`h-1.5 overflow-hidden rounded-full bg-white/40 transition-all duration-300 ${
+                    i === index ? "w-10" : "w-4 hover:bg-white/70"
+                  }`}
+                >
+                  {i === index && (
+                    <span
+                      key={index}
+                      className="hero-progress-fill block h-full rounded-full bg-[#F9D20F]"
+                      style={{ animationDuration: `${INTERVAL}ms` }}
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
-
-      {/* Prev / Next */}
-      <button
-        type="button"
-        onClick={() => go(index - 1)}
-        aria-label="Previous banner"
-        className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 h-10 w-10 items-center justify-center rounded-full bg-white/80 border border-[#E2E8F0] text-[#0B0F14] hover:border-[#F9D20F] hover:text-[#F9D20F] transition-colors shadow-lg z-10"
-      >
-        <ChevronLeft className="h-5 w-5" />
-      </button>
-      <button
-        type="button"
-        onClick={() => go(index + 1)}
-        aria-label="Next banner"
-        className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 items-center justify-center rounded-full bg-white/80 border border-[#E2E8F0] text-[#0B0F14] hover:border-[#F9D20F] hover:text-[#F9D20F] transition-colors shadow-lg z-10"
-      >
-        <ChevronRight className="h-5 w-5" />
-      </button>
-
-      {/* Dots */}
-      <div className="absolute bottom-3 inset-x-0 flex items-center justify-center gap-2 z-10">
-        {BANNERS.map((banner, i) => (
-          <button
-            key={banner.src}
-            type="button"
-            onClick={() => go(i)}
-            aria-label={`Go to banner ${i + 1}`}
-            aria-current={i === index}
-            className={`h-2 rounded-full transition-all ${
-              i === index
-                ? "w-6 bg-[#F9D20F]"
-                : "w-2 bg-white/70 hover:bg-white"
-            }`}
-          />
-        ))}
       </div>
     </section>
   );

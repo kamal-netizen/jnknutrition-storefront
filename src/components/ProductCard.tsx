@@ -53,7 +53,7 @@ export default function ProductCard({ product }: Props) {
               alt={image.altText ?? product.title}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className={`object-cover transition-opacity duration-300${secondImage ? " group-hover:opacity-0" : ""}`}
+              className={`object-contain p-3 transition-opacity duration-300${secondImage ? " group-hover:opacity-0" : ""}`}
             />
             {secondImage && (
               <Image
@@ -61,7 +61,7 @@ export default function ProductCard({ product }: Props) {
                 alt={secondImage.altText ?? product.title}
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                className="object-contain p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               />
             )}
           </>

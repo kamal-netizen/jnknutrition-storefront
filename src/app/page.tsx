@@ -268,7 +268,7 @@ export default async function Home() {
               Shop by Brand
             </h2>
             <Link
-              href="/collections"
+              href="/brands"
               className="shrink-0 text-sm font-bold text-[#F9D20F] hover:text-[#E7BF00] uppercase tracking-wide"
             >
               All Brands →

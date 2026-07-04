@@ -202,3 +202,85 @@ export async function getProductRecommendations(
   }>(GET_PRODUCT_RECOMMENDATIONS, { productId });
   return data.productRecommendations.filter((p) => p.availableForSale);
 }
+
+// ─── Faceted browsing (All Products) ─────────────────────────────────────────
+
+export type ProductFacets = {
+  vendors: string[];
+  productTypes: string[];
+  priceMin: number;
+  priceMax: number;
+};
+
+/**
+ * Scan the in-stock catalog once to derive the universe of filter options
+ * (brands, product types, price bounds) shown on the All Products page.
+ * Values are guaranteed to match real product data so filter queries never
+ * return empty results.
+ */
+export async function getProductFacets(max = 250): Promise<ProductFacets> {
+  const vendors = new Set<string>();
+  const productTypes = new Set<string>();
+  let priceMin = Infinity;
+  let priceMax = 0;
+
+  let after: string | undefined;
+  let hasNextPage = true;
+  let scanned = 0;
+
+  while (hasNextPage && scanned < max) {
+    const conn = await getProducts({
+      first: 250,
+      after,
+      query: "available_for_sale:true",
+      sortKey: "TITLE",
+    });
+    for (const { node } of conn.edges) {
+      scanned++;
+      if (node.vendor) vendors.add(node.vendor);
+      if (node.productType) productTypes.add(node.productType);
+      const min = parseFloat(node.priceRange.minVariantPrice.amount);
+      const maxV = parseFloat(node.priceRange.maxVariantPrice.amount);
+      if (Number.isFinite(min)) priceMin = Math.min(priceMin, min);
+      if (Number.isFinite(maxV)) priceMax = Math.max(priceMax, maxV);
+    }
+    hasNextPage = conn.pageInfo.hasNextPage;
+    after = conn.pageInfo.endCursor ?? undefined;
+  }
+
+  return {
+    vendors: Array.from(vendors).sort((a, b) => a.localeCompare(b)),
+    productTypes: Array.from(productTypes).sort((a, b) => a.localeCompare(b)),
+    priceMin: Number.isFinite(priceMin) ? Math.floor(priceMin) : 0,
+    priceMax: priceMax > 0 ? Math.ceil(priceMax) : 0,
+  };
+}
+
+/**
+ * Fetch one page of products for the All Products grid applying an optional
+ * pre-built Shopify query string and (optionally) an on-sale post-filter.
+ * Returns the raw connection cursor so callers can paginate ("Load More").
+ */
+export async function getProductsPage(options: {
+  first: number;
+  after?: string;
+  sortKey: string;
+  reverse: boolean;
+  query?: string;
+  onSaleOnly?: boolean;
+}): Promise<{ products: Product[]; endCursor: string | null; hasNextPage: boolean }> {
+  const conn = await getProducts({
+    first: options.first,
+    after: options.after,
+    sortKey: options.sortKey,
+    reverse: options.reverse,
+    query: options.query,
+  });
+  let products = conn.edges.map((e) => e.node);
+  if (options.onSaleOnly) products = products.filter(isDiscounted);
+  return {
+    products,
+    endCursor: conn.pageInfo.endCursor,
+    hasNextPage: conn.pageInfo.hasNextPage,
+  };
+}

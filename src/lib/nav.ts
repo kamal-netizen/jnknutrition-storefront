@@ -7,6 +7,7 @@ import {
   Leaf,
   type LucideIcon,
 } from "lucide-react";
+import { BRAND_LOGOS } from "@/lib/brands";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -31,7 +32,7 @@ export type CategoryGroup = {
   items: MegaLink[];
 };
 
-export type BrandLink = { name: string; handle: string };
+export type BrandLink = { name: string; handle: string; logo?: string };
 
 export type FeaturedItem = {
   label: string;
@@ -205,14 +206,14 @@ export const CATEGORY_GROUPS: CategoryGroup[] = [
 // ─── Section 3: Brands ───────────────────────────────────────────────────────
 
 export const MEGA_BRANDS: BrandLink[] = [
-  { name: "Core Champs", handle: "core-champs" },
-  { name: "Muscle Rulz", handle: "muscle-rulz" },
-  { name: "ProScience", handle: "proscience" },
-  { name: "Muscletech", handle: "muscletech" },
-  { name: "RuleOne", handle: "ruleone" },
-  { name: "Dymatize", handle: "dymatize" },
-  { name: "Optimum Nutrition", handle: "optimum-nutrition" },
-  { name: "Redcon1", handle: "redcon1" },
+  { name: "Core Champs", handle: "core-champs", logo: BRAND_LOGOS["core-champs"] },
+  { name: "Muscle Rulz", handle: "muscle-rulz", logo: BRAND_LOGOS["muscle-rulz"] },
+  { name: "ProScience", handle: "proscience", logo: BRAND_LOGOS["proscience"] },
+  { name: "Muscletech", handle: "muscletech", logo: BRAND_LOGOS["muscletech"] },
+  { name: "RuleOne", handle: "ruleone", logo: BRAND_LOGOS["ruleone"] },
+  { name: "Dymatize", handle: "dymatize", logo: BRAND_LOGOS["dymatize"] },
+  { name: "Optimum Nutrition", handle: "optimum-nutrition", logo: BRAND_LOGOS["optimum-nutrition"] },
+  { name: "Redcon1", handle: "redcon1", logo: BRAND_LOGOS["redcon1"] },
 ];
 
 // ─── Section 4: Featured ─────────────────────────────────────────────────────
