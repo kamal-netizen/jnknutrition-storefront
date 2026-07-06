@@ -107,7 +107,7 @@
 /* Mobile (below md): floating search rides above the bottom nav. */
 @media (max-width: 767px) {
   .jnk-floating-search {
-    bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 4rem) !important;
+    bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 4.75rem) !important;
   }
   /* On product pages the sticky ATC bar replaces the bottom nav. */
   body[data-sticky-atc] .jnk-bottom-nav {

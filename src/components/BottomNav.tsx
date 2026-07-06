@@ -25,7 +25,7 @@ export default function BottomNav() {
   return (
     <nav
       className="jnk-bottom-nav md:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[#E2E8F0] bg-white/95 backdrop-blur-md shadow-[0_-4px_16px_rgba(11,15,20,0.06)]"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
       aria-label="Primary"
     >
       <div className="mx-auto flex max-w-lg items-stretch">
