@@ -353,18 +353,33 @@ function FeaturedTab({
             key={item.handle}
             href={collectionHref(item.handle)}
             onClick={onNavigate}
-            className="group relative flex h-40 flex-col justify-end overflow-hidden rounded-2xl border border-[#ECECEC] bg-[#082D4C] p-5"
+            className="group relative flex h-40 flex-col justify-end overflow-hidden rounded-2xl border border-white/10 bg-[#082D4C] p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#F9D20F] hover:shadow-[0_20px_44px_-20px_rgba(8,45,76,0.65)]"
           >
             {col?.image ? (
               <span
-                className="absolute inset-0 bg-cover bg-center opacity-40 transition-all duration-300 group-hover:opacity-50 group-hover:scale-105"
+                className="absolute inset-0 bg-cover bg-center opacity-45 transition-transform duration-500 group-hover:scale-105"
                 style={{ backgroundImage: `url(${col.image.url})` }}
               />
             ) : (
-              <span className="absolute inset-0 bg-gradient-to-br from-[#082D4C] to-[#0D3E66]" />
+              <span className="absolute inset-0 bg-gradient-to-br from-[#0A3B66] via-[#082D4C] to-[#061C31]" />
             )}
-            <span className="relative text-2xl">{item.emoji}</span>
-            <span className="relative mt-1 text-lg font-black uppercase tracking-tight text-white">
+
+            {/* Yellow glow accent */}
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-[#F9D20F]/15 blur-2xl transition-opacity duration-300 group-hover:bg-[#F9D20F]/25"
+            />
+            {/* Bottom scrim for text legibility */}
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#04182B] via-[#04182B]/55 to-transparent"
+            />
+
+            {/* Emoji chip */}
+            <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 text-xl ring-1 ring-white/15 backdrop-blur-sm transition-colors duration-300 group-hover:bg-[#F9D20F]/20 group-hover:ring-[#F9D20F]/40">
+              {item.emoji}
+            </span>
+            <span className="relative mt-2.5 text-lg font-black uppercase tracking-tight text-white">
               {item.label}
             </span>
             <span className="relative mt-1 inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-[0.15em] text-[#F9D20F]">

@@ -157,7 +157,14 @@ export default async function SearchPage({ searchParams }: Props) {
 
             {/* Facets */}
             {facets.map((facet) => {
-              const values = facet.values.filter((v) => v.count > 0);
+              // Dedupe by input — Shopify can return repeated facet values,
+              // which would otherwise produce duplicate React keys.
+              const seen = new Set<string>();
+              const values = facet.values.filter((v) => {
+                if (v.count <= 0 || seen.has(v.input)) return false;
+                seen.add(v.input);
+                return true;
+              });
               if (values.length === 0) return null;
               return (
                 <div
@@ -175,7 +182,7 @@ export default async function SearchPage({ searchParams }: Props) {
                         : [...selectedFilters, value.input];
                       return (
                         <Link
-                          key={value.id}
+                          key={value.input}
                           href={buildHref(
                             query,
                             selectedSort.label,

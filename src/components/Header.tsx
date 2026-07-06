@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useCartStore, useCartCount } from "@/lib/store/cart";
+import { useUIStore } from "@/lib/store/ui";
 import { predictiveSearch } from "@/lib/queries/search";
 import type { PredictiveSearchResults } from "@/lib/queries/search";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -111,13 +112,14 @@ export default function Header({
 }) {
   const cartCount = useCartCount();
   const { openCart } = useCartStore();
+  const mobileOpen = useUIStore((s) => s.menuOpen);
+  const setMobileOpen = useUIStore((s) => s.setMenuOpen);
   const router = useRouter();
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<PredictiveSearchResults | null>(null);
   const [searching, setSearching] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState(0);
   const searchRef = useRef<HTMLDivElement>(null);
@@ -447,7 +449,11 @@ export default function Header({
             </Sheet>
 
             {/* Logo */}
-            <Link href="/" className="md:mr-10 flex items-center" aria-label="JNK Nutrition home">
+            <Link
+              href="/"
+              className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 md:mr-10 flex items-center"
+              aria-label="JNK Nutrition home"
+            >
               <Image
                 src="/logo.svg"
                 alt="JNK Nutrition"
@@ -656,7 +662,7 @@ export default function Header({
               {/* Account */}
               <Link
                 href="/account"
-                className="text-[#64748B] hover:text-[#0B0F14] transition-colors"
+                className="hidden md:block text-[#64748B] hover:text-[#0B0F14] transition-colors"
                 aria-label="Account"
               >
                 <User className="w-5 h-5" />
@@ -665,7 +671,7 @@ export default function Header({
               {/* Cart */}
               <button
                 onClick={openCart}
-                className="relative text-[#64748B] hover:text-[#0B0F14] transition-colors"
+                className="relative hidden md:block text-[#64748B] hover:text-[#0B0F14] transition-colors"
                 aria-label={`Cart (${cartCount} items)`}
               >
                 <ShoppingBag className="w-5 h-5" />

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import BottomNav from "@/components/BottomNav";
 import FloatingSearch from "@/components/FloatingSearch";
 import { getCollections } from "@/lib/queries/collections";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, absoluteUrl } from "@/lib/seo";
@@ -90,7 +91,7 @@ export default async function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white">
+      <body className="min-h-full flex flex-col bg-white pb-[calc(3.5rem+env(safe-area-inset-bottom))] md:pb-0">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
@@ -102,6 +103,7 @@ export default async function RootLayout({
         <Header collections={collections} />
         <main className="flex-1">{children}</main>
         <Footer />
+        <BottomNav />
         <FloatingSearch />
       </body>
     </html>

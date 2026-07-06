@@ -8,6 +8,7 @@ import ScrollRow from "@/components/home/ScrollRow";
 import GoalCard, { GOALS } from "@/components/home/GoalCard";
 import BrandCard, { BRANDS } from "@/components/home/BrandCard";
 import HeroBanner from "@/components/home/HeroBanner";
+import SectionHeading from "@/components/home/SectionHeading";
 import UAEFlagBanner from "@/components/home/UAEFlagBanner";
 
 export const revalidate = 300;
@@ -79,8 +80,10 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero */}
-      <HeroBanner />
+      {/* Hero — carousel on desktop, hidden on mobile (category grid takes over) */}
+      <div className="hidden md:block">
+        <HeroBanner />
+      </div>
 
       {/* UAE flag gradient banner */}
       <div className="mt-6 sm:mt-8">
@@ -122,12 +125,11 @@ export default async function Home() {
       )}
 
       {/* ─── Shop your goal ───────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 w-full">
+      {/* order-first on mobile: acts as the hero in place of the carousel */}
+      <section className="order-first md:order-none max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 w-full">
         <div className="mb-8">
-          <h2 className="text-2xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight">
-            Shop by Category
-          </h2>
-          <p className="mt-2 text-[#64748B]">
+          <SectionHeading>Shop by Category</SectionHeading>
+          <p className="mt-3 text-[#64748B]">
             Find exactly what your training needs.
           </p>
         </div>
@@ -264,9 +266,7 @@ export default async function Home() {
       <section className="bg-[#F5F7FA] border-y border-[#E2E8F0]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 w-full">
           <div className="flex items-end justify-between mb-8">
-            <h2 className="text-2xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight">
-              Shop by Brand
-            </h2>
+            <SectionHeading>Shop by Brand</SectionHeading>
             <Link
               href="/brands"
               className="shrink-0 text-sm font-bold text-[#F9D20F] hover:text-[#E7BF00] uppercase tracking-wide"

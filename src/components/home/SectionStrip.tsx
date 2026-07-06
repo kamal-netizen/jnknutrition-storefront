@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Product } from "@/lib/queries/products";
 import ProductCard from "@/components/ProductCard";
 import ScrollRow from "@/components/home/ScrollRow";
+import SectionHeading from "@/components/home/SectionHeading";
 
 type Props = {
   title: string;
@@ -29,10 +30,8 @@ export default function SectionStrip({
     >
       <div className="flex items-end justify-between mb-8">
         <div>
-          <h2 className="text-2xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight">
-            {title}
-          </h2>
-          {subtitle && <p className="mt-2 text-[#64748B]">{subtitle}</p>}
+          <SectionHeading>{title}</SectionHeading>
+          {subtitle && <p className="mt-3 text-[#64748B]">{subtitle}</p>}
         </div>
         <Link
           href={href}

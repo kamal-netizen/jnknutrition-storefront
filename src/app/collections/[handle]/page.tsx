@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import Image from "next/image";
+import { ChevronRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import {
   getCollection,
   getCollections,
   type Filter,
 } from "@/lib/queries/collections";
-import { getInStockDiscountedProducts, type Product } from "@/lib/queries/products";
+import { getInStockDiscountedProducts, getProducts, type Product } from "@/lib/queries/products";
 import ProductCard from "@/components/ProductCard";
 import ProductFilters, {
   ProductFilterChips,
@@ -31,6 +34,14 @@ const DISCOUNT_ONLY_HANDLES = new Set(["super-saver"]);
 // Like DISCOUNT_ONLY but the full filter sidebar is still rendered and URL
 // filter params (brand, type, price, sort) are honoured post-fetch.
 const AGGREGATE_DEALS_HANDLES = new Set(["today-deals"]);
+
+// Collections that are empty in Shopify but correspond to a product type.
+// Products are fetched store-wide by productType and all filters still apply.
+// Value can be a single type string or an array of types (OR-joined in query).
+const TYPE_COLLECTION_MAP: Record<string, string | string[]> = {
+  "fat-burner": "FAT BURNER",
+  "weight-loss": ["FAT BURNER", "WEIGHT LOSS", "L-CARNITINE", "CLA", "KETO"],
+};
 
 // Map collection sort keys to the equivalent ProductSortKeys used store-wide.
 const PRODUCT_SORT_KEY: Record<string, string> = {
@@ -144,13 +155,14 @@ export default async function CollectionPage({ params, searchParams }: Props) {
 
   const discountOnly = DISCOUNT_ONLY_HANDLES.has(handle);
   const isAggregateDeal = AGGREGATE_DEALS_HANDLES.has(handle);
+  const isTypeCollection = handle in TYPE_COLLECTION_MAP;
 
   const collection = await getCollection(handle, {
-    // Aggregate-deal pages only need collection metadata (title/SEO), not products.
-    first: isAggregateDeal ? 1 : 48,
+    // Type/deal pages only need metadata; skip the product list fetch.
+    first: (isAggregateDeal || isTypeCollection) ? 1 : 48,
     sortKey: selectedSort.sortKey,
     reverse: selectedSort.reverse,
-    filters: (discountOnly || isAggregateDeal) ? undefined : toShopifyFilters(filters),
+    filters: (discountOnly || isAggregateDeal || isTypeCollection) ? undefined : toShopifyFilters(filters),
   });
 
   if (!collection) notFound();
@@ -193,6 +205,47 @@ export default async function CollectionPage({ params, searchParams }: Props) {
         return true;
       });
     }
+  } else if (isTypeCollection) {
+    // Fetch all products of the mapped type(s) store-wide, compute facets from
+    // the full set, then apply URL filter params post-fetch.
+    const typeEntry = TYPE_COLLECTION_MAP[handle];
+    const types = Array.isArray(typeEntry) ? typeEntry : [typeEntry];
+    const typeQuery =
+      types.length === 1
+        ? `product_type:'${types[0]}'`
+        : `(${types.map((t) => `product_type:'${t}'`).join(" OR ")})`;
+    const sortKey = PRODUCT_SORT_KEY[selectedSort.sortKey] ?? "BEST_SELLING";
+    const conn = await getProducts({
+      first: 250,
+      sortKey,
+      reverse: selectedSort.reverse,
+      query: typeQuery,
+    });
+    const allTypeProducts = conn.edges.map((e) => e.node);
+    vendors = buildVendorFacets(allTypeProducts.filter((p) => p.availableForSale));
+    // Show category facet only when the collection spans multiple product types.
+    productTypes = types.length > 1 ? buildTypeFacets(allTypeProducts.filter((p) => p.availableForSale)) : [];
+    products = allTypeProducts;
+    if (!filters.includeSoldOut) {
+      products = products.filter((p) => p.availableForSale);
+    }
+    if (filters.vendors.length) {
+      products = products.filter((p) => filters.vendors.includes(p.vendor));
+    }
+    if (filters.productTypes.length) {
+      products = products.filter((p) => filters.productTypes.includes(p.productType));
+    }
+    if (filters.price) {
+      products = products.filter((p) => {
+        const price = parseFloat(p.priceRange.minVariantPrice.amount);
+        if (filters.price!.min != null && price < filters.price!.min) return false;
+        if (filters.price!.max != null && price > filters.price!.max) return false;
+        return true;
+      });
+    }
+    if (filters.onSale) {
+      products = products.filter(productIsDiscounted);
+    }
   } else {
     products = collection.products.edges.map((e) => e.node);
     // On-sale is not a native Shopify filter input — apply it post-fetch.
@@ -228,16 +281,62 @@ export default async function CollectionPage({ params, searchParams }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl md:text-5xl font-black text-[#0B0F14] uppercase tracking-tight">
-          {collection.title}
-        </h1>
-        {collection.description && (
-          <p className="mt-3 text-[#64748B] max-w-2xl">
-            {collection.description}
-          </p>
+      {/* Hero */}
+      <div className="relative mb-8 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0A3B66] via-[#082D4C] to-[#061C31] px-6 py-10 sm:px-10 sm:py-12">
+        {/* Collection image (when available) */}
+        {collection.image && (
+          <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-2/5 md:block" aria-hidden="true">
+            <Image
+              src={collection.image.url}
+              alt=""
+              fill
+              sizes="40vw"
+              className="object-cover opacity-30"
+            />
+            <span className="absolute inset-0 bg-gradient-to-r from-[#082D4C] via-[#082D4C]/70 to-transparent" />
+          </div>
         )}
+
+        {/* Glow accents */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-[#F9D20F]/15 blur-3xl"
+        />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-16 bottom-0 h-56 w-56 rounded-full bg-[#0D3E66]/50 blur-3xl"
+        />
+
+        <div className="relative">
+          {/* Breadcrumb */}
+          <nav
+            aria-label="Breadcrumb"
+            className="mb-4 flex flex-wrap items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-white/60"
+          >
+            <Link href="/" className="transition-colors hover:text-[#F9D20F]">
+              Home
+            </Link>
+            <ChevronRight className="h-3 w-3" aria-hidden="true" />
+            <Link href="/collections" className="transition-colors hover:text-[#F9D20F]">
+              Collections
+            </Link>
+            <ChevronRight className="h-3 w-3" aria-hidden="true" />
+            <span className="text-white/90">{collection.title}</span>
+          </nav>
+
+          <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tight text-white">
+            {collection.title}
+          </h1>
+          <span
+            aria-hidden="true"
+            className="mt-4 block h-1 w-14 rounded-full bg-gradient-to-r from-[#F9D20F] to-[#F9D20F]/30"
+          />
+          {collection.description && (
+            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/70 line-clamp-3">
+              {collection.description}
+            </p>
+          )}
+        </div>
       </div>
 
       {!discountOnly && (
@@ -263,7 +362,7 @@ export default async function CollectionPage({ params, searchParams }: Props) {
         {/* Product grid */}
         <div className="flex-1 min-w-0">
           {products.length > 0 ? (
-            (discountOnly || isAggregateDeal) ? (
+            (discountOnly || isAggregateDeal || isTypeCollection) ? (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                 {products.map((product) => (
                   <ProductCard key={product.id} product={product} />

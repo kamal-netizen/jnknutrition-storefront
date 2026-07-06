@@ -43,7 +43,7 @@ export default function ProductCard({ product }: Props) {
   const a11yLabel = `${product.title}${product.vendor ? `, by ${product.vendor}` : ""}${isOnSale ? `, ${discountPercent}% off` : ""}, ${priceStr}`;
 
   return (
-    <div className="group relative rounded-2xl bg-white border border-[#E2E8F0] shadow-card hover:border-[#F9D20F] hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 focus-within:ring-2 focus-within:ring-[#F9D20F] focus-within:ring-offset-2 focus-within:ring-offset-white">
+    <div className="group relative flex h-full flex-col rounded-2xl bg-white border border-[#E2E8F0] shadow-card hover:border-[#F9D20F] hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 focus-within:ring-2 focus-within:ring-[#F9D20F] focus-within:ring-offset-2 focus-within:ring-offset-white">
       {/* Image layer — z-[2] sits above the stretched link (z-[1]) */}
       <div className="relative z-[2] aspect-square bg-[#FAFBFC] overflow-hidden rounded-t-2xl">
         {image ? (
@@ -102,7 +102,7 @@ export default function ProductCard({ product }: Props) {
       </div>
 
       {/* Details */}
-      <div className="p-4">
+      <div className="flex flex-1 flex-col p-4">
         {product.vendor && (
           <p className="text-[10px] uppercase tracking-widest text-[#64748B] mb-1 truncate" aria-hidden="true">
             {product.vendor}
@@ -111,7 +111,7 @@ export default function ProductCard({ product }: Props) {
         <h3 className="text-sm font-bold text-[#0B0F14] leading-tight line-clamp-2 mb-2">
           {product.title}
         </h3>
-        <div className="flex items-baseline gap-1.5 flex-wrap">
+        <div className="mt-auto flex items-baseline gap-1.5 flex-wrap">
           <Price
             amount={minPrice.amount}
             currencyCode={minPrice.currencyCode}

@@ -62,24 +62,14 @@ export default function HeroBanner() {
 
   return (
     <section
-      className="relative bg-gradient-to-b from-[#0B0F14] via-[#0B0F14] to-[#F8FAFC] px-3 pt-3 pb-6 sm:px-5 sm:pt-5 sm:pb-8"
+      className="relative bg-white px-4 pt-6 pb-8 sm:px-6 lg:px-8"
       aria-roledescription="carousel"
       aria-label="Promotional banners"
     >
       <div className="relative mx-auto max-w-7xl">
-        {/* Glow accents behind the frame */}
-        <div
-          className="pointer-events-none absolute -left-10 top-6 h-40 w-40 rounded-full bg-[#F9D20F] opacity-30 blur-3xl"
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute -right-8 bottom-4 h-48 w-48 rounded-full bg-[#F9D20F] opacity-20 blur-3xl"
-          aria-hidden
-        />
-
-        {/* Gradient frame */}
-        <div className="relative rounded-[1.75rem] bg-gradient-to-br from-[#F9D20F]/60 via-white/10 to-[#F9D20F]/30 p-[1.5px] shadow-[0_30px_60px_-20px_rgba(0,0,0,0.55)]">
-          <div className="relative overflow-hidden rounded-[1.7rem] bg-[#0B0F14]">
+        {/* Clean bordered frame */}
+        <div className="relative rounded-2xl border border-[#E7ECF2] p-1 shadow-[0_12px_32px_-16px_rgba(11,15,20,0.25)]">
+          <div className="relative overflow-hidden rounded-xl bg-[#0B0F14]">
             {/* Aspect-ratio track (matches banner ~3.41:1 so images are never cropped) */}
             <div className="relative w-full aspect-[41/12]">
               <div
