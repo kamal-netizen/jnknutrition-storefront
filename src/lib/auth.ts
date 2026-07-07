@@ -26,19 +26,29 @@ export async function getSession(): Promise<CustomerSession | null> {
 
 export async function setSession(session: CustomerSession): Promise<void> {
   const store = await cookies();
-  store.set(SESSION_COOKIE, JSON.stringify(session), {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    // Refresh tokens outlive access tokens; keep the cookie for 30 days.
-    maxAge: 60 * 60 * 24 * 30,
-  });
+  try {
+    store.set(SESSION_COOKIE, JSON.stringify(session), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      // Refresh tokens outlive access tokens; keep the cookie for 30 days.
+      maxAge: 60 * 60 * 24 * 30,
+    });
+  } catch {
+    // Cookies can't be mutated during a Server Component render. The caller
+    // still receives the fresh token for the current request; it will be
+    // persisted on the next Server Action or Route Handler invocation.
+  }
 }
 
 export async function clearSession(): Promise<void> {
   const store = await cookies();
-  store.delete(SESSION_COOKIE);
+  try {
+    store.delete(SESSION_COOKIE);
+  } catch {
+    // See setSession: cookie mutation is a no-op during render.
+  }
 }
 
 /**
