@@ -104,17 +104,14 @@
    are both fixed to the bottom. Keep the floating search pill above whichever
    is present, and never stack the nav under the ATC bar. */
 
-/* Mobile (below md): floating search rides above the bottom nav. */
+/* Mobile (below md): hide floating search entirely. */
 @media (max-width: 767px) {
   .jnk-floating-search {
-    bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 4.75rem) !important;
+    display: none !important;
   }
   /* On product pages the sticky ATC bar replaces the bottom nav. */
   body[data-sticky-atc] .jnk-bottom-nav {
     display: none;
-  }
-  body[data-sticky-atc] .jnk-floating-search {
-    bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 4.5rem) !important;
   }
 }
 

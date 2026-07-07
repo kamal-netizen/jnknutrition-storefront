@@ -7,6 +7,7 @@ import BottomNav from "@/components/BottomNav";
 import FloatingSearch from "@/components/FloatingSearch";
 import { getCollections } from "@/lib/queries/collections";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, absoluteUrl } from "@/lib/seo";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -26,6 +27,9 @@ export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
   metadataBase: new URL(SITE_URL),
   applicationName: SITE_NAME,
+  icons: {
+    icon: "/favicon.svg",
+  },
   alternates: {
     canonical: "/",
   },
@@ -105,6 +109,7 @@ export default async function RootLayout({
         <Footer />
         <BottomNav />
         <FloatingSearch />
+        <WhatsAppButton />
       </body>
     </html>
   );
