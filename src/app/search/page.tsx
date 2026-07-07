@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Check } from "lucide-react";
 import { searchProducts } from "@/lib/queries/search";
 import type { ProductFilterInput } from "@/lib/queries/collections";
 import SearchGrid from "@/components/SearchGrid";
@@ -70,8 +71,8 @@ export default async function SearchPage({ searchParams }: Props) {
   const hasActiveFilters = selectedFilters.length > 0;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-      <h1 className="text-3xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
+      <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight">
         {query ? (
           <>
             Search: <span className="text-[#F9D20F]">{query}</span>
@@ -94,7 +95,7 @@ export default async function SearchPage({ searchParams }: Props) {
           </p>
         </div>
       ) : (
-        <div className="mt-10 flex flex-col lg:flex-row gap-8">
+        <div className="mt-6 lg:mt-10 flex flex-col lg:flex-row gap-8">
           <SearchFilters
             query={query}
             sortLabel={selectedSort.label}
@@ -110,20 +111,32 @@ export default async function SearchPage({ searchParams }: Props) {
               <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F] mb-3">
                 Sort By
               </h3>
-              <div className="flex flex-col gap-2">
-                {SORT_OPTIONS.map((option) => (
-                  <Link
-                    key={option.label}
-                    href={buildHref(query, option.label, selectedFilters)}
-                    className={`text-sm transition-colors ${
-                      option.label === selectedSort.label
-                        ? "text-[#0B0F14] font-semibold"
-                        : "text-[#64748B] hover:text-[#0B0F14]"
-                    }`}
-                  >
-                    {option.label}
-                  </Link>
-                ))}
+              <div className="flex flex-col gap-1">
+                {SORT_OPTIONS.map((option) => {
+                  const isSelected = option.label === selectedSort.label;
+                  return (
+                    <Link
+                      key={option.label}
+                      href={buildHref(query, option.label, selectedFilters)}
+                      className={`flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm transition-colors ${
+                        isSelected
+                          ? "bg-white font-semibold text-[#0B0F14]"
+                          : "text-[#64748B] hover:text-[#0B0F14]"
+                      }`}
+                    >
+                      <span
+                        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
+                          isSelected ? "border-[#F9D20F]" : "border-[#CBD5E1]"
+                        }`}
+                      >
+                        {isSelected && (
+                          <span className="h-2 w-2 rounded-full bg-[#F9D20F]" />
+                        )}
+                      </span>
+                      {option.label}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
 
@@ -183,7 +196,7 @@ export default async function SearchPage({ searchParams }: Props) {
                   <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F] mb-3">
                     {facet.label}
                   </h3>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-0.5">
                     {values.map((value) => {
                       const isSelected = selectedFilters.includes(value.input);
                       const nextFilters = isSelected
@@ -197,14 +210,31 @@ export default async function SearchPage({ searchParams }: Props) {
                             selectedSort.label,
                             nextFilters
                           )}
-                          className={`flex items-center justify-between text-sm transition-colors ${
-                            isSelected
-                              ? "text-[#0B0F14] font-semibold"
-                              : "text-[#64748B] hover:text-[#0B0F14]"
-                          }`}
+                          className="group flex items-center justify-between gap-2 py-1.5 text-sm"
                         >
-                          <span>{value.label}</span>
-                          <span className="text-xs text-[#94A3B8]">
+                          <span className="flex min-w-0 items-center gap-2.5">
+                            <span
+                              className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
+                                isSelected
+                                  ? "border-[#F9D20F] bg-[#F9D20F] text-[#0B0F14]"
+                                  : "border-[#CBD5E1] bg-white group-hover:border-[#F9D20F]"
+                              }`}
+                            >
+                              {isSelected && (
+                                <Check className="h-3 w-3" strokeWidth={3} />
+                              )}
+                            </span>
+                            <span
+                              className={`truncate transition-colors ${
+                                isSelected
+                                  ? "font-semibold text-[#0B0F14]"
+                                  : "text-[#475569] group-hover:text-[#0B0F14]"
+                              }`}
+                            >
+                              {value.label}
+                            </span>
+                          </span>
+                          <span className="shrink-0 text-xs text-[#94A3B8]">
                             {value.count}
                           </span>
                         </Link>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Filter, X } from "lucide-react";
+import { Filter, X, Check } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -58,9 +58,9 @@ export default function SearchFilters({
   );
 
   return (
-    <div className="lg:hidden mt-6 mb-4 flex items-center justify-between gap-3">
+    <div className="lg:hidden mb-5 flex items-center gap-3">
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger className="inline-flex items-center gap-2 rounded-full border-2 border-[#0B0F14] bg-white px-4 py-2 text-sm font-bold uppercase tracking-wide text-[#0B0F14] cursor-pointer">
+        <SheetTrigger className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border-2 border-[#0B0F14] bg-white px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-[#0B0F14] cursor-pointer transition-colors active:bg-[#0B0F14] active:text-white">
           <Filter className="h-4 w-4" />
           Filters & Sort
           {activeFilters > 0 && (
@@ -82,7 +82,7 @@ export default function SearchFilters({
               <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F] mb-3">
                 Sort By
               </h3>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1">
                 {SORT_OPTIONS.map((option) => {
                   const href = buildHref(query, option.label, selectedFilters);
                   const isSelected = option.label === sortLabel;
@@ -91,12 +91,21 @@ export default function SearchFilters({
                       key={option.label}
                       href={href}
                       onClick={() => setOpen(false)}
-                      className={`text-sm transition-colors ${
+                      className={`flex items-center gap-2.5 rounded-md px-2 py-2 text-sm transition-colors ${
                         isSelected
-                          ? "text-[#0B0F14] font-semibold"
+                          ? "bg-white font-semibold text-[#0B0F14]"
                           : "text-[#64748B] hover:text-[#0B0F14]"
                       }`}
                     >
+                      <span
+                        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
+                          isSelected ? "border-[#F9D20F]" : "border-[#CBD5E1]"
+                        }`}
+                      >
+                        {isSelected && (
+                          <span className="h-2 w-2 rounded-full bg-[#F9D20F]" />
+                        )}
+                      </span>
                       {option.label}
                     </Link>
                   );
@@ -153,7 +162,7 @@ export default function SearchFilters({
                   <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F] mb-3">
                     {facet.label}
                   </h3>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-0.5">
                     {values.map((value) => {
                       const isSelected = selectedFilters.includes(value.input);
                       const nextFilters = isSelected
@@ -165,14 +174,33 @@ export default function SearchFilters({
                           key={value.input}
                           href={buildHref(query, sortLabel, nextFilters)}
                           onClick={() => setOpen(false)}
-                          className={`flex items-center justify-between text-sm transition-colors ${
-                            isSelected
-                              ? "text-[#0B0F14] font-semibold"
-                              : "text-[#64748B] hover:text-[#0B0F14]"
-                          }`}
+                          className="group flex items-center justify-between gap-2 py-1.5 text-sm"
                         >
-                          <span>{value.label}</span>
-                          <span className="text-xs text-[#94A3B8]">{value.count}</span>
+                          <span className="flex min-w-0 items-center gap-2.5">
+                            <span
+                              className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
+                                isSelected
+                                  ? "border-[#F9D20F] bg-[#F9D20F] text-[#0B0F14]"
+                                  : "border-[#CBD5E1] bg-white group-hover:border-[#F9D20F]"
+                              }`}
+                            >
+                              {isSelected && (
+                                <Check className="h-3 w-3" strokeWidth={3} />
+                              )}
+                            </span>
+                            <span
+                              className={`truncate transition-colors ${
+                                isSelected
+                                  ? "font-semibold text-[#0B0F14]"
+                                  : "text-[#475569] group-hover:text-[#0B0F14]"
+                              }`}
+                            >
+                              {value.label}
+                            </span>
+                          </span>
+                          <span className="shrink-0 text-xs text-[#94A3B8]">
+                            {value.count}
+                          </span>
                         </Link>
                       );
                     })}
@@ -184,7 +212,9 @@ export default function SearchFilters({
         </SheetContent>
       </Sheet>
 
-      <span className="text-sm text-[#64748B]">{resultCount} results</span>
+      <span className="shrink-0 whitespace-nowrap text-sm text-[#64748B]">
+        {resultCount} results
+      </span>
     </div>
   );
 }
