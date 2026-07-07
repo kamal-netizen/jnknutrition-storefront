@@ -3,6 +3,7 @@ import Link from "next/link";
 import { searchProducts } from "@/lib/queries/search";
 import type { ProductFilterInput } from "@/lib/queries/collections";
 import SearchGrid from "@/components/SearchGrid";
+import SearchFilters from "@/components/SearchFilters";
 import { SEARCH_PAGE_SIZE, SORT_OPTIONS } from "./constants";
 
 export const metadata: Metadata = {
@@ -94,8 +95,16 @@ export default async function SearchPage({ searchParams }: Props) {
         </div>
       ) : (
         <div className="mt-10 flex flex-col lg:flex-row gap-8">
+          <SearchFilters
+            query={query}
+            sortLabel={selectedSort.label}
+            selectedFilters={selectedFilters}
+            facets={facets}
+            resultCount={results?.totalCount ?? 0}
+          />
+
           {/* Filter / sort sidebar */}
-          <aside className="lg:w-56 shrink-0 space-y-6">
+          <aside className="hidden lg:block lg:w-56 shrink-0 space-y-6">
             {/* Sort */}
             <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-5">
               <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F] mb-3">
@@ -208,7 +217,7 @@ export default async function SearchPage({ searchParams }: Props) {
           </aside>
 
           {/* Product grid */}
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             {products.length > 0 ? (
               <SearchGrid
                 key={`${query}|${selectedSort.label}|${selectedFilters.join(",")}`}
