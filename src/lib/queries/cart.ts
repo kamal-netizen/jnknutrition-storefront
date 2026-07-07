@@ -5,21 +5,24 @@ import { storefrontFetch } from "@/lib/shopify";
 /**
  * Shopify's checkoutUrl uses the store's primary domain (www.jnknutrition.com),
  * which now points to this headless Next.js app instead of Shopify's checkout
- * servers. We rewrite the host to the myshopify domain so the browser navigates
- * directly to Shopify's checkout infrastructure on the first hop.
+ * servers — so navigating there 404s.
  *
- * Shopify will still redirect back to the primary domain once (to set session
- * cookies), at which point our custom not-found page catches the request and
- * shows a branded checkout-unavailable message. The long-term fix is to add a
- * dedicated checkout subdomain (e.g. checkout.jnknutrition.com) in Shopify
- * Admin → Settings → Domains, with a CNAME pointing to Shopify's servers.
+ * We rewrite the host to a domain that actually resolves to Shopify's checkout
+ * infrastructure. Preferred target is the dedicated checkout subdomain
+ * (NEXT_PUBLIC_CHECKOUT_DOMAIN, e.g. checkout.jnknutrition.com) which must be
+ * connected in Shopify Admin → Settings → Domains AND set as the *primary*
+ * domain (a CNAME to shops.myshopify.com). Making it primary stops Shopify from
+ * redirecting checkout back to www. We fall back to the myshopify domain if the
+ * checkout subdomain is not configured.
  */
 function rewriteCheckoutUrl(cart: Cart): Cart {
-  const storeDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-  if (!storeDomain || !cart.checkoutUrl) return cart;
+  const checkoutDomain =
+    process.env.NEXT_PUBLIC_CHECKOUT_DOMAIN ||
+    process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  if (!checkoutDomain || !cart.checkoutUrl) return cart;
   try {
     const url = new URL(cart.checkoutUrl);
-    url.hostname = storeDomain;
+    url.hostname = checkoutDomain;
     return { ...cart, checkoutUrl: url.toString() };
   } catch {
     return cart;
