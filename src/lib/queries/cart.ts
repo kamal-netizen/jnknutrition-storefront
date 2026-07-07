@@ -1,5 +1,31 @@
 import { storefrontFetch } from "@/lib/shopify";
 
+// ─── Checkout-URL helper ─────────────────────────────────────────────────────
+
+/**
+ * Shopify's checkoutUrl uses the store's primary domain (www.jnknutrition.com),
+ * which now points to this headless Next.js app instead of Shopify's checkout
+ * servers. We rewrite the host to the myshopify domain so the browser navigates
+ * directly to Shopify's checkout infrastructure on the first hop.
+ *
+ * Shopify will still redirect back to the primary domain once (to set session
+ * cookies), at which point our custom not-found page catches the request and
+ * shows a branded checkout-unavailable message. The long-term fix is to add a
+ * dedicated checkout subdomain (e.g. checkout.jnknutrition.com) in Shopify
+ * Admin → Settings → Domains, with a CNAME pointing to Shopify's servers.
+ */
+function rewriteCheckoutUrl(cart: Cart): Cart {
+  const storeDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  if (!storeDomain || !cart.checkoutUrl) return cart;
+  try {
+    const url = new URL(cart.checkoutUrl);
+    url.hostname = storeDomain;
+    return { ...cart, checkoutUrl: url.toString() };
+  } catch {
+    return cart;
+  }
+}
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type MoneyV2 = {
@@ -153,7 +179,7 @@ export async function createCart(): Promise<Cart> {
   if (data.cartCreate.userErrors.length > 0) {
     throw new Error(data.cartCreate.userErrors[0].message);
   }
-  return data.cartCreate.cart;
+  return rewriteCheckoutUrl(data.cartCreate.cart);
 }
 
 export async function addCartLine(
@@ -170,7 +196,7 @@ export async function addCartLine(
   if (data.cartLinesAdd.userErrors.length > 0) {
     throw new Error(data.cartLinesAdd.userErrors[0].message);
   }
-  return data.cartLinesAdd.cart;
+  return rewriteCheckoutUrl(data.cartLinesAdd.cart);
 }
 
 export async function updateCartLine(
@@ -187,7 +213,7 @@ export async function updateCartLine(
   if (data.cartLinesUpdate.userErrors.length > 0) {
     throw new Error(data.cartLinesUpdate.userErrors[0].message);
   }
-  return data.cartLinesUpdate.cart;
+  return rewriteCheckoutUrl(data.cartLinesUpdate.cart);
 }
 
 export async function removeCartLine(
@@ -200,12 +226,12 @@ export async function removeCartLine(
   if (data.cartLinesRemove.userErrors.length > 0) {
     throw new Error(data.cartLinesRemove.userErrors[0].message);
   }
-  return data.cartLinesRemove.cart;
+  return rewriteCheckoutUrl(data.cartLinesRemove.cart);
 }
 
 export async function getCart(cartId: string): Promise<Cart | null> {
   const data = await storefrontFetch<{ cart: Cart | null }>(GET_CART, {
     cartId,
   });
-  return data.cart;
+  return data.cart ? rewriteCheckoutUrl(data.cart) : null;
 }
