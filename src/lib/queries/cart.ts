@@ -1,5 +1,26 @@
 import { storefrontFetch } from "@/lib/shopify";
 
+// ─── Checkout-URL helper ─────────────────────────────────────────────────────
+
+/**
+ * Shopify returns checkoutUrl using the store's primary domain (which may be
+ * the headless storefront domain, e.g. www.jnknutrition.com). That domain
+ * points to Vercel/Next.js, not Shopify's checkout servers, so the URL would
+ * 404. We rewrite the host to the myshopify domain so the browser lands
+ * directly on Shopify's checkout engine.
+ */
+function rewriteCheckoutUrl(cart: Cart): Cart {
+  const storeDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  if (!storeDomain || !cart.checkoutUrl) return cart;
+  try {
+    const url = new URL(cart.checkoutUrl);
+    url.hostname = storeDomain;
+    return { ...cart, checkoutUrl: url.toString() };
+  } catch {
+    return cart;
+  }
+}
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type MoneyV2 = {
@@ -153,7 +174,7 @@ export async function createCart(): Promise<Cart> {
   if (data.cartCreate.userErrors.length > 0) {
     throw new Error(data.cartCreate.userErrors[0].message);
   }
-  return data.cartCreate.cart;
+  return rewriteCheckoutUrl(data.cartCreate.cart);
 }
 
 export async function addCartLine(
@@ -170,7 +191,7 @@ export async function addCartLine(
   if (data.cartLinesAdd.userErrors.length > 0) {
     throw new Error(data.cartLinesAdd.userErrors[0].message);
   }
-  return data.cartLinesAdd.cart;
+  return rewriteCheckoutUrl(data.cartLinesAdd.cart);
 }
 
 export async function updateCartLine(
@@ -187,7 +208,7 @@ export async function updateCartLine(
   if (data.cartLinesUpdate.userErrors.length > 0) {
     throw new Error(data.cartLinesUpdate.userErrors[0].message);
   }
-  return data.cartLinesUpdate.cart;
+  return rewriteCheckoutUrl(data.cartLinesUpdate.cart);
 }
 
 export async function removeCartLine(
@@ -200,12 +221,12 @@ export async function removeCartLine(
   if (data.cartLinesRemove.userErrors.length > 0) {
     throw new Error(data.cartLinesRemove.userErrors[0].message);
   }
-  return data.cartLinesRemove.cart;
+  return rewriteCheckoutUrl(data.cartLinesRemove.cart);
 }
 
 export async function getCart(cartId: string): Promise<Cart | null> {
   const data = await storefrontFetch<{ cart: Cart | null }>(GET_CART, {
     cartId,
   });
-  return data.cart;
+  return data.cart ? rewriteCheckoutUrl(data.cart) : null;
 }
