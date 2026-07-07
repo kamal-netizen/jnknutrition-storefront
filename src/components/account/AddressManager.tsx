@@ -14,15 +14,45 @@ import { Button } from "@/components/ui/button";
 
 const initial: ActionState = { error: null };
 
-const FIELDS = [
+// ISO 3166-2:AE emirate codes used by Shopify for the "zone" field.
+const EMIRATES = [
+  { code: "DU", name: "Dubai" },
+  { code: "AZ", name: "Abu Dhabi" },
+  { code: "SH", name: "Sharjah" },
+  { code: "AJ", name: "Ajman" },
+  { code: "FU", name: "Fujairah" },
+  { code: "RK", name: "Ras Al Khaimah" },
+  { code: "UQ", name: "Umm Al Quwain" },
+] as const;
+
+// Common shipping destinations. Values are ISO 3166-1 alpha-2 codes.
+const COUNTRIES = [
+  { code: "AE", name: "United Arab Emirates" },
+  { code: "SA", name: "Saudi Arabia" },
+  { code: "QA", name: "Qatar" },
+  { code: "KW", name: "Kuwait" },
+  { code: "BH", name: "Bahrain" },
+  { code: "OM", name: "Oman" },
+] as const;
+
+type Field =
+  | { name: string; label: string; type: "text" | "tel"; half: boolean }
+  | {
+      name: string;
+      label: string;
+      type: "select";
+      half: boolean;
+      options: readonly { code: string; name: string }[];
+    };
+
+const FIELDS: readonly Field[] = [
   { name: "firstName", label: "First Name", type: "text", half: true },
   { name: "lastName", label: "Last Name", type: "text", half: true },
   { name: "address1", label: "Address", type: "text", half: false },
   { name: "address2", label: "Apt, Suite (optional)", type: "text", half: false },
   { name: "city", label: "City", type: "text", half: true },
-  { name: "zoneCode", label: "State / Province Code", type: "text", half: true },
-  { name: "zip", label: "ZIP / Postal Code", type: "text", half: true },
-  { name: "territoryCode", label: "Country Code", type: "text", half: true },
+  { name: "zoneCode", label: "Emirate", type: "select", half: true, options: EMIRATES },
+  { name: "territoryCode", label: "Country", type: "select", half: true, options: COUNTRIES },
   { name: "phoneNumber", label: "Phone (optional)", type: "tel", half: false },
 ] as const;
 
@@ -55,30 +85,48 @@ function AddressForm({
       )}
 
       <div className="grid grid-cols-2 gap-4">
-        {FIELDS.map((field) => (
-          <div
-            key={field.name}
-            className={`space-y-1.5 ${field.half ? "col-span-1" : "col-span-2"}`}
-          >
-            <label
-              htmlFor={field.name}
-              className="text-xs font-bold uppercase tracking-widest text-[#64748B]"
+        {FIELDS.map((field) => {
+          const defaultValue = address
+            ? ((address[field.name as keyof CustomerAddress] as string) ?? "")
+            : field.type === "select"
+              ? field.options[0].code
+              : "";
+          return (
+            <div
+              key={field.name}
+              className={`space-y-1.5 ${field.half ? "col-span-1" : "col-span-2"}`}
             >
-              {field.label}
-            </label>
-            <input
-              id={field.name}
-              name={field.name}
-              type={field.type}
-              defaultValue={
-                address
-                  ? (address[field.name as keyof CustomerAddress] as string) ?? ""
-                  : ""
-              }
-              className="w-full bg-white border border-[#E2E8F0] rounded px-4 py-2.5 text-[#0B0F14] outline-none focus:border-[#F9D20F] transition-colors"
-            />
-          </div>
-        ))}
+              <label
+                htmlFor={field.name}
+                className="text-xs font-bold uppercase tracking-widest text-[#64748B]"
+              >
+                {field.label}
+              </label>
+              {field.type === "select" ? (
+                <select
+                  id={field.name}
+                  name={field.name}
+                  defaultValue={defaultValue}
+                  className="w-full bg-white border border-[#E2E8F0] rounded px-4 py-2.5 text-[#0B0F14] outline-none focus:border-[#F9D20F] transition-colors"
+                >
+                  {field.options.map((opt) => (
+                    <option key={opt.code} value={opt.code}>
+                      {opt.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  id={field.name}
+                  name={field.name}
+                  type={field.type}
+                  defaultValue={defaultValue}
+                  className="w-full bg-white border border-[#E2E8F0] rounded px-4 py-2.5 text-[#0B0F14] outline-none focus:border-[#F9D20F] transition-colors"
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       <div className="flex gap-3">
