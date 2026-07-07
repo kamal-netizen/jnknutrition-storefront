@@ -1,6 +1,7 @@
 import "server-only";
 import { redirect } from "next/navigation";
-import { getCustomerToken } from "@/lib/auth";
+import { getValidAccessToken } from "@/lib/auth";
+import { getOrigin } from "@/lib/customer-account";
 import { getCustomer } from "@/lib/queries/customer";
 import type { Customer } from "@/lib/queries/customer";
 
@@ -9,10 +10,11 @@ import type { Customer } from "@/lib/queries/customer";
  * Safe to call from any server component.
  */
 export async function getOptionalCustomer(): Promise<Customer | null> {
-  const token = await getCustomerToken();
+  const token = await getValidAccessToken();
   if (!token) return null;
   try {
-    return await getCustomer(token);
+    const origin = await getOrigin();
+    return await getCustomer(token, origin);
   } catch {
     return null;
   }

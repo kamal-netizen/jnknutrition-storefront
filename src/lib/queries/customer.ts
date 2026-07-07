@@ -1,180 +1,149 @@
-import { storefrontFetch } from "@/lib/shopify";
+import { customerAccountFetch } from "@/lib/customer-account";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Types (Customer Account API shapes) ──────────────────────────────────────
 
-export type CustomerAccessToken = {
-  accessToken: string;
-  expiresAt: string;
-};
+export type Money = { amount: string; currencyCode: string };
 
 export type CustomerUserError = {
   field: string[] | null;
   message: string;
-  code: string;
+  code: string | null;
 };
 
 export type CustomerAddress = {
   id: string;
+  formatted: string[];
+  firstName: string | null;
+  lastName: string | null;
+  company: string | null;
   address1: string | null;
   address2: string | null;
   city: string | null;
-  province: string | null;
-  country: string | null;
+  zoneCode: string | null;
+  territoryCode: string | null;
   zip: string | null;
-  phone: string | null;
-  firstName: string | null;
-  lastName: string | null;
-  formatted: string[];
+  phoneNumber: string | null;
 };
 
 export type OrderLineItem = {
+  id: string;
   title: string;
   quantity: number;
-  variant: {
-    price: { amount: string; currencyCode: string };
-    image: { url: string; altText: string | null } | null;
-  } | null;
+  variantTitle: string | null;
+  price: Money | null;
+  image: { url: string; altText: string | null } | null;
 };
 
-export type TrackingInfo = {
+export type FulfillmentTracking = {
+  company: string | null;
   number: string | null;
   url: string | null;
 };
 
 export type Fulfillment = {
-  trackingCompany: string | null;
-  trackingInfo: TrackingInfo[];
+  status: string;
+  trackingInformation: FulfillmentTracking[];
 };
 
 export type Order = {
   id: string;
-  orderNumber: number;
+  number: number;
+  name: string;
+  confirmationNumber: string | null;
+  statusPageUrl: string;
   processedAt: string;
-  financialStatus: string;
+  financialStatus: string | null;
   fulfillmentStatus: string;
-  statusUrl: string;
-  currentTotalPrice: { amount: string; currencyCode: string };
-  totalShippingPrice: { amount: string; currencyCode: string };
-  shippingAddress: CustomerAddress | null;
-  successfulFulfillments: Fulfillment[] | null;
-  lineItems: { edges: { node: OrderLineItem }[] };
+  totalPrice: Money;
+  subtotal: Money | null;
+  totalTax: Money | null;
+  shippingAddress: { name: string | null; formatted: string[] } | null;
+  fulfillments: Fulfillment[];
+  lineItems: OrderLineItem[];
 };
 
 export type Customer = {
   id: string;
-  email: string;
   firstName: string | null;
   lastName: string | null;
+  email: string | null;
   phone: string | null;
   defaultAddress: CustomerAddress | null;
-  addresses: { edges: { node: CustomerAddress }[] };
-  orders: { edges: { node: Order }[] };
+  addresses: CustomerAddress[];
+  orders: Order[];
 };
 
-// ─── Mutations ───────────────────────────────────────────────────────────────
+export type CustomerAddressInput = {
+  firstName?: string | null;
+  lastName?: string | null;
+  company?: string | null;
+  address1?: string | null;
+  address2?: string | null;
+  city?: string | null;
+  zoneCode?: string | null;
+  territoryCode?: string | null;
+  zip?: string | null;
+  phoneNumber?: string | null;
+};
 
-const CUSTOMER_CREATE = `
-  mutation CustomerCreate($input: CustomerCreateInput!) {
-    customerCreate(input: $input) {
-      customer { id email firstName lastName }
-      customerUserErrors { field message code }
-    }
+// ─── GraphQL documents ────────────────────────────────────────────────────────
+
+const ADDRESS_FRAGMENT = `
+  fragment Address on CustomerAddress {
+    id
+    formatted
+    firstName
+    lastName
+    company
+    address1
+    address2
+    city
+    zoneCode
+    territoryCode
+    zip
+    phoneNumber
   }
 `;
-
-const CUSTOMER_ACCESS_TOKEN_CREATE = `
-  mutation CustomerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
-    customerAccessTokenCreate(input: $input) {
-      customerAccessToken { accessToken expiresAt }
-      customerUserErrors { field message code }
-    }
-  }
-`;
-
-const CUSTOMER_ACCESS_TOKEN_DELETE = `
-  mutation CustomerAccessTokenDelete($customerAccessToken: String!) {
-    customerAccessTokenDelete(customerAccessToken: $customerAccessToken) {
-      deletedAccessToken
-      deletedCustomerAccessTokenId
-      userErrors { field message }
-    }
-  }
-`;
-
-const CUSTOMER_UPDATE = `
-  mutation CustomerUpdate($customerAccessToken: String!, $customer: CustomerUpdateInput!) {
-    customerUpdate(customerAccessToken: $customerAccessToken, customer: $customer) {
-      customer { id email firstName lastName phone }
-      customerAccessToken { accessToken expiresAt }
-      customerUserErrors { field message code }
-    }
-  }
-`;
-
-const CUSTOMER_ADDRESS_CREATE = `
-  mutation CustomerAddressCreate($customerAccessToken: String!, $address: MailingAddressInput!) {
-    customerAddressCreate(customerAccessToken: $customerAccessToken, address: $address) {
-      customerAddress { id address1 address2 city province country zip phone firstName lastName formatted }
-      customerUserErrors { field message code }
-    }
-  }
-`;
-
-const CUSTOMER_ADDRESS_UPDATE = `
-  mutation CustomerAddressUpdate($customerAccessToken: String!, $id: ID!, $address: MailingAddressInput!) {
-    customerAddressUpdate(customerAccessToken: $customerAccessToken, id: $id, address: $address) {
-      customerAddress { id address1 address2 city province country zip phone firstName lastName formatted }
-      customerUserErrors { field message code }
-    }
-  }
-`;
-
-const CUSTOMER_ADDRESS_DELETE = `
-  mutation CustomerAddressDelete($customerAccessToken: String!, $id: ID!) {
-    customerAddressDelete(customerAccessToken: $customerAccessToken, id: $id) {
-      deletedCustomerAddressId
-      customerUserErrors { field message code }
-    }
-  }
-`;
-
-// ─── Queries ─────────────────────────────────────────────────────────────────
 
 const GET_CUSTOMER = `
-  query GetCustomer($customerAccessToken: String!) {
-    customer(customerAccessToken: $customerAccessToken) {
-      id email firstName lastName phone
-      defaultAddress {
-        id address1 address2 city province country zip phone firstName lastName formatted
-      }
-      addresses(first: 10) {
-        edges {
-          node { id address1 address2 city province country zip phone firstName lastName formatted }
-        }
-      }
-      orders(first: 20, sortKey: PROCESSED_AT, reverse: true) {
-        edges {
-          node {
-            id orderNumber processedAt financialStatus fulfillmentStatus statusUrl
-            currentTotalPrice { amount currencyCode }
-            totalShippingPrice { amount currencyCode }
-            shippingAddress {
-              id address1 address2 city province country zip phone firstName lastName formatted
+  ${ADDRESS_FRAGMENT}
+  query GetCustomer {
+    customer {
+      id
+      firstName
+      lastName
+      emailAddress { emailAddress }
+      phoneNumber { phoneNumber }
+      defaultAddress { ...Address }
+      addresses(first: 20) { nodes { ...Address } }
+      orders(first: 50, sortKey: PROCESSED_AT, reverse: true) {
+        nodes {
+          id
+          number
+          name
+          confirmationNumber
+          statusPageUrl
+          processedAt
+          financialStatus
+          fulfillmentStatus
+          totalPrice { amount currencyCode }
+          subtotal { amount currencyCode }
+          totalTax { amount currencyCode }
+          shippingAddress { name formatted(withName: true) }
+          fulfillments(first: 10) {
+            nodes {
+              status
+              trackingInformation { company number url }
             }
-            successfulFulfillments(first: 5) {
-              trackingCompany
-              trackingInfo { number url }
-            }
-            lineItems(first: 50) {
-              edges {
-                node {
-                  title quantity
-                  variant {
-                    price { amount currencyCode }
-                    image { url altText }
-                  }
-                }
-              }
+          }
+          lineItems(first: 100) {
+            nodes {
+              id
+              title
+              quantity
+              variantTitle
+              price { amount currencyCode }
+              image { url altText }
             }
           }
         }
@@ -183,108 +152,131 @@ const GET_CUSTOMER = `
   }
 `;
 
+const CUSTOMER_ADDRESS_CREATE = `
+  ${ADDRESS_FRAGMENT}
+  mutation CustomerAddressCreate($address: CustomerAddressInput!, $defaultAddress: Boolean) {
+    customerAddressCreate(address: $address, defaultAddress: $defaultAddress) {
+      customerAddress { ...Address }
+      userErrors { field message code }
+    }
+  }
+`;
+
+const CUSTOMER_ADDRESS_UPDATE = `
+  ${ADDRESS_FRAGMENT}
+  mutation CustomerAddressUpdate($addressId: ID!, $address: CustomerAddressInput!, $defaultAddress: Boolean) {
+    customerAddressUpdate(addressId: $addressId, address: $address, defaultAddress: $defaultAddress) {
+      customerAddress { ...Address }
+      userErrors { field message code }
+    }
+  }
+`;
+
+const CUSTOMER_ADDRESS_DELETE = `
+  mutation CustomerAddressDelete($addressId: ID!) {
+    customerAddressDelete(addressId: $addressId) {
+      deletedAddressId
+      userErrors { field message code }
+    }
+  }
+`;
+
+// ─── Raw response shapes ──────────────────────────────────────────────────────
+
+type RawConnection<T> = { nodes: T[] };
+
+type RawOrder = Omit<Order, "fulfillments" | "lineItems"> & {
+  fulfillments: RawConnection<Fulfillment>;
+  lineItems: RawConnection<OrderLineItem>;
+};
+
+type RawCustomer = {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  emailAddress: { emailAddress: string | null } | null;
+  phoneNumber: { phoneNumber: string | null } | null;
+  defaultAddress: CustomerAddress | null;
+  addresses: RawConnection<CustomerAddress>;
+  orders: RawConnection<RawOrder>;
+};
+
 // ─── Fetchers ────────────────────────────────────────────────────────────────
 
-export async function createCustomer(input: {
-  email: string;
-  password: string;
-  firstName?: string;
-  lastName?: string;
-}): Promise<{ errors: CustomerUserError[] }> {
-  const data = await storefrontFetch<{
-    customerCreate: {
-      customer: { id: string } | null;
-      customerUserErrors: CustomerUserError[];
-    };
-  }>(CUSTOMER_CREATE, { input });
-  return { errors: data.customerCreate.customerUserErrors };
-}
+export async function getCustomer(
+  accessToken: string,
+  origin: string
+): Promise<Customer | null> {
+  const data = await customerAccountFetch<{ customer: RawCustomer | null }>({
+    query: GET_CUSTOMER,
+    accessToken,
+    origin,
+  });
 
-export async function createCustomerAccessToken(credentials: {
-  email: string;
-  password: string;
-}): Promise<{ token: CustomerAccessToken | null; errors: CustomerUserError[] }> {
-  const data = await storefrontFetch<{
-    customerAccessTokenCreate: {
-      customerAccessToken: CustomerAccessToken | null;
-      customerUserErrors: CustomerUserError[];
-    };
-  }>(CUSTOMER_ACCESS_TOKEN_CREATE, { input: credentials });
+  const c = data.customer;
+  if (!c) return null;
+
   return {
-    token: data.customerAccessTokenCreate.customerAccessToken,
-    errors: data.customerAccessTokenCreate.customerUserErrors,
+    id: c.id,
+    firstName: c.firstName,
+    lastName: c.lastName,
+    email: c.emailAddress?.emailAddress ?? null,
+    phone: c.phoneNumber?.phoneNumber ?? null,
+    defaultAddress: c.defaultAddress,
+    addresses: c.addresses.nodes,
+    orders: c.orders.nodes.map((o) => ({
+      ...o,
+      fulfillments: o.fulfillments.nodes,
+      lineItems: o.lineItems.nodes,
+    })),
   };
 }
 
-export async function deleteCustomerAccessToken(
-  accessToken: string
-): Promise<void> {
-  await storefrontFetch(CUSTOMER_ACCESS_TOKEN_DELETE, {
-    customerAccessToken: accessToken,
-  });
-}
-
-export async function getCustomer(
-  customerAccessToken: string
-): Promise<Customer | null> {
-  const data = await storefrontFetch<{ customer: Customer | null }>(
-    GET_CUSTOMER,
-    { customerAccessToken }
-  );
-  return data.customer;
-}
-
-export async function updateCustomer(
-  customerAccessToken: string,
-  customer: {
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-    phone?: string;
-    password?: string;
-  }
-): Promise<{ errors: CustomerUserError[] }> {
-  const data = await storefrontFetch<{
-    customerUpdate: {
-      customerUserErrors: CustomerUserError[];
-    };
-  }>(CUSTOMER_UPDATE, { customerAccessToken, customer });
-  return { errors: data.customerUpdate.customerUserErrors };
-}
-
 export async function createCustomerAddress(
-  customerAccessToken: string,
-  address: Omit<CustomerAddress, "id" | "formatted">
+  accessToken: string,
+  origin: string,
+  address: CustomerAddressInput
 ): Promise<{ errors: CustomerUserError[] }> {
-  const data = await storefrontFetch<{
-    customerAddressCreate: {
-      customerUserErrors: CustomerUserError[];
-    };
-  }>(CUSTOMER_ADDRESS_CREATE, { customerAccessToken, address });
-  return { errors: data.customerAddressCreate.customerUserErrors };
+  const data = await customerAccountFetch<{
+    customerAddressCreate: { userErrors: CustomerUserError[] };
+  }>({
+    query: CUSTOMER_ADDRESS_CREATE,
+    variables: { address, defaultAddress: false },
+    accessToken,
+    origin,
+  });
+  return { errors: data.customerAddressCreate.userErrors };
 }
 
 export async function updateCustomerAddress(
-  customerAccessToken: string,
-  id: string,
-  address: Omit<CustomerAddress, "id" | "formatted">
+  accessToken: string,
+  origin: string,
+  addressId: string,
+  address: CustomerAddressInput
 ): Promise<{ errors: CustomerUserError[] }> {
-  const data = await storefrontFetch<{
-    customerAddressUpdate: {
-      customerUserErrors: CustomerUserError[];
-    };
-  }>(CUSTOMER_ADDRESS_UPDATE, { customerAccessToken, id, address });
-  return { errors: data.customerAddressUpdate.customerUserErrors };
+  const data = await customerAccountFetch<{
+    customerAddressUpdate: { userErrors: CustomerUserError[] };
+  }>({
+    query: CUSTOMER_ADDRESS_UPDATE,
+    variables: { addressId, address },
+    accessToken,
+    origin,
+  });
+  return { errors: data.customerAddressUpdate.userErrors };
 }
 
 export async function deleteCustomerAddress(
-  customerAccessToken: string,
-  id: string
+  accessToken: string,
+  origin: string,
+  addressId: string
 ): Promise<{ errors: CustomerUserError[] }> {
-  const data = await storefrontFetch<{
-    customerAddressDelete: {
-      customerUserErrors: CustomerUserError[];
-    };
-  }>(CUSTOMER_ADDRESS_DELETE, { customerAccessToken, id });
-  return { errors: data.customerAddressDelete.customerUserErrors };
+  const data = await customerAccountFetch<{
+    customerAddressDelete: { userErrors: CustomerUserError[] };
+  }>({
+    query: CUSTOMER_ADDRESS_DELETE,
+    variables: { addressId },
+    accessToken,
+    origin,
+  });
+  return { errors: data.customerAddressDelete.userErrors };
 }

@@ -20,10 +20,10 @@ const FIELDS = [
   { name: "address1", label: "Address", type: "text", half: false },
   { name: "address2", label: "Apt, Suite (optional)", type: "text", half: false },
   { name: "city", label: "City", type: "text", half: true },
-  { name: "province", label: "State / Province", type: "text", half: true },
+  { name: "zoneCode", label: "State / Province Code", type: "text", half: true },
   { name: "zip", label: "ZIP / Postal Code", type: "text", half: true },
-  { name: "country", label: "Country", type: "text", half: true },
-  { name: "phone", label: "Phone (optional)", type: "tel", half: false },
+  { name: "territoryCode", label: "Country Code", type: "text", half: true },
+  { name: "phoneNumber", label: "Phone (optional)", type: "tel", half: false },
 ] as const;
 
 function AddressForm({

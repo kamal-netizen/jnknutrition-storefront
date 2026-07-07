@@ -21,15 +21,15 @@ export default async function OrderDetailPage({ params }: Props) {
   const orderId = decodeURIComponent(id);
 
   const customer = await requireCustomer();
-  const order = customer.orders.edges
-    .map((e) => e.node)
-    .find((o) => o.id === orderId);
+  const order = customer.orders.find((o) => o.id === orderId);
 
   if (!order) notFound();
 
-  const lineItems = order.lineItems.edges.map((e) => e.node);
-  const fulfillments = order.successfulFulfillments ?? [];
-  const hasTracking = fulfillments.some((f) => f.trackingInfo.length > 0);
+  const lineItems = order.lineItems;
+  const fulfillments = order.fulfillments;
+  const hasTracking = fulfillments.some(
+    (f) => f.trackingInformation.length > 0
+  );
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
@@ -46,7 +46,7 @@ export default async function OrderDetailPage({ params }: Props) {
       <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight">
-            Order #{order.orderNumber}
+            Order #{order.number}
           </h1>
           <p className="mt-1 text-[#64748B]">
             Placed{" "}
@@ -57,9 +57,10 @@ export default async function OrderDetailPage({ params }: Props) {
             })}
           </p>
         </div>
-        {order.statusUrl && (
+        {order.statusPageUrl && (
           <Button
-            render={<a href={order.statusUrl} target="_blank" rel="noopener noreferrer" />}
+            render={<a href={order.statusPageUrl} target="_blank" rel="noopener noreferrer" />}
+            nativeButton={false}
             className="bg-[#F9D20F] text-[#0B0F14] font-bold hover:bg-[#E7BF00] uppercase tracking-wide"
           >
             <ExternalLink className="w-4 h-4" /> View Status Page
@@ -70,7 +71,9 @@ export default async function OrderDetailPage({ params }: Props) {
       {/* Status */}
       <div className="flex flex-wrap items-center gap-2 mb-8">
         <OrderStatusBadge status={order.fulfillmentStatus} />
-        <OrderStatusBadge status={order.financialStatus} />
+        {order.financialStatus && (
+          <OrderStatusBadge status={order.financialStatus} />
+        )}
       </div>
 
       {/* Tracking */}
@@ -81,7 +84,7 @@ export default async function OrderDetailPage({ params }: Props) {
         {hasTracking ? (
           <div className="space-y-4">
             {fulfillments.map((fulfillment, fi) =>
-              fulfillment.trackingInfo.map((track, ti) => (
+              fulfillment.trackingInformation.map((track, ti) => (
                 <div
                   key={`${fi}-${ti}`}
                   className="flex flex-wrap items-center justify-between gap-3 rounded border border-[#E2E8F0] bg-white p-4"
@@ -89,9 +92,9 @@ export default async function OrderDetailPage({ params }: Props) {
                   <div className="flex items-center gap-3">
                     <Package className="w-5 h-5 text-[#64748B]" />
                     <div>
-                      {fulfillment.trackingCompany && (
+                      {track.company && (
                         <p className="text-sm font-semibold text-[#0B0F14]">
-                          {fulfillment.trackingCompany}
+                          {track.company}
                         </p>
                       )}
                       {track.number && (
@@ -132,10 +135,10 @@ export default async function OrderDetailPage({ params }: Props) {
         <ul className="space-y-4">
           {lineItems.map((item, i) => (
             <li key={i} className="flex gap-4">
-              {item.variant?.image && (
+              {item.image && (
                 <Image
-                  src={item.variant.image.url}
-                  alt={item.variant.image.altText ?? item.title}
+                  src={item.image.url}
+                  alt={item.image.altText ?? item.title}
                   width={64}
                   height={64}
                   className="rounded object-cover aspect-square bg-[#F5F7FA]"
@@ -145,10 +148,10 @@ export default async function OrderDetailPage({ params }: Props) {
                 <p className="text-sm font-semibold text-[#0B0F14]">{item.title}</p>
                 <p className="text-sm text-[#64748B]">Qty: {item.quantity}</p>
               </div>
-              {item.variant?.price && (
+              {item.price && (
                 <Price
-                  amount={item.variant.price.amount}
-                  currencyCode={item.variant.price.currencyCode}
+                  amount={item.price.amount}
+                  currencyCode={item.price.currencyCode}
                   className="text-sm font-bold text-[#0B0F14]"
                 />
               )}
@@ -178,19 +181,31 @@ export default async function OrderDetailPage({ params }: Props) {
             Summary
           </h2>
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-[#64748B]">Shipping</span>
-              <Price
-                amount={order.totalShippingPrice.amount}
-                currencyCode={order.totalShippingPrice.currencyCode}
-                className="text-[#0B0F14]"
-              />
-            </div>
+            {order.subtotal && (
+              <div className="flex justify-between">
+                <span className="text-[#64748B]">Subtotal</span>
+                <Price
+                  amount={order.subtotal.amount}
+                  currencyCode={order.subtotal.currencyCode}
+                  className="text-[#0B0F14]"
+                />
+              </div>
+            )}
+            {order.totalTax && (
+              <div className="flex justify-between">
+                <span className="text-[#64748B]">Tax</span>
+                <Price
+                  amount={order.totalTax.amount}
+                  currencyCode={order.totalTax.currencyCode}
+                  className="text-[#0B0F14]"
+                />
+              </div>
+            )}
             <div className="flex justify-between pt-2 border-t border-[#E2E8F0]">
               <span className="font-bold text-[#0B0F14]">Total</span>
               <Price
-                amount={order.currentTotalPrice.amount}
-                currencyCode={order.currentTotalPrice.currencyCode}
+                amount={order.totalPrice.amount}
+                currencyCode={order.totalPrice.currencyCode}
                 className="font-bold text-[#F9D20F]"
               />
             </div>

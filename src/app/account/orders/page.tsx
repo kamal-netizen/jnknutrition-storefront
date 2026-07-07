@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default async function OrdersPage() {
   const customer = await requireCustomer();
-  const orders = customer.orders.edges.map((e) => e.node);
+  const orders = customer.orders;
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
@@ -30,8 +30,8 @@ export default async function OrdersPage() {
       {orders.length > 0 ? (
         <div className="space-y-4">
           {orders.map((order) => {
-            const itemCount = order.lineItems.edges.reduce(
-              (sum, e) => sum + e.node.quantity,
+            const itemCount = order.lineItems.reduce(
+              (sum, item) => sum + item.quantity,
               0
             );
             return (
@@ -43,7 +43,7 @@ export default async function OrdersPage() {
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <p className="font-bold text-[#0B0F14] text-lg">
-                      Order #{order.orderNumber}
+                      Order #{order.number}
                     </p>
                     <p className="text-sm text-[#64748B] mt-0.5">
                       {new Date(order.processedAt).toLocaleDateString(undefined, {
@@ -56,15 +56,17 @@ export default async function OrdersPage() {
                   </div>
                   <div className="text-right">
                     <Price
-                      amount={order.currentTotalPrice.amount}
-                      currencyCode={order.currentTotalPrice.currencyCode}
+                      amount={order.totalPrice.amount}
+                      currencyCode={order.totalPrice.currencyCode}
                       className="font-bold text-[#F9D20F] text-lg"
                     />
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 mt-4">
                   <OrderStatusBadge status={order.fulfillmentStatus} />
-                  <OrderStatusBadge status={order.financialStatus} />
+                  {order.financialStatus && (
+                    <OrderStatusBadge status={order.financialStatus} />
+                  )}
                 </div>
               </Link>
             );

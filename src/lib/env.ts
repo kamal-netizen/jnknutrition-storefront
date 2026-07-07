@@ -8,6 +8,12 @@ const envSchema = z.object({
   NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN: z.string().min(1),
   NEXT_PUBLIC_CHECKOUT_DOMAIN: z.string().min(1),
   NEXT_PUBLIC_SHOPIFY_API_VERSION: z.string().min(1),
+  // ── New Customer Accounts (Customer Account API / OAuth) ──────────────────
+  // Server-only. Optional so the app still boots before credentials are set;
+  // login routes validate their presence at request time.
+  SHOPIFY_SHOP_ID: z.string().min(1).optional(),
+  SHOPIFY_CUSTOMER_ACCOUNT_CLIENT_ID: z.string().min(1).optional(),
+  SHOPIFY_CUSTOMER_ACCOUNT_API_VERSION: z.string().min(1).default("2025-04"),
 });
 
 const parsed = envSchema.safeParse({
@@ -18,6 +24,11 @@ const parsed = envSchema.safeParse({
   NEXT_PUBLIC_CHECKOUT_DOMAIN: process.env.NEXT_PUBLIC_CHECKOUT_DOMAIN,
   NEXT_PUBLIC_SHOPIFY_API_VERSION:
     process.env.NEXT_PUBLIC_SHOPIFY_API_VERSION,
+  SHOPIFY_SHOP_ID: process.env.SHOPIFY_SHOP_ID,
+  SHOPIFY_CUSTOMER_ACCOUNT_CLIENT_ID:
+    process.env.SHOPIFY_CUSTOMER_ACCOUNT_CLIENT_ID,
+  SHOPIFY_CUSTOMER_ACCOUNT_API_VERSION:
+    process.env.SHOPIFY_CUSTOMER_ACCOUNT_API_VERSION,
 });
 
 if (!parsed.success) {

@@ -1,28 +1,110 @@
 import "server-only";
 import { cookies } from "next/headers";
+import {
+  refreshAccessToken,
+  getOrigin,
+  type TokenSet,
+} from "@/lib/customer-account";
 
-const COOKIE_NAME = "jnk_customer_token";
+const SESSION_COOKIE = "jnk_customer_session";
+const PKCE_COOKIE = "jnk_oauth";
 
-export async function getCustomerToken(): Promise<string | null> {
+// ─── Session (post-login tokens) ──────────────────────────────────────────────
+
+export type CustomerSession = TokenSet;
+
+export async function getSession(): Promise<CustomerSession | null> {
   const store = await cookies();
-  return store.get(COOKIE_NAME)?.value ?? null;
+  const raw = store.get(SESSION_COOKIE)?.value;
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as CustomerSession;
+  } catch {
+    return null;
+  }
 }
 
-export async function setCustomerToken(
-  token: string,
-  expiresAt: string
-): Promise<void> {
+export async function setSession(session: CustomerSession): Promise<void> {
   const store = await cookies();
-  store.set(COOKIE_NAME, token, {
+  store.set(SESSION_COOKIE, JSON.stringify(session), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    expires: new Date(expiresAt),
+    // Refresh tokens outlive access tokens; keep the cookie for 30 days.
+    maxAge: 60 * 60 * 24 * 30,
   });
 }
 
-export async function clearCustomerToken(): Promise<void> {
+export async function clearSession(): Promise<void> {
   const store = await cookies();
-  store.delete(COOKIE_NAME);
+  store.delete(SESSION_COOKIE);
+}
+
+/**
+ * Returns a valid Customer Account API access token, transparently refreshing
+ * it when expired. Returns null when the user is not logged in or the refresh
+ * fails (in which case the session is cleared).
+ */
+export async function getValidAccessToken(): Promise<string | null> {
+  const session = await getSession();
+  if (!session) return null;
+
+  if (session.expiresAt > Date.now()) {
+    return session.accessToken;
+  }
+
+  if (!session.refreshToken) {
+    await clearSession();
+    return null;
+  }
+
+  try {
+    const origin = await getOrigin();
+    const refreshed = await refreshAccessToken({
+      refreshToken: session.refreshToken,
+      idToken: session.idToken,
+      origin,
+    });
+    await setSession(refreshed);
+    return refreshed.accessToken;
+  } catch {
+    await clearSession();
+    return null;
+  }
+}
+
+// ─── PKCE (short-lived, during the OAuth redirect handshake) ──────────────────
+
+export type PkceState = {
+  codeVerifier: string;
+  state: string;
+  nonce: string;
+};
+
+export async function setPkce(pkce: PkceState): Promise<void> {
+  const store = await cookies();
+  store.set(PKCE_COOKIE, JSON.stringify(pkce), {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 10, // 10 minutes to complete the login
+  });
+}
+
+export async function getPkce(): Promise<PkceState | null> {
+  const store = await cookies();
+  const raw = store.get(PKCE_COOKIE)?.value;
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as PkceState;
+  } catch {
+    return null;
+  }
+}
+
+export async function clearPkce(): Promise<void> {
+  const store = await cookies();
+  store.delete(PKCE_COOKIE);
 }

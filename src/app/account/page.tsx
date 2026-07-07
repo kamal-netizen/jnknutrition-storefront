@@ -12,9 +12,10 @@ export const metadata: Metadata = {
 
 export default async function AccountPage() {
   const customer = await requireCustomer();
-  const orders = customer.orders.edges.map((e) => e.node);
+  const orders = customer.orders;
   const recentOrders = orders.slice(0, 3);
-  const name = customer.firstName || customer.email.split("@")[0];
+  const name =
+    customer.firstName || customer.email?.split("@")[0] || "there";
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
@@ -91,7 +92,7 @@ export default async function AccountPage() {
               className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-5 hover:border-[#F9D20F] transition-colors"
             >
               <div>
-                <p className="font-bold text-[#0B0F14]">Order #{order.orderNumber}</p>
+                <p className="font-bold text-[#0B0F14]">Order #{order.number}</p>
                 <p className="text-sm text-[#64748B]">
                   {new Date(order.processedAt).toLocaleDateString(undefined, {
                     year: "numeric",
@@ -103,8 +104,8 @@ export default async function AccountPage() {
               <div className="flex items-center gap-3">
                 <OrderStatusBadge status={order.fulfillmentStatus} />
                 <Price
-                  amount={order.currentTotalPrice.amount}
-                  currencyCode={order.currentTotalPrice.currencyCode}
+                  amount={order.totalPrice.amount}
+                  currencyCode={order.totalPrice.currencyCode}
                   className="font-bold text-[#F9D20F]"
                 />
               </div>
