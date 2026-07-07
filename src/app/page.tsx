@@ -10,8 +10,23 @@ import BrandCard, { BRANDS } from "@/components/home/BrandCard";
 import HeroBanner from "@/components/home/HeroBanner";
 import SectionHeading from "@/components/home/SectionHeading";
 import UAEFlagBanner from "@/components/home/UAEFlagBanner";
+import type { Metadata } from "next";
+import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, DEFAULT_KEYWORDS } from "@/lib/seo";
 
 export const revalidate = 300;
+
+export const metadata: Metadata = {
+  title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+  description: SITE_DESCRIPTION,
+  keywords: DEFAULT_KEYWORDS,
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
+    url: "/",
+    type: "website",
+  },
+};
 
 const nodes = (
   data: { edges: { node: Product }[] } | null | undefined
