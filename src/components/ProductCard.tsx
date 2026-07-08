@@ -44,8 +44,8 @@ export default function ProductCard({ product }: Props) {
 
   return (
     <div className="group relative flex h-full flex-col rounded-2xl bg-white border border-[#E2E8F0] shadow-card hover:border-[#F9D20F] hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 focus-within:ring-2 focus-within:ring-[#F9D20F] focus-within:ring-offset-2 focus-within:ring-offset-white">
-      {/* Image layer — z-[2] sits above the stretched link (z-[1]) */}
-      <div className="relative z-[2] aspect-square bg-[#FAFBFC] overflow-hidden rounded-t-2xl">
+      {/* Image layer — z-[1] sits below the stretched link (z-[2]) */}
+      <div className="relative z-[1] aspect-square bg-[#FAFBFC] overflow-hidden rounded-t-2xl">
         {image ? (
           <>
             <Image
@@ -91,7 +91,7 @@ export default function ProductCard({ product }: Props) {
         </div>
 
         {/* Quick Add — desktop: slides up from bottom of image on hover/focus */}
-        <div className="hidden sm:block absolute bottom-0 inset-x-0 translate-y-full group-hover:translate-y-0 group-focus-within:translate-y-0 transition-transform duration-200 ease-out">
+        <div className="hidden sm:block absolute bottom-0 inset-x-0 translate-y-full group-hover:translate-y-0 group-focus-within:translate-y-0 transition-transform duration-200 ease-out z-[3]">
           <QuickAddButton product={product} />
         </div>
 
