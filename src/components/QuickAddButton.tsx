@@ -53,7 +53,7 @@ export default function QuickAddButton({ product, variant = "bar" }: Props) {
       <Price
         amount={minPrice.amount}
         currencyCode={minPrice.currencyCode}
-        className="text-xs font-bold text-[#F9D20F] tabular-nums shrink-0"
+        className="text-xs font-bold text-[#0B0F14] tabular-nums shrink-0"
       />
       <button
         onClick={(e) => { e.preventDefault(); handleAdd(); }}

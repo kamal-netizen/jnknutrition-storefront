@@ -111,7 +111,7 @@ export default function CartPage() {
                         <Price
                           amount={line.cost.totalAmount.amount}
                           currencyCode={line.cost.totalAmount.currencyCode}
-                          className="font-bold text-[#F9D20F]"
+                          className="font-bold text-[#0B0F14]"
                         />
                         <button
                           onClick={() => removeLine(line.id)}

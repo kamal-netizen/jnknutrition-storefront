@@ -75,7 +75,10 @@ export default async function SearchPage({ searchParams }: Props) {
       <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight">
         {query ? (
           <>
-            Search: <span className="text-[#F9D20F]">{query}</span>
+            Search:{" "}
+            <span className="rounded bg-[#FFF2B8] px-1.5 text-[#0B0F14]">
+              {query}
+            </span>
           </>
         ) : (
           "Search"
@@ -108,7 +111,7 @@ export default async function SearchPage({ searchParams }: Props) {
           <aside className="hidden lg:block lg:w-56 shrink-0 space-y-6">
             {/* Sort */}
             <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-5">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F] mb-3">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-[#0B0F14] mb-3">
                 Sort By
               </h3>
               <div className="flex flex-col gap-1">
@@ -144,7 +147,7 @@ export default async function SearchPage({ searchParams }: Props) {
             {hasActiveFilters && (
               <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-5">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F]">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-[#0B0F14]">
                     Active
                   </h3>
                   <Link
@@ -193,7 +196,7 @@ export default async function SearchPage({ searchParams }: Props) {
                   key={facet.id}
                   className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-5"
                 >
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F] mb-3">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-[#0B0F14] mb-3">
                     {facet.label}
                   </h3>
                   <div className="flex flex-col gap-0.5">

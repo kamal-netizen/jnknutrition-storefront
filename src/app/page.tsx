@@ -106,38 +106,15 @@ export default async function Home() {
       </div>
 
       {/* ─── Deals banner ─────────────────────────────────────── */}
-      {dealProducts.length > 0 && (
-        <section className="bg-[#EEF4FF] border-y border-[#CBD5E1]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 w-full">
-            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-              <div>
-                <p className="text-[#F9D20F] text-xs font-black uppercase tracking-[0.2em] mb-2">
-                  Limited Time
-                </p>
-                <h2 className="text-3xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight">
-                  Today&apos;s Deals
-                </h2>
-              </div>
-              <Link
-                href="/collections/today-deals"
-                className="shrink-0 inline-flex items-center bg-[#F9D20F] text-[#0B0F14] font-bold uppercase tracking-wide px-6 py-3 rounded-lg shadow-card hover:bg-[#E7BF00] hover:shadow-card-hover transition-all self-start sm:self-auto"
-              >
-                Shop Deals →
-              </Link>
-            </div>
-            <ScrollRow>
-              {dealProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="snap-start shrink-0 w-[45%] sm:w-[240px] md:w-[260px]"
-                >
-                  <ProductCard product={product} />
-                </div>
-              ))}
-            </ScrollRow>
-          </div>
-        </section>
-      )}
+      <SectionStrip
+        title="Today's Deals"
+        eyebrow="Limited Time"
+        href="/collections/today-deals"
+        products={dealProducts}
+        tone="accent"
+        cta="button"
+        ctaLabel="Shop Deals"
+      />
 
       {/* ─── Shop your goal ───────────────────────────────────── */}
       {/* order-first on mobile: acts as the hero in place of the carousel */}
@@ -168,7 +145,8 @@ export default async function Home() {
           <section className="bg-[#F5F7FA] border-y border-[#E2E8F0]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 w-full grid lg:grid-cols-[320px_1fr] gap-8 lg:gap-12 items-center">
             <div>
-              <p className="text-[#F9D20F] text-xs font-black uppercase tracking-[0.2em] mb-3">
+              <p className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-[#082D4C]">
+                <span aria-hidden="true" className="h-3 w-1 rounded-full bg-[#F9D20F]" />
                 Buy Whey
               </p>
               <h2 className="text-3xl md:text-5xl font-black text-[#0B0F14] uppercase tracking-tight leading-[0.95]">
@@ -212,38 +190,43 @@ export default async function Home() {
       />
 
       {/* ─── Pre-workout power ────────────────────────────────── */}
-      {preworkoutProducts.length > 0 && (
-        <section className="bg-gradient-to-r from-[#EEF4FF] to-white border-y border-[#E2E8F0]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 w-full">
-            <div className="flex items-end justify-between mb-8">
-              <div>
-                <p className="text-[#F9D20F] text-xs font-black uppercase tracking-[0.2em] mb-2">
-                  Explosive Energy
-                </p>
-                <h2 className="text-2xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight">
-                  Pre-Workout Power
-                </h2>
-              </div>
-              <Link
-                href="/collections/pre-workouts"
-                className="shrink-0 text-sm font-bold text-[#F9D20F] hover:text-[#E7BF00] uppercase tracking-wide"
-              >
-                View All →
-              </Link>
-            </div>
-            <ScrollRow>
-              {preworkoutProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="snap-start shrink-0 w-[45%] sm:w-[240px] md:w-[260px]"
-                >
-                  <ProductCard product={product} />
-                </div>
-              ))}
-            </ScrollRow>
+      <SectionStrip
+        title="Pre-Workout Power"
+        eyebrow="Explosive Energy"
+        href="/collections/pre-workouts"
+        products={preworkoutProducts}
+        tone="accent"
+      />
+
+      {/* ─── Mass gainer / muscle building ────────────────────── */}
+      <SectionStrip
+        title="Serious Mass & Muscle"
+        subtitle="Gainers and builders for size and power."
+        href="/collections/muscle-building-products"
+        products={massProducts}
+      />
+
+      {/* ─── Shop by brand ────────────────────────────────────── */}
+      <section className="bg-[#F5F7FA] border-y border-[#E2E8F0]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 w-full">
+          <div className="flex items-end justify-between mb-8">
+            <SectionHeading>Shop by Brand</SectionHeading>
+            <Link
+              href="/brands"
+              className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-[#E2E8F0] bg-white px-4 py-2 text-xs font-bold uppercase tracking-wide text-[#0B0F14] hover:border-[#F9D20F] hover:bg-[#FFFBEB] transition-colors"
+            >
+              All Brands <span aria-hidden="true">→</span>
+            </Link>
           </div>
-        </section>
-      )}
+          <ScrollRow>
+            {BRANDS.map((brand) => (
+              <div key={brand.handle} className="snap-start shrink-0">
+                <BrandCard brand={brand} />
+              </div>
+            ))}
+          </ScrollRow>
+        </div>
+      </section>
 
       {/* ─── Core Champs ──────────────────────────────────────── */}
       <SectionStrip
@@ -268,36 +251,6 @@ export default async function Home() {
         href="/collections/proscience-nutra"
         products={proscienceNutraProducts}
       />
-
-      {/* ─── Mass gainer / muscle building ────────────────────── */}
-      <SectionStrip
-        title="Serious Mass & Muscle"
-        subtitle="Gainers and builders for size and power."
-        href="/collections/muscle-building-products"
-        products={massProducts}
-      />
-
-      {/* ─── Shop by brand ────────────────────────────────────── */}
-      <section className="bg-[#F5F7FA] border-y border-[#E2E8F0]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 w-full">
-          <div className="flex items-end justify-between mb-8">
-            <SectionHeading>Shop by Brand</SectionHeading>
-            <Link
-              href="/brands"
-              className="shrink-0 text-sm font-bold text-[#F9D20F] hover:text-[#E7BF00] uppercase tracking-wide"
-            >
-              All Brands →
-            </Link>
-          </div>
-          <ScrollRow>
-            {BRANDS.map((brand) => (
-              <div key={brand.handle} className="snap-start shrink-0">
-                <BrandCard brand={brand} />
-              </div>
-            ))}
-          </ScrollRow>
-        </div>
-      </section>
 
       {/* ─── Health & wellness ────────────────────────────────── */}
       <SectionStrip

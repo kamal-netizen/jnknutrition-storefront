@@ -58,7 +58,7 @@ export default async function OrdersPage() {
                     <Price
                       amount={order.totalPrice.amount}
                       currencyCode={order.totalPrice.currencyCode}
-                      className="font-bold text-[#F9D20F] text-lg"
+                      className="font-bold text-[#0B0F14] text-lg"
                     />
                   </div>
                 </div>

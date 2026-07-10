@@ -79,7 +79,7 @@ export default function SearchFilters({
 
           <div className="space-y-5 p-5">
             <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-4">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F] mb-3">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-[#0B0F14] mb-3">
                 Sort By
               </h3>
               <div className="flex flex-col gap-1">
@@ -116,7 +116,7 @@ export default function SearchFilters({
             {activeFilters > 0 && (
               <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F]">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-[#0B0F14]">
                     Active
                   </h3>
                   <Link
@@ -159,7 +159,7 @@ export default function SearchFilters({
 
               return (
                 <div key={facet.id} className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-4">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F] mb-3">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-[#0B0F14] mb-3">
                     {facet.label}
                   </h3>
                   <div className="flex flex-col gap-0.5">

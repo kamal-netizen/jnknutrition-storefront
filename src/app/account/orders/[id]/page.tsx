@@ -78,7 +78,7 @@ export default async function OrderDetailPage({ params }: Props) {
 
       {/* Tracking */}
       <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-6 mb-6">
-        <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-[#F9D20F] mb-4">
+        <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-[#0B0F14] mb-4">
           <Truck className="w-4 h-4" /> Shipment Tracking
         </h2>
         {hasTracking ? (
@@ -109,7 +109,7 @@ export default async function OrderDetailPage({ params }: Props) {
                       href={track.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-sm font-bold text-[#F9D20F] hover:text-[#E7BF00]"
+                      className="inline-flex items-center gap-1 text-sm font-bold text-[#082D4C] underline underline-offset-2 hover:text-[#0B0F14]"
                     >
                       Track <ExternalLink className="w-3.5 h-3.5" />
                     </a>
@@ -129,7 +129,7 @@ export default async function OrderDetailPage({ params }: Props) {
 
       {/* Items */}
       <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-6 mb-6">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-[#F9D20F] mb-4">
+        <h2 className="text-sm font-bold uppercase tracking-widest text-[#0B0F14] mb-4">
           Items
         </h2>
         <ul className="space-y-4">
@@ -164,7 +164,7 @@ export default async function OrderDetailPage({ params }: Props) {
         {/* Shipping address */}
         {order.shippingAddress && (
           <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-6">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-[#F9D20F] mb-4">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-[#0B0F14] mb-4">
               Shipping Address
             </h2>
             <address className="not-italic text-sm text-[#64748B] space-y-0.5">
@@ -177,7 +177,7 @@ export default async function OrderDetailPage({ params }: Props) {
 
         {/* Totals */}
         <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-6">
-          <h2 className="text-sm font-bold uppercase tracking-widest text-[#F9D20F] mb-4">
+          <h2 className="text-sm font-bold uppercase tracking-widest text-[#0B0F14] mb-4">
             Summary
           </h2>
           <div className="space-y-2 text-sm">
@@ -206,7 +206,7 @@ export default async function OrderDetailPage({ params }: Props) {
               <Price
                 amount={order.totalPrice.amount}
                 currencyCode={order.totalPrice.currencyCode}
-                className="font-bold text-[#F9D20F]"
+                className="font-bold text-[#0B0F14]"
               />
             </div>
           </div>

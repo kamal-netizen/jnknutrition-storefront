@@ -116,10 +116,10 @@ export default function NewsPage() {
                 />
               </div>
               <div className="flex flex-col flex-1 p-5">
-                <span className="text-xs font-black uppercase tracking-wide text-[#F9D20F]">
+                <span className="text-xs font-black uppercase tracking-wide text-[#082D4C]">
                   {article.category}
                 </span>
-                <h3 className="mt-2 text-lg font-black text-[#0B0F14] uppercase tracking-tight leading-snug group-hover:text-[#E7BF00] transition-colors">
+                <h3 className="mt-2 text-lg font-black text-[#0B0F14] uppercase tracking-tight leading-snug group-hover:text-[#082D4C] transition-colors">
                   {article.title}
                 </h3>
                 <p className="mt-2 text-sm text-[#64748B] line-clamp-3 flex-1">

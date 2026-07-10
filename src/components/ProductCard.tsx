@@ -84,7 +84,7 @@ export default function ProductCard({ product }: Props) {
             </Badge>
           )}
           {product.tags.includes("new") && product.availableForSale && (
-            <Badge className="bg-[#EEF4FF] border border-[#F9D20F] text-[#F9D20F] text-[10px] uppercase font-bold tracking-wider">
+            <Badge className="bg-[#082D4C] text-white text-[10px] uppercase font-bold tracking-wider">
               New
             </Badge>
           )}

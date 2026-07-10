@@ -128,7 +128,7 @@ export default function CartDrawer() {
                         <Price
                           amount={line.cost.totalAmount.amount}
                           currencyCode={line.cost.totalAmount.currencyCode}
-                          className="text-sm font-bold text-[#F9D20F]"
+                          className="text-sm font-bold text-[#0B0F14]"
                         />
                       </div>
                     </div>

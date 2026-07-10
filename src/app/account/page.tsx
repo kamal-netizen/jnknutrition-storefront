@@ -76,7 +76,7 @@ export default async function AccountPage() {
         {orders.length > 3 && (
           <Link
             href="/account/orders"
-            className="text-sm font-bold text-[#F9D20F] hover:text-[#E7BF00] uppercase tracking-wide"
+            className="text-sm font-bold text-[#082D4C] hover:text-[#0B0F14] uppercase tracking-wide"
           >
             View All →
           </Link>
@@ -106,7 +106,7 @@ export default async function AccountPage() {
                 <Price
                   amount={order.totalPrice.amount}
                   currencyCode={order.totalPrice.currencyCode}
-                  className="font-bold text-[#F9D20F]"
+                  className="font-bold text-[#0B0F14]"
                 />
               </div>
             </Link>
