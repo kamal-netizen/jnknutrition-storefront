@@ -1,0 +1,20 @@
+{
+  "projectId": "69b9501c-800b-408d-8d13-bf844992ff99",
+  "shape": "package",
+  "pkg": "storefront",
+  "globalName": "Storefront",
+  "srcDir": "src/components/ui",
+  "tsconfig": "tsconfig.json",
+  "cssEntry": ".design-sync/build-assets/compiled.css",
+  "tokensGlob": ".design-sync/build-assets/compiled.css",
+  "entry": "./.ds-entry.mjs",
+  "readmeHeader": ".design-sync/conventions.md",
+  "componentSrcMap": {
+    "Badge": "src/components/ui/badge.tsx",
+    "Button": "src/components/ui/button.tsx",
+    "Input": "src/components/ui/input.tsx",
+    "Separator": "src/components/ui/separator.tsx",
+    "Sheet": "src/components/ui/sheet.tsx",
+    "Skeleton": "src/components/ui/skeleton.tsx"
+  }
+}
