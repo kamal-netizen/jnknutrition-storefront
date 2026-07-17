@@ -61,7 +61,7 @@ export default function AddToCart({ product, onVariantChange }: Props) {
           currencyCode={selectedVariant.price.currencyCode}
           className="text-3xl font-black text-[#F9D20F]"
         />
-        {selectedVariant.compareAtPrice && (
+        {selectedVariant.compareAtPrice && compareAmount > priceAmount && (
           <Price
             amount={selectedVariant.compareAtPrice.amount}
             currencyCode={selectedVariant.compareAtPrice.currencyCode}

@@ -8,10 +8,11 @@ type Props = {
   images: ProductImage[];
   title: string;
   activeIndex?: number;
+  activeImageUrl?: string | null;
   onActiveChange?: (i: number) => void;
 };
 
-export default function ProductGallery({ images, title, activeIndex: controlledIndex, onActiveChange }: Props) {
+export default function ProductGallery({ images, title, activeIndex: controlledIndex, activeImageUrl, onActiveChange }: Props) {
   const [internalIndex, setInternalIndex] = useState(0);
   const active = controlledIndex ?? internalIndex;
 
@@ -28,7 +29,10 @@ export default function ProductGallery({ images, title, activeIndex: controlledI
     );
   }
 
-  const activeImage = images[active];
+  const baseImage = images[active] ?? images[0];
+  const activeImage = activeImageUrl
+    ? { url: activeImageUrl, altText: baseImage.altText }
+    : baseImage;
 
   return (
     <div className="space-y-4">

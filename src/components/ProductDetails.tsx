@@ -25,6 +25,7 @@ type Props = {
 export default function ProductDetails({ product, recommendations, descriptionHtml }: Props) {
   const images = product.images.edges.map((e) => e.node);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [activeVariantImageUrl, setActiveVariantImageUrl] = useState<string | null>(null);
 
   const variants = product.variants.edges.map((e) => e.node);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
@@ -34,9 +35,19 @@ export default function ProductDetails({ product, recommendations, descriptionHt
 
   function handleVariantChange(variant: ProductVariant) {
     setSelectedVariant(variant);
-    if (!variant.image) return;
-    const idx = images.findIndex((img) => img.url === variant.image!.url);
-    if (idx !== -1) setActiveIndex(idx);
+    if (!variant.image) {
+      setActiveVariantImageUrl(null);
+      setActiveIndex(0);
+      return;
+    }
+    const variantBase = variant.image.url.split('?')[0];
+    const idx = images.findIndex((img) => img.url.split('?')[0] === variantBase);
+    if (idx !== -1) {
+      setActiveVariantImageUrl(null);
+      setActiveIndex(idx);
+    } else {
+      setActiveVariantImageUrl(variant.image.url);
+    }
   }
 
   return (
@@ -73,7 +84,8 @@ export default function ProductDetails({ product, recommendations, descriptionHt
           images={images}
           title={product.title}
           activeIndex={activeIndex}
-          onActiveChange={setActiveIndex}
+          activeImageUrl={activeVariantImageUrl}
+          onActiveChange={(i) => { setActiveVariantImageUrl(null); setActiveIndex(i); }}
         />
 
         {/* Details */}
