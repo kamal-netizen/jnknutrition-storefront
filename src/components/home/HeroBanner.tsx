@@ -15,6 +15,12 @@ type Banner = {
 
 const BANNERS: Banner[] = [
   {
+    src: "/banners/summer-sale.jpg",
+    alt: "Summer Sale — Fuel Your Summer. Build Your Best.",
+    href: "/products/animal-100-whey-protein",
+    cta: "Shop the Sale",
+  },
+  {
     src: "/banners/Top Brands. Best Prices. Fast Results.jpg",
     alt: "Top Brands. Best Prices. Fast Results.",
     href: "/products",

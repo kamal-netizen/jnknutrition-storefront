@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Truck } from "lucide-react";
 import type { Product } from "@/lib/queries/products";
 import { Badge } from "@/components/ui/badge";
 import Price from "@/components/Price";
 import QuickAddButton from "@/components/QuickAddButton";
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping";
 
 type Props = {
   product: Product;
@@ -40,7 +42,10 @@ export default function ProductCard({ product }: Props) {
     : 0;
 
   const priceStr = `${minPrice.currencyCode} ${parseFloat(minPrice.amount).toFixed(2)}`;
-  const a11yLabel = `${product.title}${product.vendor ? `, by ${product.vendor}` : ""}${isOnSale ? `, ${discountPercent}% off` : ""}, ${priceStr}`;
+  const qualifiesForFreeShipping =
+    minPrice.currencyCode === "AED" &&
+    parseFloat(minPrice.amount) >= FREE_SHIPPING_THRESHOLD;
+  const a11yLabel = `${product.title}${product.vendor ? `, by ${product.vendor}` : ""}${isOnSale ? `, ${discountPercent}% off` : ""}, ${priceStr}${qualifiesForFreeShipping ? ", free delivery" : ""}`;
 
   return (
     <div className="group relative flex h-full flex-col rounded-2xl bg-white border border-[#E2E8F0] shadow-card hover:border-[#F9D20F] hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 focus-within:ring-2 focus-within:ring-[#F9D20F] focus-within:ring-offset-2 focus-within:ring-offset-white">
@@ -89,6 +94,17 @@ export default function ProductCard({ product }: Props) {
             </Badge>
           )}
         </div>
+
+        {/* Free delivery — refined pill, top-right so it balances the discount badge */}
+        {qualifiesForFreeShipping && (
+          <div
+            className="absolute top-2 right-2 z-[2] inline-flex items-center gap-1.5 rounded-full bg-gradient-to-b from-[#12925A] to-[#0B7A48] px-2.5 py-1 text-[9.5px] font-bold uppercase leading-none tracking-[0.08em] text-white shadow-[0_2px_6px_-1px_rgba(11,122,72,0.5)] ring-1 ring-inset ring-white/25"
+            aria-hidden="true"
+          >
+            <Truck className="w-3 h-3 shrink-0" strokeWidth={2.5} aria-hidden />
+            Free Delivery
+          </div>
+        )}
 
         {/* Quick Add — desktop: slides up from bottom of image on hover/focus */}
         <div className="hidden sm:block absolute bottom-0 inset-x-0 translate-y-full group-hover:translate-y-0 group-focus-within:translate-y-0 transition-transform duration-200 ease-out z-[3]">
