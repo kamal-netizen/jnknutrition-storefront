@@ -22,14 +22,25 @@ type Props = {
   typeFacets: FacetValue[];
 };
 
+type FetchedPage = {
+  key: string;
+  products: Product[];
+  cursor: string | null;
+  hasNextPage: boolean;
+};
+
 /**
  * Reacts to the URL's filter/sort query params on the client so the Server
  * Component page above it never touches `searchParams` — that's what keeps
  * `/products` statically cacheable. The unfiltered case (the overwhelming
- * majority of visits) renders the server-provided data immediately with no
- * extra fetch; only an actual filtered URL triggers a client-side fetch of
- * the correctly-filtered page, via the same load-more Server Action pattern
- * already used for pagination.
+ * majority of visits) renders the server-provided data directly with no
+ * extra fetch or state; only an actual filtered URL triggers a client-side
+ * fetch of the correctly-filtered page, via the same load-more Server Action
+ * pattern already used for pagination.
+ *
+ * `fetched` is only ever set from the fetch's resolution callback (never
+ * synchronously in the effect body); the "loading" state is a pure
+ * derivation of filterKey vs. fetched.key, not a separate setState call.
  */
 export default function ProductsBrowserClient({
   initialFilters,
@@ -47,48 +58,31 @@ export default function ProductsBrowserClient({
   const isDefault = !hasAnyActiveFilter(filters);
   const filterKey = JSON.stringify(filters);
 
-  const [result, setResult] = useState<{
-    key: string;
-    products: Product[];
-    cursor: string | null;
-    hasNextPage: boolean;
-  }>({
-    key: JSON.stringify(initialFilters),
-    products: initialProducts,
-    cursor: initialCursor,
-    hasNextPage: initialHasNextPage,
-  });
-  const [loading, setLoading] = useState(false);
+  const [fetched, setFetched] = useState<FetchedPage | null>(null);
+  const isPending = !isDefault && fetched?.key !== filterKey;
 
   useEffect(() => {
-    if (isDefault) {
-      setResult({
-        key: JSON.stringify(initialFilters),
-        products: initialProducts,
-        cursor: initialCursor,
-        hasNextPage: initialHasNextPage,
-      });
-      setLoading(false);
-      return;
-    }
-    if (result.key === filterKey) return;
+    if (!isPending) return;
     let active = true;
-    setLoading(true);
     getFilteredProductsFirstPage(filters).then((res: LoadMoreResult) => {
       if (!active) return;
-      setResult({
+      setFetched({
         key: filterKey,
         products: res.products,
         cursor: res.endCursor,
         hasNextPage: res.hasNextPage,
       });
-      setLoading(false);
     });
     return () => {
       active = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterKey, isDefault]);
+  }, [filterKey, isPending]);
+
+  const current: FetchedPage =
+    isDefault || fetched?.key !== filterKey
+      ? { key: JSON.stringify(initialFilters), products: initialProducts, cursor: initialCursor, hasNextPage: initialHasNextPage }
+      : fetched;
 
   return (
     <ProductsBrowserView
@@ -96,10 +90,10 @@ export default function ProductsBrowserClient({
       filters={filters}
       vendorFacets={vendorFacets}
       typeFacets={typeFacets}
-      products={result.products}
-      cursor={result.cursor}
-      hasNextPage={result.hasNextPage}
-      loading={loading}
+      products={current.products}
+      cursor={current.cursor}
+      hasNextPage={current.hasNextPage}
+      loading={isPending}
       loadMore={loadMoreProducts.bind(null, filters)}
     />
   );

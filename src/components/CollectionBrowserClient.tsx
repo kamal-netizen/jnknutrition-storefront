@@ -22,11 +22,28 @@ type Props = {
   isTypeCollection: boolean;
 };
 
+type FetchedView = {
+  key: string;
+  products: Product[];
+  cursor: string | null;
+  hasNextPage: boolean;
+  vendors: FacetValue[];
+  productTypes: FacetValue[];
+};
+
 /**
  * Reacts to the URL's filter/sort query params on the client so the collection
  * page's Server Component never touches `searchParams` — that's what keeps
- * `/collections/[handle]` statically cacheable. See ProductsBrowserClient for
- * the same pattern applied to /products.
+ * `/collections/[handle]` statically cacheable. The unfiltered case (the
+ * overwhelming majority of visits) renders the server-provided data directly
+ * with no extra fetch or state; only an actual filtered URL triggers a
+ * client-side fetch, via the same Server Action pattern already used for
+ * "Load More" pagination.
+ *
+ * `fetched` is only ever set from the fetch's resolution callback (never
+ * synchronously in the effect body); the "loading" state is a pure
+ * derivation of filterKey vs. fetched.key, not a separate setState call. See
+ * ProductsBrowserClient for the same pattern applied to /products.
  */
 export default function CollectionBrowserClient({
   handle,
@@ -51,35 +68,15 @@ export default function CollectionBrowserClient({
   const isDefault = discountOnly || !hasAnyActiveFilter(filters);
   const filterKey = JSON.stringify(filters);
 
-  const [state, setState] = useState(() => ({
-    key: JSON.stringify(initialFilters),
-    products: initialProducts,
-    cursor: initialCursor,
-    hasNextPage: initialHasNextPage,
-    vendors: initialVendors,
-    productTypes: initialProductTypes,
-  }));
-  const [loading, setLoading] = useState(false);
+  const [fetched, setFetched] = useState<FetchedView | null>(null);
+  const isPending = !isDefault && fetched?.key !== filterKey;
 
   useEffect(() => {
-    if (isDefault) {
-      setState({
-        key: JSON.stringify(initialFilters),
-        products: initialProducts,
-        cursor: initialCursor,
-        hasNextPage: initialHasNextPage,
-        vendors: initialVendors,
-        productTypes: initialProductTypes,
-      });
-      setLoading(false);
-      return;
-    }
-    if (state.key === filterKey) return;
+    if (!isPending) return;
     let active = true;
-    setLoading(true);
     getFilteredCollectionView(handle, filters, language).then((res) => {
       if (!active || !res) return;
-      setState({
+      setFetched({
         key: filterKey,
         products: res.products,
         cursor: res.endCursor,
@@ -87,27 +84,38 @@ export default function CollectionBrowserClient({
         vendors: res.vendors,
         productTypes: res.productTypes,
       });
-      setLoading(false);
     });
     return () => {
       active = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterKey, isDefault, handle, language]);
+  }, [filterKey, isPending, handle, language]);
+
+  const current: FetchedView =
+    isDefault || fetched?.key !== filterKey
+      ? {
+          key: JSON.stringify(initialFilters),
+          products: initialProducts,
+          cursor: initialCursor,
+          hasNextPage: initialHasNextPage,
+          vendors: initialVendors,
+          productTypes: initialProductTypes,
+        }
+      : fetched;
 
   return (
     <CollectionBrowserView
       handle={handle}
       filters={filters}
-      vendors={state.vendors}
-      productTypes={state.productTypes}
-      products={state.products}
-      cursor={state.cursor}
-      hasNextPage={state.hasNextPage}
+      vendors={current.vendors}
+      productTypes={current.productTypes}
+      products={current.products}
+      cursor={current.cursor}
+      hasNextPage={current.hasNextPage}
       discountOnly={discountOnly}
       isAggregateDeal={isAggregateDeal}
       isTypeCollection={isTypeCollection}
-      loading={loading}
+      loading={isPending}
       loadMore={loadMoreCollection.bind(null, handle, filters)}
     />
   );
