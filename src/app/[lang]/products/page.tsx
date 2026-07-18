@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Suspense } from "react";
 import { getProductsPage, getProductFacets } from "@/lib/queries/products";
-import ProductFilters, {
-  ProductFilterChips,
-  type FacetValue,
-} from "@/components/ProductFilters";
-import PaginatedProductGrid from "@/components/PaginatedProductGrid";
+import type { FacetValue } from "@/components/ProductFilters";
+import ProductsBrowserView from "@/components/ProductsBrowserView";
+import ProductsBrowserClient from "@/components/ProductsBrowserClient";
 import {
   SORT_OPTIONS,
-  parseProductFilters,
   resolveSort,
   buildProductsQuery,
+  type ActiveFilters,
 } from "@/lib/product-filters";
 import { loadMoreProducts } from "./actions";
 
@@ -21,14 +19,23 @@ export const metadata: Metadata = {
 
 export const revalidate = 300;
 
-type Props = {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
+// The unfiltered, default-sort view — used both for the initial server
+// render and as the data fed to ProductsBrowserClient for hydration.
+const DEFAULT_FILTERS: ActiveFilters = {
+  includeSoldOut: false,
+  vendors: [],
+  productTypes: [],
+  price: null,
+  onSale: false,
+  sortLabel: "",
 };
 
-export default async function ProductsPage({ searchParams }: Props) {
-  const sp = await searchParams;
-  const filters = parseProductFilters(sp);
-  const sort = resolveSort(SORT_OPTIONS, filters.sortLabel);
+export default async function ProductsPage() {
+  // No `searchParams` read here — that's what keeps this route statically
+  // cacheable (ISR, revalidate=300) instead of forced-dynamic on every visit.
+  // Filter/sort interactions are handled client-side in ProductsBrowserClient;
+  // see its file comment for why.
+  const sort = resolveSort(SORT_OPTIONS, DEFAULT_FILTERS.sortLabel);
 
   const [facets, page] = await Promise.all([
     getProductFacets(),
@@ -36,11 +43,10 @@ export default async function ProductsPage({ searchParams }: Props) {
       first: 24,
       sortKey: sort.sortKey,
       reverse: sort.reverse,
-      query: buildProductsQuery(filters),
-      onSaleOnly: filters.onSale,
+      query: buildProductsQuery(DEFAULT_FILTERS),
+      onSaleOnly: DEFAULT_FILTERS.onSale,
     }),
   ]);
-  const products = page.products;
 
   const vendorFacets: FacetValue[] = facets.vendors.map((v) => ({
     value: v,
@@ -77,47 +83,36 @@ export default async function ProductsPage({ searchParams }: Props) {
         </div>
       </div>
 
-      <ProductFilterChips basePath="/products" filters={filters} />
-
-      <div className="flex flex-col lg:flex-row gap-8">
-        <ProductFilters
-          basePath="/products"
-          filters={filters}
-          sortOptions={SORT_OPTIONS}
-          vendors={vendorFacets}
-          productTypes={typeFacets}
-          resultCount={products.length}
+      {/*
+        Suspense fallback = the plain server-rendered default view (identical
+        markup to what the client renders for the no-filter case, via the
+        shared ProductsBrowserView). Only URLs that actually carry filter
+        params see the client fetch/loading state that follows.
+      */}
+      <Suspense
+        fallback={
+          <ProductsBrowserView
+            basePath="/products"
+            filters={DEFAULT_FILTERS}
+            vendorFacets={vendorFacets}
+            typeFacets={typeFacets}
+            products={page.products}
+            cursor={page.endCursor}
+            hasNextPage={page.hasNextPage}
+            loading={false}
+            loadMore={loadMoreProducts.bind(null, DEFAULT_FILTERS)}
+          />
+        }
+      >
+        <ProductsBrowserClient
+          initialFilters={DEFAULT_FILTERS}
+          initialProducts={page.products}
+          initialCursor={page.endCursor}
+          initialHasNextPage={page.hasNextPage}
+          vendorFacets={vendorFacets}
+          typeFacets={typeFacets}
         />
-
-        {/* Grid */}
-        <div className="flex-1 min-w-0">
-          {products.length > 0 ? (
-            <PaginatedProductGrid
-              key={JSON.stringify(filters)}
-              initialProducts={products}
-              initialCursor={page.endCursor}
-              initialHasNextPage={page.hasNextPage}
-              loadMore={loadMoreProducts.bind(null, filters)}
-            />
-          ) : (
-            <div className="rounded-2xl border border-dashed border-[#CBD5E1] bg-[#F8FAFC] p-12 text-center">
-              <p className="text-lg font-bold text-[#0B0F14]">
-                No products match your filters
-              </p>
-              <p className="mt-2 text-sm text-[#64748B]">
-                Try removing a filter or{" "}
-                <Link
-                  href="/products"
-                  className="font-semibold text-[#0B0F14] underline underline-offset-2 hover:text-[#F9D20F]"
-                >
-                  clear all
-                </Link>
-                .
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+      </Suspense>
     </div>
   );
 }

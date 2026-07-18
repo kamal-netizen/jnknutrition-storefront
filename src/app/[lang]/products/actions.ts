@@ -25,3 +25,21 @@ export async function loadMoreProducts(
     onSaleOnly: filters.onSale,
   });
 }
+
+/**
+ * Fetch the first page of products for a given filter/sort combination.
+ * Used client-side (see ProductsBrowserClient) when the URL carries filters,
+ * since the page itself no longer reads `searchParams` server-side.
+ */
+export async function getFilteredProductsFirstPage(
+  filters: ActiveFilters
+): Promise<LoadMoreResult> {
+  const sort = resolveSort(SORT_OPTIONS, filters.sortLabel);
+  return getProductsPage({
+    first: PAGE_SIZE,
+    sortKey: sort.sortKey,
+    reverse: sort.reverse,
+    query: buildProductsQuery(filters),
+    onSaleOnly: filters.onSale,
+  });
+}

@@ -2,6 +2,10 @@
 
 import { getCollectionProductsPage } from "@/lib/queries/collections";
 import {
+  getCollectionProductsView,
+  type CollectionProductsView,
+} from "@/lib/collection-products";
+import {
   COLLECTION_SORT_OPTIONS,
   resolveSort,
   toShopifyFilters,
@@ -35,5 +39,34 @@ export async function loadMoreCollection(
     products,
     endCursor: page.endCursor,
     hasNextPage: page.hasNextPage,
+  };
+}
+
+export type FilteredCollectionResult = Pick<
+  CollectionProductsView,
+  "products" | "vendors" | "productTypes" | "discountOnly" | "isAggregateDeal" | "isTypeCollection"
+> & { endCursor: string | null; hasNextPage: boolean };
+
+/**
+ * Resolve a collection's product listing for an arbitrary filter/sort state.
+ * Called client-side (see CollectionBrowserClient) when the URL carries
+ * filters, since the page itself no longer reads `searchParams` server-side.
+ */
+export async function getFilteredCollectionView(
+  handle: string,
+  filters: ActiveFilters,
+  language?: string
+): Promise<FilteredCollectionResult | null> {
+  const view = await getCollectionProductsView(handle, filters, language);
+  if (!view) return null;
+  return {
+    products: view.products,
+    vendors: view.vendors,
+    productTypes: view.productTypes,
+    discountOnly: view.discountOnly,
+    isAggregateDeal: view.isAggregateDeal,
+    isTypeCollection: view.isTypeCollection,
+    endCursor: view.collection.products.pageInfo.endCursor,
+    hasNextPage: view.collection.products.pageInfo.hasNextPage,
   };
 }
