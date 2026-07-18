@@ -4,6 +4,14 @@ import { getProducts } from "@/lib/queries/products";
 import { getCollections } from "@/lib/queries/collections";
 import { getAllNews } from "@/lib/news";
 import { NESTED_COLLECTION_URLS } from "@/lib/collection-seo";
+import { LOCALES, localizePath } from "@/lib/i18n";
+
+/** hreflang alternates map (absolute URLs) for a default-locale path. */
+function altLanguages(path: string): Record<string, string> {
+  const languages: Record<string, string> = {};
+  for (const l of LOCALES) languages[l.hrefLang] = absoluteUrl(localizePath(path, l));
+  return languages;
+}
 
 export const revalidate = 3600;
 
@@ -45,6 +53,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: now,
     changeFrequency: r.changeFrequency,
     priority: r.priority,
+    alternates: { languages: altLanguages(r.path) },
   }));
 
   const productEntries: MetadataRoute.Sitemap =
@@ -53,6 +62,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.8,
+      alternates: { languages: altLanguages(`/products/${node.handle}`) },
     })) ?? [];
 
   const collectionEntries: MetadataRoute.Sitemap = collections.map((c) => ({
@@ -61,6 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: "weekly",
     // High-intent / proven high-CTR collections (near-expiry deals) crawl hotter.
     priority: PRIORITY_COLLECTION_HANDLES.has(c.handle) ? 0.9 : 0.7,
+    alternates: { languages: altLanguages(`/collections/${c.handle}`) },
   }));
 
   // Two-segment collection/tag URLs preserved from the previous theme.
@@ -70,6 +81,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.7,
+      alternates: { languages: altLanguages(`/collections/${handle}/${tag}`) },
     }));
 
   const newsEntries: MetadataRoute.Sitemap = getAllNews().map((article) => ({

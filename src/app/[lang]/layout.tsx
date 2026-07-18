@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
+import { getLocale, LOCALE_CODES } from "@/lib/i18n";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BottomNav from "@/components/BottomNav";
@@ -61,12 +62,21 @@ export const metadata: Metadata = {
   },
 };
 
+export function generateStaticParams() {
+  return LOCALE_CODES.map((lang) => ({ lang }));
+}
+
 export default async function RootLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{ lang: string }>;
 }>) {
-  const collections = await getCollections(20);
+  const { lang } = await params;
+  const locale = getLocale(lang);
+  const shopLang = locale.isDefault ? undefined : locale.shopifyLanguage;
+  const collections = await getCollections(20, shopLang);
 
   const organizationJsonLd = {
     "@context": "https://schema.org",
@@ -168,7 +178,8 @@ export default async function RootLayout({
 
   return (
     <html
-      lang="en"
+      lang={locale.htmlLang}
+      dir={locale.dir}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>

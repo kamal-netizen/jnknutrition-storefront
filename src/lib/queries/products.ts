@@ -1,4 +1,8 @@
-import { storefrontFetch } from "@/lib/shopify";
+import {
+  storefrontFetch,
+  IN_CONTEXT_ARGS,
+  IN_CONTEXT_DIRECTIVE,
+} from "@/lib/shopify";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -151,7 +155,7 @@ const PRODUCT_FRAGMENT = `
 
 const GET_PRODUCT = `
   ${PRODUCT_FRAGMENT}
-  query GetProduct($handle: String!) {
+  query GetProduct($handle: String!, ${IN_CONTEXT_ARGS}) ${IN_CONTEXT_DIRECTIVE} {
     product(handle: $handle) {
       ...ProductFragment
     }
@@ -166,7 +170,8 @@ const GET_PRODUCTS = `
     $sortKey: ProductSortKeys
     $reverse: Boolean
     $query: String
-  ) {
+    ${IN_CONTEXT_ARGS}
+  ) ${IN_CONTEXT_DIRECTIVE} {
     products(
       first: $first
       after: $after
@@ -182,7 +187,7 @@ const GET_PRODUCTS = `
 
 const GET_PRODUCT_RECOMMENDATIONS = `
   ${PRODUCT_FRAGMENT}
-  query GetProductRecommendations($productId: ID!) {
+  query GetProductRecommendations($productId: ID!, ${IN_CONTEXT_ARGS}) ${IN_CONTEXT_DIRECTIVE} {
     productRecommendations(productId: $productId) {
       ...ProductFragment
     }
@@ -190,10 +195,15 @@ const GET_PRODUCT_RECOMMENDATIONS = `
 `;
 
 // ─── Fetchers ────────────────────────────────────────────────────────────────
+// `language` is a Shopify LanguageCode ("AR"); omit for the default (EN).
 
-export async function getProduct(handle: string): Promise<Product | null> {
+export async function getProduct(
+  handle: string,
+  language?: string
+): Promise<Product | null> {
   const data = await storefrontFetch<{ product: Product | null }>(GET_PRODUCT, {
     handle,
+    ...(language ? { language } : {}),
   });
   return data.product;
 }
@@ -204,6 +214,7 @@ export async function getProducts(options: {
   sortKey?: string;
   reverse?: boolean;
   query?: string;
+  language?: string;
 }): Promise<ProductConnection> {
   const data = await storefrontFetch<{ products: ProductConnection }>(
     GET_PRODUCTS,
@@ -255,11 +266,15 @@ export async function getInStockDiscountedProducts(options?: {
 }
 
 export async function getProductRecommendations(
-  productId: string
+  productId: string,
+  language?: string
 ): Promise<Product[]> {
   const data = await storefrontFetch<{
     productRecommendations: Product[];
-  }>(GET_PRODUCT_RECOMMENDATIONS, { productId });
+  }>(GET_PRODUCT_RECOMMENDATIONS, {
+    productId,
+    ...(language ? { language } : {}),
+  });
   return data.productRecommendations.filter((p) => p.availableForSale);
 }
 

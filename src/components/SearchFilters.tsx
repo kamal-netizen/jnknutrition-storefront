@@ -10,7 +10,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { SORT_OPTIONS } from "@/app/search/constants";
+import { SORT_OPTIONS } from "@/app/[lang]/search/constants";
 
 type FacetValue = {
   id: string;

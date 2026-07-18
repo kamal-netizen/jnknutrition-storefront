@@ -27,6 +27,7 @@ import {
   collectionFallbackTitle,
   collectionFallbackDescription,
 } from "@/lib/seo";
+import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
 import { getCollectionSeo } from "@/lib/collection-seo";
 import { loadMoreCollection } from "./actions";
 
@@ -57,7 +58,7 @@ const PRODUCT_SORT_KEY: Record<string, string> = {
 };
 
 type Props = {
-  params: Promise<{ handle: string }>;
+  params: Promise<{ handle: string; lang: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
@@ -129,19 +130,26 @@ export async function generateMetadata({
   params,
   searchParams,
 }: Props): Promise<Metadata> {
-  const { handle } = await params;
+  const { handle, lang } = await params;
+  const locale = getLocale(lang);
   const sp = await searchParams;
-  const collection = await getCollection(handle, { first: 1 });
+  const collection = await getCollection(handle, {
+    first: 1,
+    language: locale.isDefault ? undefined : locale.shopifyLanguage,
+  });
   if (!collection) return { title: "Collection Not Found" };
 
-  const seo = getCollectionSeo(handle);
+  // Enriched English marketing copy applies to the default locale only; other
+  // locales fall through to Shopify's own translated SEO fields.
+  const seo = locale.isDefault ? getCollectionSeo(handle) : undefined;
   const title =
     seo?.title || collection.seo.title || collectionFallbackTitle(collection.title);
   const description =
     seo?.description ||
     collection.seo.description ||
     collectionFallbackDescription(collection.title);
-  const url = `/collections/${collection.handle}`;
+  const basePath = `/collections/${collection.handle}`;
+  const url = localizePath(basePath, locale);
 
   // Faceted/filtered variants are near-duplicates of the base collection — keep
   // them out of the index but let crawlers follow to products. The canonical
@@ -151,7 +159,7 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: { canonical: url },
+    alternates: { canonical: url, languages: hreflangAlternates(basePath) },
     ...(hasFilterParams ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
       type: "website",
@@ -173,7 +181,9 @@ export async function generateMetadata({
 }
 
 export default async function CollectionPage({ params, searchParams }: Props) {
-  const { handle } = await params;
+  const { handle, lang } = await params;
+  const locale = getLocale(lang);
+  const language = locale.isDefault ? undefined : locale.shopifyLanguage;
   const sp = await searchParams;
   const filters = parseProductFilters(sp);
   const selectedSort = resolveSort(COLLECTION_SORT_OPTIONS, filters.sortLabel);
@@ -188,6 +198,7 @@ export default async function CollectionPage({ params, searchParams }: Props) {
     sortKey: selectedSort.sortKey,
     reverse: selectedSort.reverse,
     filters: (discountOnly || isAggregateDeal || isTypeCollection) ? undefined : toShopifyFilters(filters),
+    language,
   });
 
   if (!collection) notFound();
@@ -284,24 +295,25 @@ export default async function CollectionPage({ params, searchParams }: Props) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+      { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl(localizePath("/", locale)) },
       {
         "@type": "ListItem",
         position: 2,
         name: "Collections",
-        item: absoluteUrl("/collections"),
+        item: absoluteUrl(localizePath("/collections", locale)),
       },
       {
         "@type": "ListItem",
         position: 3,
         name: collection.title,
-        item: absoluteUrl(`/collections/${collection.handle}`),
+        item: absoluteUrl(localizePath(`/collections/${collection.handle}`, locale)),
       },
     ],
   };
 
   // Enriched, keyword-targeted copy for high-intent collections (near-expiry).
-  const seoContent = getCollectionSeo(handle);
+  // English-only; Arabic falls through to Shopify's translated content.
+  const seoContent = locale.isDefault ? getCollectionSeo(handle) : undefined;
 
   // ItemList schema helps Google understand the listing and can surface the
   // collection as a rich result. Cap at the first 20 for a lean payload.
@@ -315,7 +327,7 @@ export default async function CollectionPage({ params, searchParams }: Props) {
           itemListElement: products.slice(0, 20).map((p, i) => ({
             "@type": "ListItem",
             position: i + 1,
-            url: absoluteUrl(`/products/${p.handle}`),
+            url: absoluteUrl(localizePath(`/products/${p.handle}`, locale)),
             name: p.title,
           })),
         }

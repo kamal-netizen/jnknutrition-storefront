@@ -13,12 +13,13 @@ import {
   productFallbackTitle,
   productFallbackDescription,
 } from "@/lib/seo";
+import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
 import { PRODUCT_FAQ } from "@/lib/product-faq";
 
 export const revalidate = 300;
 
 type Props = {
-  params: Promise<{ handle: string }>;
+  params: Promise<{ handle: string; lang: string }>;
 };
 
 export async function generateStaticParams() {
@@ -27,8 +28,12 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { handle } = await params;
-  const product = await getProduct(handle);
+  const { handle, lang } = await params;
+  const locale = getLocale(lang);
+  const product = await getProduct(
+    handle,
+    locale.isDefault ? undefined : locale.shopifyLanguage
+  );
   if (!product) return { title: "Product Not Found" };
 
   const image = product.images.edges[0]?.node;
@@ -41,9 +46,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       price: product.priceRange.minVariantPrice.amount,
       currency: product.priceRange.minVariantPrice.currencyCode,
     });
-  const selfPath = `/products/${product.handle}`;
+  const basePath = `/products/${product.handle}`;
+  const selfPath = localizePath(basePath, locale);
   // Size-variant duplicates can point Google at a primary via a `seo.canonical_url`
-  // metafield; otherwise the page self-canonicalizes.
+  // metafield; otherwise the page self-canonicalizes (per-locale).
   const canonical = getCanonicalOverride(product) ?? selfPath;
   const images = image
     ? [{ url: image.url, width: image.width, height: image.height, alt: product.title }]
@@ -52,7 +58,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: { canonical },
+    alternates: { canonical, languages: hreflangAlternates(basePath) },
     openGraph: {
       type: "website",
       title,
@@ -70,15 +76,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductPage({ params }: Props) {
-  const { handle } = await params;
-  const product = await getProduct(handle);
+  const { handle, lang } = await params;
+  const locale = getLocale(lang);
+  const language = locale.isDefault ? undefined : locale.shopifyLanguage;
+  const product = await getProduct(handle, language);
 
   if (!product) notFound();
 
-  const recommendations = await getProductRecommendations(product.id);
+  const recommendations = await getProductRecommendations(product.id, language);
   const images = product.images.edges.map((e) => e.node);
 
-  const productUrl = absoluteUrl(`/products/${product.handle}`);
+  const productUrl = absoluteUrl(localizePath(`/products/${product.handle}`, locale));
 
   const variants = product.variants.edges.map((e) => e.node);
 
@@ -127,13 +135,13 @@ export default async function ProductPage({ params }: Props) {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: absoluteUrl("/"),
+        item: absoluteUrl(localizePath("/", locale)),
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Products",
-        item: absoluteUrl("/products"),
+        item: absoluteUrl(localizePath("/products", locale)),
       },
       {
         "@type": "ListItem",

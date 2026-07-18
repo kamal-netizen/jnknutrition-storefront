@@ -9,12 +9,13 @@ import {
   absoluteUrl,
   collectionFallbackDescription,
 } from "@/lib/seo";
+import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
 import { getCollectionSeo, prettifyTag } from "@/lib/collection-seo";
 
 export const revalidate = 300;
 
 type Props = {
-  params: Promise<{ handle: string; tag: string }>;
+  params: Promise<{ handle: string; tag: string; lang: string }>;
 };
 
 /**
@@ -24,23 +25,28 @@ type Props = {
  * re-serve them 1:1 to preserve their search equity.
  */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { handle, tag } = await params;
-  const collection = await getCollection(handle, { first: 1 });
+  const { handle, tag, lang } = await params;
+  const locale = getLocale(lang);
+  const collection = await getCollection(handle, {
+    first: 1,
+    language: locale.isDefault ? undefined : locale.shopifyLanguage,
+  });
   if (!collection) return { title: "Collection Not Found" };
 
   const tagLabel = prettifyTag(tag);
-  const seo = getCollectionSeo(`${handle}/${tag}`);
+  const seo = locale.isDefault ? getCollectionSeo(`${handle}/${tag}`) : undefined;
   const title = seo?.title || `${collection.title} — ${tagLabel}`;
   const description =
     seo?.description ||
     collection.seo.description ||
     collectionFallbackDescription(`${tagLabel} ${collection.title}`);
-  const url = `/collections/${handle}/${tag}`;
+  const basePath = `/collections/${handle}/${tag}`;
+  const url = localizePath(basePath, locale);
 
   return {
     title,
     description,
-    alternates: { canonical: url },
+    alternates: { canonical: url, languages: hreflangAlternates(basePath) },
     openGraph: {
       type: "website",
       title,
@@ -61,36 +67,40 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CollectionTagPage({ params }: Props) {
-  const { handle, tag } = await params;
+  const { handle, tag, lang } = await params;
+  const locale = getLocale(lang);
   const collection = await getCollection(handle, {
     first: 48,
     filters: [{ available: true }, { tag: decodeURIComponent(tag) }],
+    language: locale.isDefault ? undefined : locale.shopifyLanguage,
   });
 
   if (!collection) notFound();
 
   const products: Product[] = collection.products.edges.map((e) => e.node);
   const tagLabel = prettifyTag(tag);
-  const seoContent = getCollectionSeo(`${handle}/${tag}`);
+  const seoContent = locale.isDefault
+    ? getCollectionSeo(`${handle}/${tag}`)
+    : undefined;
   const heading = `${collection.title} — ${tagLabel}`;
-  const url = absoluteUrl(`/collections/${handle}/${tag}`);
+  const url = absoluteUrl(localizePath(`/collections/${handle}/${tag}`, locale));
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl("/") },
+      { "@type": "ListItem", position: 1, name: "Home", item: absoluteUrl(localizePath("/", locale)) },
       {
         "@type": "ListItem",
         position: 2,
         name: "Collections",
-        item: absoluteUrl("/collections"),
+        item: absoluteUrl(localizePath("/collections", locale)),
       },
       {
         "@type": "ListItem",
         position: 3,
         name: collection.title,
-        item: absoluteUrl(`/collections/${handle}`),
+        item: absoluteUrl(localizePath(`/collections/${handle}`, locale)),
       },
       { "@type": "ListItem", position: 4, name: tagLabel, item: url },
     ],
@@ -106,7 +116,7 @@ export default async function CollectionTagPage({ params }: Props) {
           itemListElement: products.slice(0, 20).map((p, i) => ({
             "@type": "ListItem",
             position: i + 1,
-            url: absoluteUrl(`/products/${p.handle}`),
+            url: absoluteUrl(localizePath(`/products/${p.handle}`, locale)),
             name: p.title,
           })),
         }

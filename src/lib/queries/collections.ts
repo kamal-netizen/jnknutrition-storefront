@@ -1,4 +1,8 @@
-import { storefrontFetch } from "@/lib/shopify";
+import {
+  storefrontFetch,
+  IN_CONTEXT_ARGS,
+  IN_CONTEXT_DIRECTIVE,
+} from "@/lib/shopify";
 import type { Product, MoneyV2, ProductImage } from "./products";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -94,7 +98,8 @@ const GET_COLLECTION = `
     $sortKey: ProductCollectionSortKeys
     $reverse: Boolean
     $filters: [ProductFilter!]
-  ) {
+    ${IN_CONTEXT_ARGS}
+  ) ${IN_CONTEXT_DIRECTIVE} {
     collection(handle: $handle) {
       ...CollectionFragment
       products(
@@ -117,7 +122,7 @@ const GET_COLLECTION = `
 
 const GET_COLLECTIONS = `
   ${COLLECTION_FRAGMENT}
-  query GetCollections($first: Int!) {
+  query GetCollections($first: Int!, ${IN_CONTEXT_ARGS}) ${IN_CONTEXT_DIRECTIVE} {
     collections(first: $first) {
       edges { node { ...CollectionFragment } }
     }
@@ -134,6 +139,8 @@ export async function getCollection(
     sortKey?: string;
     reverse?: boolean;
     filters?: ProductFilterInput[];
+    /** Shopify LanguageCode ("AR"); omit for the default (EN). */
+    language?: string;
   } = {}
 ): Promise<CollectionWithProducts | null> {
   const data = await storefrontFetch<{
@@ -142,10 +149,13 @@ export async function getCollection(
   return data.collection;
 }
 
-export async function getCollections(first = 20): Promise<Collection[]> {
+export async function getCollections(
+  first = 20,
+  language?: string
+): Promise<Collection[]> {
   const data = await storefrontFetch<{ collections: CollectionConnection }>(
     GET_COLLECTIONS,
-    { first }
+    { first, ...(language ? { language } : {}) }
   );
   return data.collections.edges.map((e) => e.node);
 }

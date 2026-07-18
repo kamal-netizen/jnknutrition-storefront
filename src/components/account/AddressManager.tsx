@@ -9,7 +9,7 @@ import {
   updateAddressAction,
   deleteAddressAction,
   type ActionState,
-} from "@/app/account/actions";
+} from "@/app/[lang]/account/actions";
 import { Button } from "@/components/ui/button";
 
 const initial: ActionState = { error: null };

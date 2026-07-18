@@ -11,6 +11,15 @@ const client = new GraphQLClient(endpoint, {
   },
 });
 
+// Storefront buyer context. Declaring the variables with defaults (AE/EN — the
+// store's default market) keeps every existing call byte-for-byte identical
+// unless a caller passes `language`/`country`. Interpolate both into a query's
+// operation definition to localize its response.
+export const IN_CONTEXT_ARGS =
+  "$country: CountryCode = AE, $language: LanguageCode = EN";
+export const IN_CONTEXT_DIRECTIVE =
+  "@inContext(country: $country, language: $language)";
+
 export async function storefrontFetch<T>(
   query: string,
   variables?: Record<string, unknown>

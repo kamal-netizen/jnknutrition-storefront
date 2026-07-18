@@ -3,7 +3,7 @@
 import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import type { Product } from "@/lib/queries/products";
-import { loadMoreSearch } from "@/app/search/actions";
+import { loadMoreSearch } from "@/app/[lang]/search/actions";
 
 type Props = {
   initialProducts: Product[];

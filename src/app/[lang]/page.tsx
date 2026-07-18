@@ -12,33 +12,44 @@ import SectionHeading from "@/components/home/SectionHeading";
 import UAEFlagBanner from "@/components/home/UAEFlagBanner";
 import type { Metadata } from "next";
 import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, DEFAULT_KEYWORDS } from "@/lib/seo";
+import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
-  // `absolute` bypasses the root "%s | JNK Nutrition" template so the homepage
-  // owns an exact, local-intent SERP title ("supplement store dubai" is a top
-  // non-brand query cluster) without duplicating the brand suffix.
-  title: {
-    absolute: "Supplement Store in Dubai & UAE — 100% Genuine | JNK Nutrition",
-  },
-  description: SITE_DESCRIPTION,
-  keywords: DEFAULT_KEYWORDS,
-  alternates: { canonical: "/" },
-  openGraph: {
-    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+type PageProps = { params: Promise<{ lang: string }> };
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { lang } = await params;
+  const locale = getLocale(lang);
+  const url = localizePath("/", locale);
+  return {
+    // `absolute` bypasses the root "%s | JNK Nutrition" template so the homepage
+    // owns an exact, local-intent SERP title ("supplement store dubai" is a top
+    // non-brand query cluster) without duplicating the brand suffix.
+    title: {
+      absolute: "Supplement Store in Dubai & UAE — 100% Genuine | JNK Nutrition",
+    },
     description: SITE_DESCRIPTION,
-    url: "/",
-    type: "website",
-  },
-};
+    keywords: DEFAULT_KEYWORDS,
+    alternates: { canonical: url, languages: hreflangAlternates("/") },
+    openGraph: {
+      title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+      description: SITE_DESCRIPTION,
+      url,
+      type: "website",
+    },
+  };
+}
 
 const nodes = (
   data: { edges: { node: Product }[] } | null | undefined
 ): Product[] =>
   data?.edges.map((e) => e.node).filter((p) => p.availableForSale) ?? [];
 
-export default async function Home() {
+export default async function Home({ params }: PageProps) {
+  const { lang } = await params;
+  const locale = getLocale(lang);
+  const language = locale.isDefault ? undefined : locale.shopifyLanguage;
   const [
     trending,
     fresh,
@@ -55,20 +66,20 @@ export default async function Home() {
     muscleRulz,
     proscienceNutra,
   ] = await Promise.all([
-    getProducts({ first: 15, sortKey: "BEST_SELLING", query: "available_for_sale:true" }),
-    getProducts({ first: 8, sortKey: "CREATED_AT", reverse: true, query: "available_for_sale:true" }),
-    getCollection("today-deals", { first: 8, filters: [{ available: true }] }),
-    getCollection("near-expiry", { first: 8, filters: [{ available: true }] }),
-    getCollection("whey-protein", { first: 4, filters: [{ available: true }] }),
-    getCollection("creatine", { first: 8, filters: [{ available: true }] }),
-    getCollection("pre-workouts", { first: 8, filters: [{ available: true }] }),
-    getCollection("muscle-building-products", { first: 8, filters: [{ available: true }] }),
-    getCollection("health-wellness", { first: 8, filters: [{ available: true }] }),
-    getCollection("vegan-protein", { first: 4, filters: [{ available: true }] }),
-    getCollection("shakers", { first: 8, filters: [{ available: true }] }),
-    getCollection("core-champs", { first: 8, filters: [{ available: true }] }),
-    getCollection("muscle-rulz", { first: 8, filters: [{ available: true }] }),
-    getCollection("proscience-nutra", { first: 8, filters: [{ available: true }] }),
+    getProducts({ first: 15, sortKey: "BEST_SELLING", query: "available_for_sale:true", language }),
+    getProducts({ first: 8, sortKey: "CREATED_AT", reverse: true, query: "available_for_sale:true", language }),
+    getCollection("today-deals", { first: 8, filters: [{ available: true }], language }),
+    getCollection("near-expiry", { first: 8, filters: [{ available: true }], language }),
+    getCollection("whey-protein", { first: 4, filters: [{ available: true }], language }),
+    getCollection("creatine", { first: 8, filters: [{ available: true }], language }),
+    getCollection("pre-workouts", { first: 8, filters: [{ available: true }], language }),
+    getCollection("muscle-building-products", { first: 8, filters: [{ available: true }], language }),
+    getCollection("health-wellness", { first: 8, filters: [{ available: true }], language }),
+    getCollection("vegan-protein", { first: 4, filters: [{ available: true }], language }),
+    getCollection("shakers", { first: 8, filters: [{ available: true }], language }),
+    getCollection("core-champs", { first: 8, filters: [{ available: true }], language }),
+    getCollection("muscle-rulz", { first: 8, filters: [{ available: true }], language }),
+    getCollection("proscience-nutra", { first: 8, filters: [{ available: true }], language }),
   ]);
 
   const trendingProducts = nodes(trending);
