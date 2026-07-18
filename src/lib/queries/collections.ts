@@ -1,3 +1,4 @@
+import { cache } from "react";
 import {
   storefrontFetch,
   IN_CONTEXT_ARGS,
@@ -130,8 +131,11 @@ const GET_COLLECTIONS = `
 `;
 
 // ─── Fetchers ────────────────────────────────────────────────────────────────
+// Wrapped in React `cache()` to dedupe identical calls within a single render
+// pass (see the note on `getProduct` in queries/products.ts for why this is
+// needed on top of Next's built-in fetch memoization).
 
-export async function getCollection(
+export const getCollection = cache(async function getCollection(
   handle: string,
   options: {
     first?: number;
@@ -147,9 +151,9 @@ export async function getCollection(
     collection: CollectionWithProducts | null;
   }>(GET_COLLECTION, { handle, first: 24, ...options });
   return data.collection;
-}
+});
 
-export async function getCollections(
+export const getCollections = cache(async function getCollections(
   first = 20,
   language?: string
 ): Promise<Collection[]> {
@@ -158,7 +162,7 @@ export async function getCollections(
     { first, ...(language ? { language } : {}) }
   );
   return data.collections.edges.map((e) => e.node);
-}
+});
 
 /**
  * Fetch one page of a collection's products (with cursor) for "Load More"

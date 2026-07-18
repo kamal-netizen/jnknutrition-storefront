@@ -1,3 +1,5 @@
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import {
   storefrontFetch,
   IN_CONTEXT_ARGS,
@@ -196,8 +198,14 @@ const GET_PRODUCT_RECOMMENDATIONS = `
 
 // ─── Fetchers ────────────────────────────────────────────────────────────────
 // `language` is a Shopify LanguageCode ("AR"); omit for the default (EN).
+//
+// Wrapped in React `cache()` so that identical calls within a single render
+// pass (e.g. `generateMetadata` and the page body both requesting the same
+// product) are deduplicated into one Shopify request. `graphql-request` issues
+// POST requests, which Next's built-in fetch memoization does not cover (it
+// only memoizes GET) — `cache()` closes that gap at the call-site level.
 
-export async function getProduct(
+export const getProduct = cache(async function getProduct(
   handle: string,
   language?: string
 ): Promise<Product | null> {
@@ -206,9 +214,9 @@ export async function getProduct(
     ...(language ? { language } : {}),
   });
   return data.product;
-}
+});
 
-export async function getProducts(options: {
+export const getProducts = cache(async function getProducts(options: {
   first?: number;
   after?: string;
   sortKey?: string;
@@ -221,7 +229,7 @@ export async function getProducts(options: {
     { first: 24, ...options }
   );
   return data.products;
-}
+});
 
 /** True when any variant is priced below its compare-at (an active discount). */
 export function isDiscounted(product: Product): boolean {
@@ -236,36 +244,42 @@ export function isDiscounted(product: Product): boolean {
 /**
  * Fetch in-stock products that currently have a discount, aggregated across the
  * whole store (paginating until `max` are collected or the catalog is exhausted).
+ *
+ * This scans the catalog in pages of 250 — expensive relative to a single
+ * product/collection lookup — so results are cached in Next's Data Cache for 5
+ * minutes independent of the calling route's own rendering mode. Several deal
+ * collections (today-deals, super-saver, etc.) call this on every request
+ * because they live on dynamically-rendered (searchParams-driven) pages.
  */
-export async function getInStockDiscountedProducts(options?: {
-  max?: number;
-  sortKey?: string;
-  reverse?: boolean;
-}): Promise<Product[]> {
-  const max = options?.max ?? 48;
-  const collected: Product[] = [];
-  let after: string | undefined;
-  let hasNextPage = true;
+export const getInStockDiscountedProducts = unstable_cache(
+  async (options?: { max?: number; sortKey?: string; reverse?: boolean }) => {
+    const max = options?.max ?? 48;
+    const collected: Product[] = [];
+    let after: string | undefined;
+    let hasNextPage = true;
 
-  while (hasNextPage && collected.length < max) {
-    const conn = await getProducts({
-      first: 250,
-      after,
-      query: "available_for_sale:true",
-      sortKey: options?.sortKey ?? "BEST_SELLING",
-      reverse: options?.reverse ?? false,
-    });
-    for (const { node } of conn.edges) {
-      if (isDiscounted(node)) collected.push(node);
+    while (hasNextPage && collected.length < max) {
+      const conn = await getProducts({
+        first: 250,
+        after,
+        query: "available_for_sale:true",
+        sortKey: options?.sortKey ?? "BEST_SELLING",
+        reverse: options?.reverse ?? false,
+      });
+      for (const { node } of conn.edges) {
+        if (isDiscounted(node)) collected.push(node);
+      }
+      hasNextPage = conn.pageInfo.hasNextPage;
+      after = conn.pageInfo.endCursor ?? undefined;
     }
-    hasNextPage = conn.pageInfo.hasNextPage;
-    after = conn.pageInfo.endCursor ?? undefined;
-  }
 
-  return collected.slice(0, max);
-}
+    return collected.slice(0, max);
+  },
+  ["in-stock-discounted-products"],
+  { revalidate: 300, tags: ["products"] }
+);
 
-export async function getProductRecommendations(
+export const getProductRecommendations = cache(async function getProductRecommendations(
   productId: string,
   language?: string
 ): Promise<Product[]> {
@@ -276,7 +290,7 @@ export async function getProductRecommendations(
     ...(language ? { language } : {}),
   });
   return data.productRecommendations.filter((p) => p.availableForSale);
-}
+});
 
 // ─── Faceted browsing (All Products) ─────────────────────────────────────────
 
@@ -292,44 +306,53 @@ export type ProductFacets = {
  * (brands, product types, price bounds) shown on the All Products page.
  * Values are guaranteed to match real product data so filter queries never
  * return empty results.
+ *
+ * `/products` reads `searchParams` (for filters), which forces the whole route
+ * to render dynamically on every request — so without caching here, this
+ * multi-page catalog scan would re-run in full on every single page view.
+ * Cached in Next's Data Cache for 5 minutes, independent of the route.
  */
-export async function getProductFacets(max = 250): Promise<ProductFacets> {
-  const vendors = new Set<string>();
-  const productTypes = new Set<string>();
-  let priceMin = Infinity;
-  let priceMax = 0;
+export const getProductFacets = unstable_cache(
+  async (max = 250): Promise<ProductFacets> => {
+    const vendors = new Set<string>();
+    const productTypes = new Set<string>();
+    let priceMin = Infinity;
+    let priceMax = 0;
 
-  let after: string | undefined;
-  let hasNextPage = true;
-  let scanned = 0;
+    let after: string | undefined;
+    let hasNextPage = true;
+    let scanned = 0;
 
-  while (hasNextPage && scanned < max) {
-    const conn = await getProducts({
-      first: 250,
-      after,
-      query: "available_for_sale:true",
-      sortKey: "TITLE",
-    });
-    for (const { node } of conn.edges) {
-      scanned++;
-      if (node.vendor) vendors.add(node.vendor);
-      if (node.productType) productTypes.add(node.productType);
-      const min = parseFloat(node.priceRange.minVariantPrice.amount);
-      const maxV = parseFloat(node.priceRange.maxVariantPrice.amount);
-      if (Number.isFinite(min)) priceMin = Math.min(priceMin, min);
-      if (Number.isFinite(maxV)) priceMax = Math.max(priceMax, maxV);
+    while (hasNextPage && scanned < max) {
+      const conn = await getProducts({
+        first: 250,
+        after,
+        query: "available_for_sale:true",
+        sortKey: "TITLE",
+      });
+      for (const { node } of conn.edges) {
+        scanned++;
+        if (node.vendor) vendors.add(node.vendor);
+        if (node.productType) productTypes.add(node.productType);
+        const min = parseFloat(node.priceRange.minVariantPrice.amount);
+        const maxV = parseFloat(node.priceRange.maxVariantPrice.amount);
+        if (Number.isFinite(min)) priceMin = Math.min(priceMin, min);
+        if (Number.isFinite(maxV)) priceMax = Math.max(priceMax, maxV);
+      }
+      hasNextPage = conn.pageInfo.hasNextPage;
+      after = conn.pageInfo.endCursor ?? undefined;
     }
-    hasNextPage = conn.pageInfo.hasNextPage;
-    after = conn.pageInfo.endCursor ?? undefined;
-  }
 
-  return {
-    vendors: Array.from(vendors).sort((a, b) => a.localeCompare(b)),
-    productTypes: Array.from(productTypes).sort((a, b) => a.localeCompare(b)),
-    priceMin: Number.isFinite(priceMin) ? Math.floor(priceMin) : 0,
-    priceMax: priceMax > 0 ? Math.ceil(priceMax) : 0,
-  };
-}
+    return {
+      vendors: Array.from(vendors).sort((a, b) => a.localeCompare(b)),
+      productTypes: Array.from(productTypes).sort((a, b) => a.localeCompare(b)),
+      priceMin: Number.isFinite(priceMin) ? Math.floor(priceMin) : 0,
+      priceMax: priceMax > 0 ? Math.ceil(priceMax) : 0,
+    };
+  },
+  ["product-facets"],
+  { revalidate: 300, tags: ["products"] }
+);
 
 /**
  * Fetch one page of products for the All Products grid applying an optional
