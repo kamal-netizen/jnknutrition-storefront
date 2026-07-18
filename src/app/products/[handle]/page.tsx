@@ -4,9 +4,15 @@ import {
   getProduct,
   getProducts,
   getProductRecommendations,
+  getProductRating,
+  getCanonicalOverride,
 } from "@/lib/queries/products";
 import ProductDetails from "@/components/ProductDetails";
-import { absoluteUrl } from "@/lib/seo";
+import {
+  absoluteUrl,
+  productFallbackTitle,
+  productFallbackDescription,
+} from "@/lib/seo";
 import { PRODUCT_FAQ } from "@/lib/product-faq";
 
 export const revalidate = 300;
@@ -26,9 +32,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) return { title: "Product Not Found" };
 
   const image = product.images.edges[0]?.node;
-  const title = product.seo.title || product.title;
-  const description = product.seo.description || product.description;
-  const url = `/products/${product.handle}`;
+  const title = product.seo.title || productFallbackTitle(product.title);
+  const description =
+    product.seo.description ||
+    productFallbackDescription({
+      name: product.title,
+      vendor: product.vendor,
+      price: product.priceRange.minVariantPrice.amount,
+      currency: product.priceRange.minVariantPrice.currencyCode,
+    });
+  const selfPath = `/products/${product.handle}`;
+  // Size-variant duplicates can point Google at a primary via a `seo.canonical_url`
+  // metafield; otherwise the page self-canonicalizes.
+  const canonical = getCanonicalOverride(product) ?? selfPath;
   const images = image
     ? [{ url: image.url, width: image.width, height: image.height, alt: product.title }]
     : undefined;
@@ -36,12 +52,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: { canonical: url },
+    alternates: { canonical },
     openGraph: {
       type: "website",
       title,
       description,
-      url,
+      url: selfPath,
       images,
     },
     twitter: {
@@ -66,6 +82,10 @@ export default async function ProductPage({ params }: Props) {
 
   const variants = product.variants.edges.map((e) => e.node);
 
+  // Only emitted when the store's reviews app has real aggregate data — never
+  // fabricated (Google penalizes invented ratings).
+  const rating = getProductRating(product);
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -76,6 +96,15 @@ export default async function ProductPage({ params }: Props) {
     sku: variants[0]?.id,
     category: product.productType || undefined,
     brand: { "@type": "Brand", name: product.vendor || "JNK Nutrition" },
+    ...(rating
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: rating.ratingValue,
+            reviewCount: rating.reviewCount,
+          },
+        }
+      : {}),
     offers: variants.map((variant) => ({
       "@type": "Offer",
       name: variant.title,

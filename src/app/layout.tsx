@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import BottomNav from "@/components/BottomNav";
 import FloatingSearch from "@/components/FloatingSearch";
 import { getCollections } from "@/lib/queries/collections";
-import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SITE_TAGLINE, DEFAULT_KEYWORDS, BUSINESS_LOCALITY, BUSINESS_REGION, BUSINESS_COUNTRY, absoluteUrl } from "@/lib/seo";
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SITE_TAGLINE, DEFAULT_KEYWORDS, BUSINESS_LOCALITY, BUSINESS_REGION, BUSINESS_COUNTRY, BUSINESS_PHONE, BUSINESS_STREET_ADDRESS, BUSINESS_POSTAL_CODE, BUSINESS_LATITUDE, BUSINESS_LONGITUDE, BUSINESS_OPENING_HOURS, HAS_LOCAL_BUSINESS_DATA, absoluteUrl } from "@/lib/seo";
 import WhatsAppButton from "@/components/WhatsAppButton";
 
 const geistSans = Geist({
@@ -111,22 +111,40 @@ export default async function RootLayout({
     ],
   };
 
+  // LocalBusiness/Store schema. Street address, geo coordinates and opening
+  // hours are only included when real data is configured in seo.ts — this
+  // strengthens ranking for local intent ("supplement store dubai", "…near me").
   const storeJsonLd = {
     "@context": "https://schema.org",
-    "@type": "Store",
+    "@type": HAS_LOCAL_BUSINESS_DATA ? ["Store", "LocalBusiness"] : "Store",
     "@id": `${SITE_URL}/#store`,
     name: SITE_NAME,
     url: SITE_URL,
     image: absoluteUrl("/logo.svg"),
     description: SITE_DESCRIPTION,
+    telephone: BUSINESS_PHONE,
     priceRange: "$$",
     currenciesAccepted: "AED",
     address: {
       "@type": "PostalAddress",
+      ...(BUSINESS_STREET_ADDRESS ? { streetAddress: BUSINESS_STREET_ADDRESS } : {}),
       addressLocality: BUSINESS_LOCALITY,
       addressRegion: BUSINESS_REGION,
+      ...(BUSINESS_POSTAL_CODE ? { postalCode: BUSINESS_POSTAL_CODE } : {}),
       addressCountry: BUSINESS_COUNTRY,
     },
+    ...(BUSINESS_LATITUDE && BUSINESS_LONGITUDE
+      ? {
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: BUSINESS_LATITUDE,
+            longitude: BUSINESS_LONGITUDE,
+          },
+        }
+      : {}),
+    ...(BUSINESS_OPENING_HOURS.length
+      ? { openingHours: BUSINESS_OPENING_HOURS }
+      : {}),
     areaServed: [
       { "@type": "Country", name: "United Arab Emirates" },
       "Worldwide",

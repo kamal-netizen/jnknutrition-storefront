@@ -22,7 +22,12 @@ import {
   toShopifyFilters,
   productIsDiscounted,
 } from "@/lib/product-filters";
-import { absoluteUrl } from "@/lib/seo";
+import {
+  absoluteUrl,
+  collectionFallbackTitle,
+  collectionFallbackDescription,
+} from "@/lib/seo";
+import { getCollectionSeo } from "@/lib/collection-seo";
 import { loadMoreCollection } from "./actions";
 
 export const revalidate = 300;
@@ -117,17 +122,37 @@ export async function generateStaticParams() {
   return collections.map((c) => ({ handle: c.handle }));
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+// Filter/sort params that produce faceted near-duplicate URLs.
+const FILTER_PARAM_KEYS = ["brand", "type", "price", "sort", "sale", "stock"];
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: Props): Promise<Metadata> {
   const { handle } = await params;
+  const sp = await searchParams;
   const collection = await getCollection(handle, { first: 1 });
   if (!collection) return { title: "Collection Not Found" };
-  const title = collection.seo.title || collection.title;
-  const description = collection.seo.description || collection.description;
+
+  const seo = getCollectionSeo(handle);
+  const title =
+    seo?.title || collection.seo.title || collectionFallbackTitle(collection.title);
+  const description =
+    seo?.description ||
+    collection.seo.description ||
+    collectionFallbackDescription(collection.title);
   const url = `/collections/${collection.handle}`;
+
+  // Faceted/filtered variants are near-duplicates of the base collection — keep
+  // them out of the index but let crawlers follow to products. The canonical
+  // always resolves to the unfiltered base URL.
+  const hasFilterParams = FILTER_PARAM_KEYS.some((k) => sp[k] != null);
+
   return {
     title,
     description,
     alternates: { canonical: url },
+    ...(hasFilterParams ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
       type: "website",
       title,
@@ -275,12 +300,58 @@ export default async function CollectionPage({ params, searchParams }: Props) {
     ],
   };
 
+  // Enriched, keyword-targeted copy for high-intent collections (near-expiry).
+  const seoContent = getCollectionSeo(handle);
+
+  // ItemList schema helps Google understand the listing and can surface the
+  // collection as a rich result. Cap at the first 20 for a lean payload.
+  const itemListJsonLd =
+    products.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: collection.title,
+          numberOfItems: products.length,
+          itemListElement: products.slice(0, 20).map((p, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            url: absoluteUrl(`/products/${p.handle}`),
+            name: p.title,
+          })),
+        }
+      : null;
+
+  const faqJsonLd =
+    seoContent?.faqs && seoContent.faqs.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: seoContent.faqs.map((f) => ({
+            "@type": "Question",
+            name: f.question,
+            acceptedAnswer: { "@type": "Answer", text: f.answer },
+          })),
+        }
+      : null;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
+      {itemListJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+        />
+      )}
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
       {/* Hero */}
       <div className="relative mb-8 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0A3B66] via-[#082D4C] to-[#061C31] px-6 py-10 sm:px-10 sm:py-12">
         {/* Collection image (when available) */}
@@ -339,6 +410,12 @@ export default async function CollectionPage({ params, searchParams }: Props) {
         </div>
       </div>
 
+      {seoContent?.intro && (
+        <p className="mb-8 max-w-3xl text-sm leading-relaxed text-[#475569]">
+          {seoContent.intro}
+        </p>
+      )}
+
       {!discountOnly && (
         <ProductFilterChips
           basePath={`/collections/${handle}`}
@@ -390,6 +467,26 @@ export default async function CollectionPage({ params, searchParams }: Props) {
           )}
         </div>
       </div>
+
+      {seoContent?.faqs && seoContent.faqs.length > 0 && (
+        <section className="mt-16 border-t border-[#E2E8F0] pt-10">
+          <h2 className="text-2xl font-black uppercase tracking-tight text-[#0B0F14]">
+            Frequently Asked Questions
+          </h2>
+          <dl className="mt-6 max-w-3xl divide-y divide-[#E2E8F0]">
+            {seoContent.faqs.map((faq) => (
+              <div key={faq.question} className="py-4">
+                <dt className="text-base font-bold text-[#0B0F14]">
+                  {faq.question}
+                </dt>
+                <dd className="mt-2 text-sm leading-relaxed text-[#475569]">
+                  {faq.answer}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
     </div>
   );
 }

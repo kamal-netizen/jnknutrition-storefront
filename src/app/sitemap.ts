@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, PRIORITY_COLLECTION_HANDLES } from "@/lib/seo";
 import { getProducts } from "@/lib/queries/products";
 import { getCollections } from "@/lib/queries/collections";
 import { getAllNews } from "@/lib/news";
+import { NESTED_COLLECTION_URLS } from "@/lib/collection-seo";
 
 export const revalidate = 3600;
 
@@ -58,8 +59,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: absoluteUrl(`/collections/${c.handle}`),
     lastModified: now,
     changeFrequency: "weekly",
-    priority: 0.7,
+    // High-intent / proven high-CTR collections (near-expiry deals) crawl hotter.
+    priority: PRIORITY_COLLECTION_HANDLES.has(c.handle) ? 0.9 : 0.7,
   }));
+
+  // Two-segment collection/tag URLs preserved from the previous theme.
+  const nestedCollectionEntries: MetadataRoute.Sitemap =
+    NESTED_COLLECTION_URLS.map(([handle, tag]) => ({
+      url: absoluteUrl(`/collections/${handle}/${tag}`),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    }));
 
   const newsEntries: MetadataRoute.Sitemap = getAllNews().map((article) => ({
     url: absoluteUrl(`/blogs/news/${article.slug}`),
@@ -79,6 +90,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticEntries,
     ...productEntries,
     ...collectionEntries,
+    ...nestedCollectionEntries,
     ...newsEntries,
     ...policyEntries,
   ];

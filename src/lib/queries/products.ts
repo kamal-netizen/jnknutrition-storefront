@@ -24,6 +24,12 @@ export type ProductVariant = {
   image: ProductImage | null;
 };
 
+export type Metafield = {
+  namespace: string;
+  key: string;
+  value: string;
+} | null;
+
 export type Product = {
   id: string;
   title: string;
@@ -41,7 +47,52 @@ export type Product = {
   images: { edges: { node: ProductImage }[] };
   variants: { edges: { node: ProductVariant }[] };
   seo: { title: string; description: string };
+  /**
+   * Aggregate review data (from the store's reviews app) + an optional SEO
+   * canonical override, when present. Aligned to the identifiers requested in
+   * PRODUCT_FRAGMENT; missing metafields come back as null.
+   */
+  metafields?: Metafield[];
 };
+
+/**
+ * Extract aggregate rating from the product's review metafields. Defaults target
+ * Judge.me (`reviews.rating` = JSON `{value, scale_max}`, `reviews.rating_count`
+ * = number) but also handle a bare-number rating value. Returns null unless real
+ * rating data with at least one review is present — ratings are NEVER fabricated.
+ */
+export function getProductRating(
+  product: Product
+): { ratingValue: number; reviewCount: number } | null {
+  const mf = product.metafields ?? [];
+  const ratingRaw = mf.find((m) => m?.key === "rating")?.value;
+  const countRaw = mf.find((m) => m?.key === "rating_count")?.value;
+  if (!ratingRaw || !countRaw) return null;
+
+  const reviewCount = parseInt(countRaw, 10);
+  if (!Number.isFinite(reviewCount) || reviewCount <= 0) return null;
+
+  let ratingValue: number;
+  try {
+    ratingValue = ratingRaw.trim().startsWith("{")
+      ? parseFloat((JSON.parse(ratingRaw) as { value: string }).value)
+      : parseFloat(ratingRaw);
+  } catch {
+    return null;
+  }
+  if (!Number.isFinite(ratingValue) || ratingValue <= 0 || ratingValue > 5) {
+    return null;
+  }
+  return { ratingValue, reviewCount };
+}
+
+/** Optional SEO canonical override stored in the `seo.canonical_url` metafield. */
+export function getCanonicalOverride(product: Product): string | null {
+  const value = (product.metafields ?? []).find(
+    (m) => m?.namespace === "seo" && m?.key === "canonical_url"
+  )?.value;
+  return value && value.trim() ? value.trim() : null;
+}
 
 export type ProductConnection = {
   pageInfo: { hasNextPage: boolean; endCursor: string | null };
@@ -84,6 +135,15 @@ const PRODUCT_FRAGMENT = `
       }
     }
     seo { title description }
+    metafields(identifiers: [
+      { namespace: "reviews", key: "rating" }
+      { namespace: "reviews", key: "rating_count" }
+      { namespace: "seo", key: "canonical_url" }
+    ]) {
+      namespace
+      key
+      value
+    }
   }
 `;
 

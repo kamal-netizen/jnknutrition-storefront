@@ -16,7 +16,12 @@ import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, DEFAULT_KEYWORDS } from "@/l
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+  // `absolute` bypasses the root "%s | JNK Nutrition" template so the homepage
+  // owns an exact, local-intent SERP title ("supplement store dubai" is a top
+  // non-brand query cluster) without duplicating the brand suffix.
+  title: {
+    absolute: "Supplement Store in Dubai & UAE — 100% Genuine | JNK Nutrition",
+  },
   description: SITE_DESCRIPTION,
   keywords: DEFAULT_KEYWORDS,
   alternates: { canonical: "/" },
@@ -38,6 +43,7 @@ export default async function Home() {
     trending,
     fresh,
     deals,
+    nearExpiry,
     whey,
     creatine,
     preworkout,
@@ -52,6 +58,7 @@ export default async function Home() {
     getProducts({ first: 15, sortKey: "BEST_SELLING", query: "available_for_sale:true" }),
     getProducts({ first: 8, sortKey: "CREATED_AT", reverse: true, query: "available_for_sale:true" }),
     getCollection("today-deals", { first: 8, filters: [{ available: true }] }),
+    getCollection("near-expiry", { first: 8, filters: [{ available: true }] }),
     getCollection("whey-protein", { first: 4, filters: [{ available: true }] }),
     getCollection("creatine", { first: 8, filters: [{ available: true }] }),
     getCollection("pre-workouts", { first: 8, filters: [{ available: true }] }),
@@ -66,6 +73,7 @@ export default async function Home() {
 
   const trendingProducts = nodes(trending);
   const freshProducts = nodes(fresh);
+  const nearExpiryProducts = nodes(nearExpiry?.products);
 
   const hasDiscount = (p: Product) =>
     p.variants.edges.some(({ node: v }) => {
@@ -105,6 +113,18 @@ export default async function Home() {
         <UAEFlagBanner />
       </div>
 
+      {/* Page H1 — local commercial intent ("supplement store dubai/uae"). */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-6 md:pt-8">
+        <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-[#0B0F14]">
+          Supplement Store in Dubai &amp; UAE
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm md:text-base text-[#64748B]">
+          JNK Nutrition is the UAE&apos;s official distributor of 100% genuine
+          sports supplements — whey protein, pre-workout, creatine and more, with
+          fast UAE-wide delivery and cash on delivery.
+        </p>
+      </div>
+
       {/* ─── Deals banner ─────────────────────────────────────── */}
       <SectionStrip
         title="Today's Deals"
@@ -115,6 +135,19 @@ export default async function Home() {
         cta="button"
         ctaLabel="Shop Deals"
       />
+
+      {/* ─── Near-expiry sale (proven high-CTR search niche) ──── */}
+      {nearExpiryProducts.length > 0 && (
+        <SectionStrip
+          title="Near-Expiry Sale"
+          eyebrow="Up to 70% Off"
+          href="/collections/near-expiry"
+          products={nearExpiryProducts}
+          tone="accent"
+          cta="button"
+          ctaLabel="Shop Near-Expiry Deals"
+        />
+      )}
 
       {/* ─── Shop your goal ───────────────────────────────────── */}
       {/* order-first on mobile: acts as the hero in place of the carousel */}
