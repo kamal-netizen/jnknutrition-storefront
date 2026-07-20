@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { getProducts } from "@/lib/queries/products";
 import { getCollection } from "@/lib/queries/collections";
 import type { Product } from "@/lib/queries/products";
@@ -13,6 +13,7 @@ import UAEFlagBanner from "@/components/home/UAEFlagBanner";
 import type { Metadata } from "next";
 import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, DEFAULT_KEYWORDS } from "@/lib/seo";
 import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
+import { getDictionary } from "@/lib/dictionaries";
 
 export const revalidate = 300;
 
@@ -49,6 +50,9 @@ const nodes = (
 export default async function Home({ params }: PageProps) {
   const { lang } = await params;
   const locale = getLocale(lang);
+  const dict = getDictionary(locale);
+  const t = dict.home;
+  const viewAll = dict.common.viewAll;
   const language = locale.isDefault ? undefined : locale.shopifyLanguage;
   const [
     trending,
@@ -121,42 +125,40 @@ export default async function Home({ params }: PageProps) {
 
       {/* UAE flag gradient banner */}
       <div className="mt-6 sm:mt-8">
-        <UAEFlagBanner />
+        <UAEFlagBanner label={t.proudOfUae} />
       </div>
 
       {/* Page H1 — local commercial intent ("supplement store dubai/uae"). */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-6 md:pt-8">
         <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-[#0B0F14]">
-          Supplement Store in Dubai &amp; UAE
+          {t.heroTitle}
         </h1>
         <p className="mt-2 max-w-2xl text-sm md:text-base text-[#64748B]">
-          JNK Nutrition is the UAE&apos;s official distributor of 100% genuine
-          sports supplements — whey protein, pre-workout, creatine and more, with
-          fast UAE-wide delivery and cash on delivery.
+          {t.heroBody}
         </p>
       </div>
 
       {/* ─── Deals banner ─────────────────────────────────────── */}
       <SectionStrip
-        title="Today's Deals"
-        eyebrow="Limited Time"
+        title={t.todaysDeals}
+        eyebrow={t.limitedTime}
         href="/collections/today-deals"
         products={dealProducts}
         tone="accent"
         cta="button"
-        ctaLabel="Shop Deals"
+        ctaLabel={t.shopDeals}
       />
 
       {/* ─── Near-expiry sale (proven high-CTR search niche) ──── */}
       {nearExpiryProducts.length > 0 && (
         <SectionStrip
-          title="Near-Expiry Sale"
-          eyebrow="Up to 70% Off"
+          title={t.nearExpirySale}
+          eyebrow={t.upTo70Off}
           href="/collections/near-expiry"
           products={nearExpiryProducts}
           tone="accent"
           cta="button"
-          ctaLabel="Shop Near-Expiry Deals"
+          ctaLabel={t.shopNearExpiry}
         />
       )}
 
@@ -164,10 +166,8 @@ export default async function Home({ params }: PageProps) {
       {/* order-first on mobile: acts as the hero in place of the carousel */}
       <section className="order-first md:order-none max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 w-full">
         <div className="mb-8">
-          <SectionHeading>Shop by Category</SectionHeading>
-          <p className="mt-3 text-[#64748B]">
-            Find exactly what your training needs.
-          </p>
+          <SectionHeading>{t.shopByCategory}</SectionHeading>
+          <p className="mt-3 text-[#64748B]">{t.shopByCategoryTagline}</p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
           {GOALS.map((goal) => (
@@ -178,10 +178,11 @@ export default async function Home({ params }: PageProps) {
 
       {/* ─── Trending now ─────────────────────────────────────── */}
       <SectionStrip
-        title="Trending Now"
-        subtitle="The gear athletes keep coming back for."
+        title={t.trendingNow}
+        subtitle={t.trendingTagline}
         href="/products"
         products={trendingProducts}
+        ctaLabel={viewAll}
       />
 
       {/* ─── Strength starts here (whey) ──────────────────────── */}
@@ -191,20 +192,17 @@ export default async function Home({ params }: PageProps) {
             <div>
               <p className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-[#082D4C]">
                 <span aria-hidden="true" className="h-3 w-1 rounded-full bg-[#F9D20F]" />
-                Buy Whey
+                {t.buyWhey}
               </p>
               <h2 className="text-3xl md:text-5xl font-black text-[#0B0F14] uppercase tracking-tight leading-[0.95]">
-                Strength Starts Here
+                {t.strengthStartsHere}
               </h2>
-              <p className="mt-4 text-[#64748B] leading-relaxed">
-                Premium whey protein to build lean muscle and recover faster
-                after every session.
-              </p>
+              <p className="mt-4 text-[#64748B] leading-relaxed">{t.wheyBody}</p>
               <Link
                 href="/collections/whey-protein"
                 className="inline-flex mt-6 bg-[#F9D20F] text-[#0B0F14] font-bold uppercase tracking-wide px-6 py-3 rounded hover:bg-[#E7BF00] transition-colors"
               >
-                Shop Whey →
+                {t.shopWhey} <span aria-hidden="true" className="rtl:hidden">→</span>
               </Link>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -218,48 +216,52 @@ export default async function Home({ params }: PageProps) {
 
       {/* ─── Daily creatine support ───────────────────────────── */}
       <SectionStrip
-        title="Daily Creatine Support"
-        subtitle="Power, strength and performance—one scoop at a time."
+        title={t.creatineTitle}
+        subtitle={t.creatineTagline}
         href="/collections/creatine"
         products={creatineProducts}
+        ctaLabel={viewAll}
       />
 
       {/* ─── Fresh picks ──────────────────────────────────────── */}
       <SectionStrip
-        title="Fresh Picks"
-        subtitle="Newly landed supplements, just for you."
+        title={t.freshPicks}
+        subtitle={t.freshTagline}
         href="/products?sort=newest"
         products={freshProducts}
+        ctaLabel={viewAll}
         grid
       />
 
       {/* ─── Pre-workout power ────────────────────────────────── */}
       <SectionStrip
-        title="Pre-Workout Power"
-        eyebrow="Explosive Energy"
+        title={t.preworkoutTitle}
+        eyebrow={t.explosiveEnergy}
         href="/collections/pre-workouts"
         products={preworkoutProducts}
         tone="accent"
+        ctaLabel={viewAll}
       />
 
       {/* ─── Mass gainer / muscle building ────────────────────── */}
       <SectionStrip
-        title="Serious Mass & Muscle"
-        subtitle="Gainers and builders for size and power."
+        title={t.massTitle}
+        subtitle={t.massTagline}
         href="/collections/muscle-building-products"
         products={massProducts}
+        ctaLabel={viewAll}
       />
 
       {/* ─── Shop by brand ────────────────────────────────────── */}
       <section className="bg-[#F5F7FA] border-y border-[#E2E8F0]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 w-full">
           <div className="flex items-end justify-between mb-8">
-            <SectionHeading>Shop by Brand</SectionHeading>
+            <SectionHeading>{t.shopByBrand}</SectionHeading>
             <Link
               href="/brands"
               className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-[#E2E8F0] bg-white px-4 py-2 text-xs font-bold uppercase tracking-wide text-[#0B0F14] hover:border-[#F9D20F] hover:bg-[#FFFBEB] transition-colors"
             >
-              All Brands <span aria-hidden="true">→</span>
+              {t.allBrands} <span aria-hidden="true" className="rtl:rotate-180">→</span>
             </Link>
           </div>
           <ScrollRow>
@@ -272,72 +274,76 @@ export default async function Home({ params }: PageProps) {
         </div>
       </section>
 
-      {/* ─── Core Champs ──────────────────────────────────────── */}
+      {/* ─── Core Champs (brand name kept in Latin) ───────────── */}
       <SectionStrip
         title="Core Champs"
-        subtitle="Championship-grade supplements for peak performance."
+        subtitle={t.coreChampsTagline}
         href="/collections/core-champs"
         products={coreChampsProducts}
+        ctaLabel={viewAll}
       />
 
       {/* ─── Muscle Rulz ──────────────────────────────────────── */}
       <SectionStrip
         title="Muscle Rulz"
-        subtitle="Hardcore formulas built to fuel serious gains."
+        subtitle={t.muscleRulzTagline}
         href="/collections/muscle-rulz"
         products={muscleRulzProducts}
+        ctaLabel={viewAll}
       />
 
       {/* ─── Proscience Nutra ─────────────────────────────────── */}
       <SectionStrip
         title="Proscience Nutra"
-        subtitle="Science-backed nutrition for next-level results."
+        subtitle={t.proscienceTagline}
         href="/collections/proscience-nutra"
         products={proscienceNutraProducts}
+        ctaLabel={viewAll}
       />
 
       {/* ─── Health & wellness ────────────────────────────────── */}
       <SectionStrip
-        title="Health & Wellness"
-        subtitle="Vitamins, fish oil and daily essentials."
+        title={t.healthWellness}
+        subtitle={t.healthTagline}
         href="/collections/health-wellness"
         products={wellnessProducts}
+        ctaLabel={viewAll}
       />
 
       {/* ─── Vegan & plant-based ──────────────────────────────── */}
       <SectionStrip
-        title="Vegan & Plant-Based"
-        subtitle="Clean, plant-powered nutrition."
+        title={t.veganTitle}
+        subtitle={t.veganTagline}
         href="/collections/vegan-protein"
         products={veganProducts}
+        ctaLabel={viewAll}
         grid
       />
 
       {/* ─── Accessories ──────────────────────────────────────── */}
       <SectionStrip
-        title="Accessories & Gear"
-        subtitle="Shakers, bottles and training essentials."
+        title={t.accessoriesTitle}
+        subtitle={t.accessoriesTagline}
         href="/collections/shakers"
         products={accessoryProducts}
+        ctaLabel={viewAll}
         grid
       />
 
       {/* ─── Final CTA ────────────────────────────────────────── */}
       <section className="bg-[#F9D20F]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20 w-full flex flex-col md:flex-row md:items-center md:justify-between gap-6 text-center md:text-left">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20 w-full flex flex-col md:flex-row md:items-center md:justify-between gap-6 text-center md:text-start">
           <div>
             <h2 className="text-3xl md:text-5xl font-black text-[#0B0F14] uppercase tracking-tight leading-[0.95]">
-              Ready to level up?
+              {t.readyToLevelUp}
             </h2>
-            <p className="mt-3 text-[#082D4C] font-semibold text-lg">
-              Explore the full range and fuel your next personal best.
-            </p>
+            <p className="mt-3 text-[#082D4C] font-semibold text-lg">{t.ctaBody}</p>
           </div>
           <Link
             href="/products"
             className="shrink-0 inline-flex items-center justify-center bg-[#0B0F14] text-white font-black uppercase tracking-wide px-8 py-4 rounded hover:bg-[#1A2333] transition-colors self-center"
           >
-            Shop All Products →
+            {t.shopAllProducts} <span aria-hidden="true" className="ms-1 rtl:rotate-180">→</span>
           </Link>
         </div>
       </section>

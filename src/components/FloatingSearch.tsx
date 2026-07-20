@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { Search, X, Loader2, ArrowRight, TrendingUp } from "lucide-react";

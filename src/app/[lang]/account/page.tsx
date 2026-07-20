@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { requireCustomer } from "@/lib/customer-server";
 import { logoutAction } from "@/app/[lang]/account/actions";
 import { Button } from "@/components/ui/button";

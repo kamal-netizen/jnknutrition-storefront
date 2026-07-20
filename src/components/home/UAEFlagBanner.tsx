@@ -1,4 +1,4 @@
-export default function UAEFlagBanner() {
+export default function UAEFlagBanner({ label = "Proud of UAE" }: { label?: string }) {
   return (
     <div className="uae-flag-wrap w-full">
       <div
@@ -9,7 +9,7 @@ export default function UAEFlagBanner() {
         <span className="uae-flag-shine" aria-hidden="true" />
       </div>
       <p className="uae-flag-caption text-center font-extrabold uppercase text-base sm:text-xl tracking-[0.3em] py-2.5">
-        Proud of UAE
+        {label}
       </p>
     </div>
   );

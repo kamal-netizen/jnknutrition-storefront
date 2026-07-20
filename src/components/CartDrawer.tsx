@@ -2,7 +2,7 @@
 
 import { X, Minus, Plus, ShoppingBag, Lock, ShieldCheck } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { useCartStore, useCartLines, useCartTotal, useCheckoutUrl, useCartSavings } from "@/lib/store/cart";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";

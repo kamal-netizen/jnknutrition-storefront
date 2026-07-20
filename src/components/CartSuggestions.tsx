@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { Plus, Check, Loader2 } from "lucide-react";
 import type { Product } from "@/lib/queries/products";
 import { getProducts } from "@/lib/queries/products";

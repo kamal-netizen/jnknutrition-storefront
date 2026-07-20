@@ -3,6 +3,8 @@ import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import { getLocale, LOCALE_CODES } from "@/lib/i18n";
+import { getDictionary } from "@/lib/dictionaries";
+import { LocaleProvider } from "@/lib/locale-context";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import BottomNav from "@/components/BottomNav";
@@ -77,6 +79,7 @@ export default async function RootLayout({
   const locale = getLocale(lang);
   const shopLang = locale.isDefault ? undefined : locale.shopifyLanguage;
   const collections = await getCollections(20, shopLang);
+  const dict = getDictionary(locale);
 
   const organizationJsonLd = {
     "@context": "https://schema.org",
@@ -227,12 +230,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
-        <Header collections={collections} />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <BottomNav />
-        <FloatingSearch />
-        <WhatsAppButton />
+        <LocaleProvider code={locale.code} dict={dict}>
+          <Header collections={collections} />
+          <main className="flex-1">{children}</main>
+          <Footer dict={dict} />
+          <BottomNav />
+          <FloatingSearch />
+          <WhatsAppButton />
+        </LocaleProvider>
       </body>
     </html>
   );

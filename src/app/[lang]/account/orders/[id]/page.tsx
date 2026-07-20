@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Truck, ExternalLink, Package } from "lucide-react";

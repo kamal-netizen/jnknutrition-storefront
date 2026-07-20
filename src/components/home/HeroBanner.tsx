@@ -2,14 +2,22 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { useDict } from "@/lib/locale-context";
+
+type CtaKey =
+  | "heroCtaSale"
+  | "heroCtaShopNow"
+  | "heroCtaCoreChamps"
+  | "heroCtaFatBurners"
+  | "heroCtaGetApp";
 
 type Banner = {
   src: string;
   alt: string;
   href: string;
-  cta: string;
+  ctaKey: CtaKey;
   external?: boolean;
 };
 
@@ -18,31 +26,31 @@ const BANNERS: Banner[] = [
     src: "/banners/summer-sale.jpg",
     alt: "Summer Sale — Fuel Your Summer. Build Your Best.",
     href: "/products/animal-100-whey-protein",
-    cta: "Shop the Sale",
+    ctaKey: "heroCtaSale",
   },
   {
     src: "/banners/Top Brands. Best Prices. Fast Results.jpg",
     alt: "Top Brands. Best Prices. Fast Results.",
     href: "/products",
-    cta: "Shop Now",
+    ctaKey: "heroCtaShopNow",
   },
   {
     src: "/banners/core chamos eaa banner for jnk.jpg",
     alt: "Core Champs EAA",
     href: "/collections/core-champs",
-    cta: "Shop Core Champs",
+    ctaKey: "heroCtaCoreChamps",
   },
   {
     src: "/banners/fat burn banner 2.jpg",
     alt: "Fat Burn",
     href: "/collections/fat-burner",
-    cta: "Shop Fat Burners",
+    ctaKey: "heroCtaFatBurners",
   },
   {
     src: "/banners/DOWNLOAD APP.jpg",
     alt: "Download the App",
     href: "https://play.google.com/store/apps/details?id=com.simicart.jnknutrition",
-    cta: "Get the App",
+    ctaKey: "heroCtaGetApp",
     external: true,
   },
 ];
@@ -50,6 +58,7 @@ const BANNERS: Banner[] = [
 const INTERVAL = 5000;
 
 export default function HeroBanner() {
+  const t = useDict().home;
   const [index, setIndex] = useState(0);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -68,6 +77,7 @@ export default function HeroBanner() {
 
   return (
     <section
+      dir="ltr"
       className="relative bg-white px-4 pt-6 pb-8 sm:px-6 lg:px-8"
       aria-roledescription="carousel"
       aria-label="Promotional banners"
@@ -123,7 +133,7 @@ export default function HeroBanner() {
                         {...linkProps}
                         className="hidden sm:inline-flex absolute bottom-6 left-6 lg:bottom-10 lg:left-10 items-center gap-2 rounded-full border border-white/30 bg-white/15 px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-white shadow-lg backdrop-blur-md transition-all hover:border-[#F9D20F] hover:bg-[#F9D20F] hover:text-[#0B0F14]"
                       >
-                        {banner.cta}
+                        {t[banner.ctaKey]}
                         <ArrowRight className="w-4 h-4" />
                       </Link>
                     </div>

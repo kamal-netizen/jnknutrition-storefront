@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { Plus } from "lucide-react";
 import { getPage } from "@/lib/queries/content";
 

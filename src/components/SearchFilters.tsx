@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { useState } from "react";
 import { Filter, X, Check } from "lucide-react";
 import {

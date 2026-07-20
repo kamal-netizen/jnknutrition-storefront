@@ -1,11 +1,13 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { usePathname } from "next/navigation";
 import { Home, LayoutGrid, ShoppingBag, User } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useCartStore, useCartCount } from "@/lib/store/cart";
 import { useUIStore } from "@/lib/store/ui";
+import { useDict } from "@/lib/locale-context";
+import { stripLocalePrefix } from "@/lib/i18n";
 
 /**
  * App-style bottom navigation bar. Mobile only (`md:hidden`). Hidden on product
@@ -18,9 +20,12 @@ export default function BottomNav() {
   const cartCount = useCartCount();
   const { openCart } = useCartStore();
   const openMenu = useUIStore((s) => s.openMenu);
+  const t = useDict().bottomNav;
 
-  const isHome = pathname === "/";
-  const isAccount = pathname.startsWith("/account");
+  // Compare against the locale-stripped path so the active state works on /ar too.
+  const basePath = stripLocalePrefix(pathname);
+  const isHome = basePath === "/";
+  const isAccount = basePath.startsWith("/account");
 
   return (
     <nav
@@ -29,25 +34,25 @@ export default function BottomNav() {
       aria-label="Primary"
     >
       <div className="mx-auto flex max-w-lg items-stretch">
-        <NavItem as="link" href="/" icon={Home} label="Home" active={isHome} />
+        <NavItem as="link" href="/" icon={Home} label={t.home} active={isHome} />
         <NavItem
           as="button"
           onClick={openMenu}
           icon={LayoutGrid}
-          label="Categories"
+          label={t.categories}
         />
         <NavItem
           as="button"
           onClick={openCart}
           icon={ShoppingBag}
-          label="Cart"
+          label={t.cart}
           badge={cartCount}
         />
         <NavItem
           as="link"
           href="/account"
           icon={User}
-          label="Account"
+          label={t.account}
           active={isAccount}
         />
       </div>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { Check } from "lucide-react";
 import { searchProducts } from "@/lib/queries/search";
 import type { ProductFilterInput } from "@/lib/queries/collections";

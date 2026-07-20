@@ -1,10 +1,9 @@
 import Image from "next/image";
-import Link from "next/link";
-import { Truck } from "lucide-react";
+import Link from "@/components/LocaleLink";
 import type { Product } from "@/lib/queries/products";
-import { Badge } from "@/components/ui/badge";
 import Price from "@/components/Price";
 import QuickAddButton from "@/components/QuickAddButton";
+import ProductBadges from "@/components/ProductBadges";
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping";
 
 type Props = {
@@ -76,35 +75,13 @@ export default function ProductCard({ product }: Props) {
           </div>
         )}
 
-        {/* Badges */}
-        <div className="absolute top-2 left-2 flex flex-col gap-1" aria-hidden="true">
-          {!product.availableForSale && (
-            <Badge className="bg-[#E2E8F0] text-[#64748B] text-[10px] uppercase font-bold tracking-wider">
-              Sold Out
-            </Badge>
-          )}
-          {isOnSale && discountPercent > 0 && (
-            <Badge className="bg-[#F9D20F] text-[#0B0F14] text-[10px] uppercase font-bold tracking-wider">
-              -{discountPercent}%
-            </Badge>
-          )}
-          {product.tags.includes("new") && product.availableForSale && (
-            <Badge className="bg-[#082D4C] text-white text-[10px] uppercase font-bold tracking-wider">
-              New
-            </Badge>
-          )}
-        </div>
-
-        {/* Free delivery — refined pill, top-right so it balances the discount badge */}
-        {qualifiesForFreeShipping && (
-          <div
-            className="absolute top-2 right-2 z-[2] inline-flex items-center gap-1.5 rounded-full bg-gradient-to-b from-[#12925A] to-[#0B7A48] px-2.5 py-1 text-[9.5px] font-bold uppercase leading-none tracking-[0.08em] text-white shadow-[0_2px_6px_-1px_rgba(11,122,72,0.5)] ring-1 ring-inset ring-white/25"
-            aria-hidden="true"
-          >
-            <Truck className="w-3 h-3 shrink-0" strokeWidth={2.5} aria-hidden />
-            Free Delivery
-          </div>
-        )}
+        {/* Badges (localized labels via a small client island) */}
+        <ProductBadges
+          soldOut={!product.availableForSale}
+          discountPercent={isOnSale ? discountPercent : 0}
+          isNew={product.tags.includes("new") && product.availableForSale}
+          freeDelivery={qualifiesForFreeShipping}
+        />
 
         {/* Quick Add — desktop: slides up from bottom of image on hover/focus */}
         <div className="hidden sm:block absolute bottom-0 inset-x-0 translate-y-full group-hover:translate-y-0 group-focus-within:translate-y-0 transition-transform duration-200 ease-out z-[3]">

@@ -1,7 +1,8 @@
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import Image from "next/image";
 import { Truck, ShieldCheck, Store, Headset } from "lucide-react";
 import type { SVGProps } from "react";
+import type { Dictionary } from "@/lib/dictionaries";
 
 function InstagramIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -62,40 +63,11 @@ function StarIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-const SHOP_LINKS = [
-  { label: "All Products", href: "/products" },
-  { label: "Collections", href: "/collections" },
-  { label: "New Arrivals", href: "/collections/new-arrivals" },
-  { label: "Best Sellers", href: "/collections/best-sellers" },
-];
-
-const INFO_LINKS = [
-  { label: "About Us", href: "/pages/about" },
-  { label: "Wholesale", href: "/pages/wholesale" },
-  { label: "Blog", href: "/blogs/news" },
-  { label: "FAQ", href: "/pages/faq" },
-  { label: "Contact", href: "/pages/contact" },
-];
-
-const POLICY_LINKS = [
-  { label: "Privacy Policy", href: "/policies/privacy-policy" },
-  { label: "Refund Policy", href: "/policies/refund-policy" },
-  { label: "Shipping Policy", href: "/policies/shipping-policy" },
-  { label: "Terms of Service", href: "/policies/terms-of-service" },
-];
-
 const SOCIALS = [
   { label: "Instagram", href: "https://instagram.com", Icon: InstagramIcon },
   { label: "Facebook", href: "https://facebook.com", Icon: FacebookIcon },
   { label: "Twitter", href: "https://twitter.com", Icon: TwitterIcon },
   { label: "YouTube", href: "https://youtube.com", Icon: YoutubeIcon },
-];
-
-const TRUST = [
-  { Icon: Truck, title: "Free Shipping", text: "On orders over AED149" },
-  { Icon: Store, title: "Wholesale", text: "Best supplements at wholesale prices" },
-  { Icon: ShieldCheck, title: "Secure Checkout", text: "100% payment secure" },
-  { Icon: Headset, title: "Online Support", text: "Guaranteed product quality" },
 ];
 
 const APP_LINKS = [
@@ -113,7 +85,37 @@ const APP_LINKS = [
   },
 ];
 
-export default function Footer() {
+export default function Footer({ dict }: { dict: Dictionary }) {
+  const f = dict.footer;
+  const c = dict.common;
+  const h = dict.header;
+
+  const TRUST = [
+    { Icon: Truck, title: f.freeShipping, text: f.freeShippingSub },
+    { Icon: Store, title: f.wholesale, text: f.wholesaleSub },
+    { Icon: ShieldCheck, title: f.secureCheckout, text: f.secureCheckoutSub },
+    { Icon: Headset, title: f.onlineSupport, text: f.onlineSupportSub },
+  ];
+  const SHOP_LINKS = [
+    { label: f.allProducts, href: "/products" },
+    { label: c.collections, href: "/collections" },
+    { label: f.newArrivals, href: "/collections/new-arrivals" },
+    { label: f.bestSellers, href: "/collections/best-sellers" },
+  ];
+  const INFO_LINKS = [
+    { label: f.aboutUs, href: "/pages/about" },
+    { label: f.wholesale, href: "/pages/wholesale" },
+    { label: h.blog, href: "/blogs/news" },
+    { label: f.faq, href: "/pages/faq" },
+    { label: f.contact, href: "/pages/contact" },
+  ];
+  const POLICY_LINKS = [
+    { label: f.privacyPolicy, href: "/policies/privacy-policy" },
+    { label: f.refundPolicy, href: "/policies/refund-policy" },
+    { label: f.shippingPolicy, href: "/policies/shipping-policy" },
+    { label: f.termsOfService, href: "/policies/terms-of-service" },
+  ];
+
   return (
     <footer className="bg-[#082D4C] border-t border-[#263445] mt-auto">
       {/* Trust badges */}
@@ -136,11 +138,9 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div>
             <h3 className="text-2xl font-black text-white uppercase tracking-tight">
-              Join the Movement
+              {f.joinMovement}
             </h3>
-            <p className="mt-1 text-sm text-[#C7D0DA]">
-              Get 15% off your first order plus exclusive drops &amp; deals.
-            </p>
+            <p className="mt-1 text-sm text-[#C7D0DA]">{f.joinBody}</p>
           </div>
           <form
             className="flex w-full md:w-auto max-w-md gap-2"
@@ -150,14 +150,14 @@ export default function Footer() {
               type="email"
               name="email"
               required
-              placeholder="Enter your email"
+              placeholder={f.emailPlaceholder}
               className="flex-1 md:w-72 bg-[#0B0F14] border border-[#263445] rounded-lg px-4 py-3 text-sm text-white placeholder:text-[#C7D0DA] outline-none focus:border-[#F9D20F] focus:ring-2 focus:ring-[#F9D20F]/30 transition-colors"
             />
             <button
               type="submit"
               className="bg-[#F9D20F] text-[#0B0F14] font-black uppercase tracking-wide px-6 py-3 rounded-lg hover:bg-[#E7BF00] transition-colors"
             >
-              Sign Up
+              {f.signUp}
             </button>
           </form>
         </div>
@@ -177,8 +177,7 @@ export default function Footer() {
               />
             </Link>
             <p className="mt-3 text-sm text-[#C7D0DA] leading-relaxed max-w-xs">
-              Premium nutrition supplements crafted for performance. Fuel your
-              potential.
+              {f.tagline}
             </p>
             <div className="flex items-center gap-4 mt-5">
               {SOCIALS.map(({ label, href, Icon }) => (
@@ -199,10 +198,10 @@ export default function Footer() {
           {/* Get the App */}
           <div className="col-span-2 md:col-span-1">
             <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F] mb-4">
-              Get the App
+              {f.getApp}
             </h3>
             <p className="text-sm text-[#C7D0DA] leading-relaxed max-w-xs">
-              Shop faster, track orders &amp; unlock app-only deals.
+              {f.getAppSub}
             </p>
             <div className="flex items-center gap-1 mt-3 text-[#F9D20F]">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -236,7 +235,7 @@ export default function Footer() {
           {/* Shop */}
           <div>
             <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F] mb-4">
-              Shop
+              {f.shop}
             </h3>
             <ul className="space-y-3">
               {SHOP_LINKS.map((link) => (
@@ -255,7 +254,7 @@ export default function Footer() {
           {/* Info */}
           <div>
             <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F] mb-4">
-              Company
+              {f.company}
             </h3>
             <ul className="space-y-3">
               {INFO_LINKS.map((link) => (
@@ -274,7 +273,7 @@ export default function Footer() {
           {/* Policies */}
           <div>
             <h3 className="text-xs font-bold uppercase tracking-widest text-[#F9D20F] mb-4">
-              Legal
+              {f.legal}
             </h3>
             <ul className="space-y-3">
               {POLICY_LINKS.map((link) => (
@@ -303,14 +302,13 @@ export default function Footer() {
 
         <div className="mt-8 pt-8 border-t border-[#263445] flex flex-col sm:flex-row justify-between items-center gap-6">
           <p className="text-xs text-[#C7D0DA] order-2 sm:order-1">
-            &copy; {new Date().getFullYear()} JNK Nutrition. All rights
-            reserved.
+            &copy; {new Date().getFullYear()} JNK Nutrition. {f.rightsReserved}
           </p>
           <Link
             href="/account"
             className="text-xs text-[#C7D0DA] hover:text-white transition-colors order-1 sm:order-2"
           >
-            My Account
+            {f.myAccount}
           </Link>
         </div>
       </div>

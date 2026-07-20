@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -30,6 +30,8 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Price from "@/components/Price";
 import CartDrawer from "@/components/CartDrawer";
 import DesktopNav from "@/components/MegaMenu";
+import LanguageToggle from "@/components/LanguageToggle";
+import { useDict, useLocalizePath } from "@/lib/locale-context";
 import {
   GOAL_CARDS,
   CATEGORY_GROUPS,
@@ -44,20 +46,24 @@ const APP_STORE_URL = "https://apps.apple.com/us/app/jnk-nutrition/id6743687638"
 const PLAY_STORE_URL =
   "https://play.google.com/store/apps/details?id=com.simicart.jnknutrition";
 
-const ANNOUNCEMENTS: React.ReactNode[] = [
-  <>
-    Free shipping on orders over{" "}
-    <span className="font-bold text-[#F9D20F]">AED 149</span>
-  </>,
-  <>
-    <span className="font-bold text-[#F9D20F]">Same-day dispatch</span> on
-    orders before cut-off
-  </>,
-  <>
-    <span className="font-bold text-[#F9D20F]">100% authentic</span> brands
-    &mdash; UAE stock
-  </>,
-];
+type HeaderDict = ReturnType<typeof useDict>["header"];
+
+function buildAnnouncements(t: HeaderDict): React.ReactNode[] {
+  return [
+    <>
+      {t.freeShipping}{" "}
+      <span className="font-bold text-[#F9D20F]">AED 149</span>
+    </>,
+    <>
+      <span className="font-bold text-[#F9D20F]">{t.sameDayDispatch}</span>{" "}
+      {t.beforeCutoff}
+    </>,
+    <>
+      <span className="font-bold text-[#F9D20F]">{t.authentic}</span>{" "}
+      {t.uaeStock}
+    </>,
+  ];
+}
 
 function getAppStoreUrl() {
   if (typeof navigator === "undefined") return PLAY_STORE_URL;
@@ -115,6 +121,22 @@ export default function Header({
   const mobileOpen = useUIStore((s) => s.menuOpen);
   const setMobileOpen = useUIStore((s) => s.setMenuOpen);
   const router = useRouter();
+  const dict = useDict();
+  const t = dict.header;
+  const c = dict.common;
+  const localize = useLocalizePath();
+  const ANNOUNCEMENTS = buildAnnouncements(t);
+  // Mobile drawer section labels are keyed by their (stable, English) const
+  // value; translate only the display text.
+  const sectionLabel: Record<string, string> = {
+    "Shop by Goals": t.shopByGoals,
+    Category: t.category,
+    Brands: t.brands,
+  };
+  const simpleLinkLabel: Record<string, string> = {
+    Blog: t.blog,
+    About: t.about,
+  };
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -125,14 +147,16 @@ export default function Header({
   const searchRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Rotate announcement-bar USP messages
+  // Rotate announcement-bar USP messages. Count is fixed (see buildAnnouncements)
+  // so the rotation is stable regardless of locale.
+  const announcementCount = ANNOUNCEMENTS.length;
   useEffect(() => {
     const id = setInterval(
-      () => setAnnouncement((i) => (i + 1) % ANNOUNCEMENTS.length),
+      () => setAnnouncement((i) => (i + 1) % announcementCount),
       4000
     );
     return () => clearInterval(id);
-  }, []);
+  }, [announcementCount]);
 
   // Predictive search with debounce
   useEffect(() => {
@@ -179,7 +203,7 @@ export default function Header({
     setSearchOpen(false);
     setResults(null);
     setQuery("");
-    router.push(`/search?q=${encodeURIComponent(trimmed)}`);
+    router.push(localize(`/search?q=${encodeURIComponent(trimmed)}`));
   }
 
   return (
@@ -204,7 +228,7 @@ export default function Header({
             }}
             className="hidden md:inline text-[11px] sm:text-xs uppercase tracking-[0.15em] text-[#C7D0DA] transition-colors hover:text-[#F9D20F]"
           >
-            Download the <span className="font-bold text-white">JNK App</span>
+            {t.downloadApp} <span className="font-bold text-white">{t.jnkApp}</span>
           </a>
         </div>
       </div>
@@ -260,7 +284,7 @@ export default function Header({
                     className="flex items-center gap-3 w-full h-11 px-4 rounded-full bg-[#F1F5F9] text-[#64748B] hover:bg-[#E8EDF3] transition-colors"
                   >
                     <Search className="w-4 h-4" />
-                    <span className="text-sm">Search products...</span>
+                    <span className="text-sm">{c.searchPlaceholder}</span>
                   </button>
 
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -289,7 +313,7 @@ export default function Header({
                       <LayoutGrid className="w-5 h-5" />
                     </span>
                     <span className="flex-1 text-base font-bold uppercase tracking-wide text-[#0B0F14]">
-                      Shop All
+                      {c.shopAll}
                     </span>
                     <ChevronRight className="w-4 h-4 text-[#CBD5E1] group-hover:text-[#082D4C] transition-colors" />
                   </Link>
@@ -312,8 +336,8 @@ export default function Header({
                           <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#F1F5F9] text-[#082D4C] group-hover:bg-[#F9D20F] transition-colors">
                             <Icon className="w-5 h-5" />
                           </span>
-                          <span className="flex-1 text-left text-base font-bold uppercase tracking-wide text-[#0B0F14]">
-                            {section.label}
+                          <span className="flex-1 text-start text-base font-bold uppercase tracking-wide text-[#0B0F14]">
+                            {sectionLabel[section.label] ?? section.label}
                           </span>
                           <ChevronDown
                             className={`w-4 h-4 text-[#94A3B8] transition-transform ${
@@ -365,7 +389,7 @@ export default function Header({
                         )}
                       </span>
                       <span className="flex-1 text-base font-bold uppercase tracking-wide text-[#0B0F14]">
-                        {link.label}
+                        {simpleLinkLabel[link.label] ?? link.label}
                       </span>
                       <ChevronRight className="w-4 h-4 text-[#CBD5E1] group-hover:text-[#082D4C] transition-colors" />
                     </Link>
@@ -382,10 +406,15 @@ export default function Header({
                       <User className="w-5 h-5" />
                     </span>
                     <span className="flex-1 text-base font-bold uppercase tracking-wide text-[#0B0F14]">
-                      Account
+                      {c.account}
                     </span>
                     <ChevronRight className="w-4 h-4 text-[#CBD5E1] group-hover:text-[#082D4C] transition-colors" />
                   </Link>
+
+                  {/* Language toggle */}
+                  <div className="mt-2 px-3">
+                    <LanguageToggle variant="block" />
+                  </div>
                 </nav>
 
                 {/* Drawer footer */}
@@ -393,7 +422,7 @@ export default function Header({
                   <div className="flex items-center gap-2 px-5 py-3 bg-[#082D4C]">
                     <Truck className="w-4 h-4 text-[#F9D20F] shrink-0" />
                     <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#F9D20F]">
-                      Free shipping over AED149
+                      {t.freeShippingOver}
                     </span>
                   </div>
                   <div className="flex items-center justify-between px-5 py-4">
@@ -474,7 +503,7 @@ export default function Header({
                 <button
                   onClick={() => setSearchOpen((v) => !v)}
                   className="text-[#64748B] hover:text-[#0B0F14] transition-colors"
-                  aria-label="Search"
+                  aria-label={c.search}
                 >
                   {searchOpen ? (
                     <X className="w-5 h-5" />
@@ -491,7 +520,7 @@ export default function Header({
                       <input
                         autoFocus
                         type="search"
-                        placeholder="Search products..."
+                        placeholder={c.searchPlaceholder}
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         onKeyDown={(e) => {
@@ -518,7 +547,7 @@ export default function Header({
                     {/* Empty prompt */}
                     {!query.trim() && (
                       <p className="px-4 py-6 text-center text-sm text-[#94A3B8]">
-                        Start typing to search products.
+                        {t.startTyping}
                       </p>
                     )}
 
@@ -529,7 +558,7 @@ export default function Header({
                         results.collections.length === 0 &&
                         results.pages.length === 0 ? (
                           <p className="px-4 py-6 text-center text-sm text-[#64748B]">
-                            No results for{" "}
+                            {t.noResultsFor}{" "}
                             <span className="font-semibold text-[#0B0F14]">
                               &quot;{query}&quot;
                             </span>
@@ -540,7 +569,7 @@ export default function Header({
                             {results.products.length > 0 && (
                               <div className="py-2">
                                 <p className="px-4 pb-1 text-[10px] font-bold uppercase tracking-widest text-[#94A3B8]">
-                                  Products
+                                  {c.products}
                                 </p>
                                 {results.products.slice(0, 5).map((p) => {
                                   const img = p.images.edges[0]?.node;
@@ -591,7 +620,7 @@ export default function Header({
                             {results.collections.length > 0 && (
                               <div className="py-2 border-t border-[#F1F5F9]">
                                 <p className="px-4 pb-1 text-[10px] font-bold uppercase tracking-widest text-[#94A3B8]">
-                                  Collections
+                                  {c.collections}
                                 </p>
                                 {results.collections.slice(0, 4).map((c) => (
                                   <Link
@@ -617,7 +646,7 @@ export default function Header({
                             {results.pages.length > 0 && (
                               <div className="py-2 border-t border-[#F1F5F9]">
                                 <p className="px-4 pb-1 text-[10px] font-bold uppercase tracking-widest text-[#94A3B8]">
-                                  Pages
+                                  {c.pages}
                                 </p>
                                 {results.pages.slice(0, 3).map((pg) => (
                                   <Link
@@ -650,7 +679,7 @@ export default function Header({
                         className="flex items-center justify-between w-full px-4 py-3 border-t border-[#E2E8F0] bg-[#F8FAFC] text-sm font-bold uppercase tracking-wide text-[#0B0F14] hover:bg-[#F1F5F9] transition-colors"
                       >
                         <span className="truncate">
-                          View all results for &quot;{query}&quot;
+                          {t.viewAllResultsFor} &quot;{query}&quot;
                         </span>
                         <ArrowRight className="w-4 h-4 shrink-0 text-[#F9D20F]" />
                       </button>
@@ -659,11 +688,14 @@ export default function Header({
                 )}
               </div>
 
+              {/* Language toggle (desktop) */}
+              <LanguageToggle className="hidden md:inline-flex" />
+
               {/* Account */}
               <Link
                 href="/account"
                 className="hidden md:block text-[#64748B] hover:text-[#0B0F14] transition-colors"
-                aria-label="Account"
+                aria-label={c.account}
               >
                 <User className="w-5 h-5" />
               </Link>

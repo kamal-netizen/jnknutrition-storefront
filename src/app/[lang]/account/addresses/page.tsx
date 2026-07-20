@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import { requireCustomer } from "@/lib/customer-server";
 import AddressManager from "@/components/account/AddressManager";
 

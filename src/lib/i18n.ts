@@ -59,6 +59,27 @@ export function getLocale(code: string | undefined): Locale {
   return LOCALES.find((l) => l.code === code) ?? DEFAULT_LOCALE;
 }
 
+/** Resolve a Locale from a full pathname by inspecting its first segment. */
+export function localeFromPathname(pathname: string): Locale {
+  const seg = pathname.split("/")[1] ?? "";
+  return (
+    LOCALES.find((l) => !l.isDefault && l.prefix === `/${seg}`) ?? DEFAULT_LOCALE
+  );
+}
+
+/**
+ * Strip any locale prefix from a pathname, returning the default-locale
+ * (un-prefixed) form — e.g. "/ar/collections/x" → "/collections/x", "/ar" → "/".
+ */
+export function stripLocalePrefix(pathname: string): string {
+  for (const l of LOCALES) {
+    if (l.isDefault) continue;
+    if (pathname === l.prefix) return "/";
+    if (pathname.startsWith(`${l.prefix}/`)) return pathname.slice(l.prefix.length);
+  }
+  return pathname || "/";
+}
+
 /** Prefix a site-relative path for a locale (default locale → path unchanged). */
 export function localizePath(path: string, locale: Locale): string {
   const clean = path.startsWith("/") ? path : `/${path}`;

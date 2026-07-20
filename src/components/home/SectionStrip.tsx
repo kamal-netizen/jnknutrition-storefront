@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/LocaleLink";
 import type { Product } from "@/lib/queries/products";
 import ProductCard from "@/components/ProductCard";
 import ScrollRow from "@/components/home/ScrollRow";
@@ -66,7 +66,7 @@ export default function SectionStrip({
               : "shrink-0 inline-flex items-center gap-1.5 rounded-full border border-[#E2E8F0] bg-white px-4 py-2 text-xs font-bold uppercase tracking-wide text-[#0B0F14] hover:border-[#F9D20F] hover:bg-[#FFFBEB] transition-colors"
           }
         >
-          {ctaLabel} <span aria-hidden="true">→</span>
+          {ctaLabel} <span aria-hidden="true" className="rtl:rotate-180">→</span>
         </Link>
       </div>
 
