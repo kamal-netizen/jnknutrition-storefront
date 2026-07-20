@@ -480,7 +480,7 @@ export default function Header({
             {/* Logo */}
             <Link
               href="/"
-              className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 md:mr-10 flex items-center"
+              className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 md:me-10 flex items-center"
               aria-label="JNK Nutrition home"
             >
               <Image

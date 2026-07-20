@@ -99,7 +99,7 @@ export default function DesktopNav({
   return (
     <>
       <nav
-        className="hidden md:flex items-center gap-7 mr-auto"
+        className="hidden md:flex items-center gap-7 me-auto"
         onMouseLeave={scheduleClose}
       >
         {MENUS.map((menu) => {
@@ -118,7 +118,7 @@ export default function DesktopNav({
               >
                 {menu.label}
                 <span
-                  className={`absolute bottom-4 left-0 h-0.5 bg-[#F9D20F] transition-all duration-200 ${
+                  className={`absolute bottom-4 start-0 h-0.5 bg-[#F9D20F] transition-all duration-200 ${
                     isOpen ? "w-full" : "w-0 group-hover:w-full"
                   }`}
                 />
@@ -135,7 +135,7 @@ export default function DesktopNav({
             className="text-[13px] font-semibold uppercase tracking-[0.08em] text-[#475569] hover:text-[#0B0F14] transition-colors relative group py-6"
           >
             {simpleLinkLabel[link.label] ?? link.label}
-            <span className="absolute bottom-4 left-0 w-0 h-0.5 bg-[#F9D20F] transition-all duration-200 group-hover:w-full" />
+            <span className="absolute bottom-4 start-0 w-0 h-0.5 bg-[#F9D20F] transition-all duration-200 group-hover:w-full" />
           </Link>
         ))}
       </nav>
