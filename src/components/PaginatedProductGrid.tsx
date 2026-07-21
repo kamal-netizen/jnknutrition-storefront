@@ -3,6 +3,7 @@
 import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import type { Product } from "@/lib/queries/products";
+import { useDict } from "@/lib/locale-context";
 
 export type LoadMoreResult = {
   products: Product[];
@@ -28,6 +29,7 @@ export default function PaginatedProductGrid({
   loadMore,
   gridClassName,
 }: Props) {
+  const c = useDict().common;
   const [products, setProducts] = useState(initialProducts);
   const [cursor, setCursor] = useState(initialCursor);
   const [hasNextPage, setHasNextPage] = useState(initialHasNextPage);
@@ -65,7 +67,7 @@ export default function PaginatedProductGrid({
             disabled={loading}
             className="inline-flex items-center justify-center rounded-full border-2 border-[#0B0F14] bg-[#0B0F14] px-10 py-3 text-sm font-bold uppercase tracking-widest text-white transition-colors hover:bg-[#F9D20F] hover:text-[#0B0F14] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? "Loading…" : "Load More"}
+            {loading ? c.loading : c.loadMore}
           </button>
         </div>
       )}

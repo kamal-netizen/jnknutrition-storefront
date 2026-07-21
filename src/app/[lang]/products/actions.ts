@@ -15,7 +15,7 @@ export async function loadMoreProducts(
   filters: ActiveFilters,
   after: string
 ): Promise<LoadMoreResult> {
-  const sort = resolveSort(SORT_OPTIONS, filters.sortLabel);
+  const sort = resolveSort(SORT_OPTIONS, filters.sortId);
   return getProductsPage({
     first: PAGE_SIZE,
     after,
@@ -34,7 +34,7 @@ export async function loadMoreProducts(
 export async function getFilteredProductsFirstPage(
   filters: ActiveFilters
 ): Promise<LoadMoreResult> {
-  const sort = resolveSort(SORT_OPTIONS, filters.sortLabel);
+  const sort = resolveSort(SORT_OPTIONS, filters.sortId);
   return getProductsPage({
     first: PAGE_SIZE,
     sortKey: sort.sortKey,

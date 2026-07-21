@@ -18,6 +18,17 @@ import {
   toggleValue,
   hasAnyActiveFilter,
 } from "@/lib/product-filters";
+import { useDict } from "@/lib/locale-context";
+
+const SORT_LABEL_MAP: Record<string, string> = {
+  "best-selling": "bestSelling",
+  newest: "newest",
+  "price-asc": "priceLowHigh",
+  "price-desc": "priceHighLow",
+  title: "titleAZ",
+  featured: "featured",
+  relevance: "relevance",
+};
 
 export type FacetValue = { value: string; label: string; count?: number };
 
@@ -98,31 +109,34 @@ function FilterPanel({
   vendors,
   productTypes,
 }: Omit<Props, "resultCount">) {
+  const dict = useDict();
+  const f = dict.filters;
+  const sortDict = dict.sort as Record<string, string>;
   const hrefWith = (patch: Partial<ActiveFilters>) =>
     buildFilterHref(basePath, { ...filters, ...patch });
 
   return (
     <div className="space-y-5">
       {/* Availability */}
-      <Group title="Availability">
+      <Group title={f.availability}>
         <CheckRow
           href={hrefWith({ includeSoldOut: !filters.includeSoldOut })}
           active={filters.includeSoldOut}
-          label="Include out of stock"
+          label={f.includeOutOfStock}
         />
       </Group>
 
       {/* On sale */}
-      <Group title="Offers">
+      <Group title={f.offers}>
         <CheckRow
           href={hrefWith({ onSale: !filters.onSale })}
           active={filters.onSale}
-          label="On sale only"
+          label={f.onSaleOnly}
         />
       </Group>
 
       {/* Price */}
-      <Group title="Price">
+      <Group title={f.price}>
         <div className="flex flex-col gap-1">
           {PRICE_BUCKETS.map((bucket) => {
             const active = filters.price?.id === bucket.id;
@@ -140,7 +154,7 @@ function FilterPanel({
 
       {/* Brands */}
       {vendors.length > 0 && (
-        <Group title="Brand">
+        <Group title={f.brand}>
           <div className="flex max-h-64 flex-col gap-0.5 overflow-y-auto pr-1">
             {vendors.map((v) => {
               const active = filters.vendors.includes(v.value);
@@ -162,7 +176,7 @@ function FilterPanel({
 
       {/* Categories */}
       {productTypes.length > 0 && (
-        <Group title="Category">
+        <Group title={f.category}>
           <div className="flex max-h-64 flex-col gap-0.5 overflow-y-auto pr-1">
             {productTypes.map((t) => {
               const active = filters.productTypes.includes(t.value);
@@ -183,20 +197,19 @@ function FilterPanel({
       )}
 
       {/* Sort (mobile-friendly duplicate; hidden on desktop where a top bar exists) */}
-      <Group title="Sort By">
+      <Group title={f.sortBy}>
         <div className="flex flex-col gap-1">
           {sortOptions.map((option) => {
             const active =
-              (filters.sortLabel || sortOptions[0].label) === option.label;
+              (filters.sortId || sortOptions[0].id) === option.id;
             return (
               <CheckRow
-                key={option.label}
+                key={option.id}
                 href={hrefWith({
-                  sortLabel:
-                    option.label === sortOptions[0].label ? "" : option.label,
+                  sortId: option.id === sortOptions[0].id ? "" : option.id,
                 })}
                 active={active}
-                label={option.label}
+                label={sortDict[SORT_LABEL_MAP[option.id] ?? ""] ?? option.label}
               />
             );
           })}
@@ -210,6 +223,8 @@ export function ProductFilterChips({
   basePath,
   filters,
 }: Pick<Props, "basePath" | "filters">) {
+  const dict = useDict();
+  const f = dict.filters;
   if (!hasAnyActiveFilter(filters)) return null;
 
   const chips: { key: string; label: string; href: string }[] = [];
@@ -219,11 +234,11 @@ export function ProductFilterChips({
   if (filters.includeSoldOut)
     chips.push({
       key: "sold",
-      label: "Incl. out of stock",
+      label: f.includeOutOfStock,
       href: hrefWith({ includeSoldOut: false }),
     });
   if (filters.onSale)
-    chips.push({ key: "sale", label: "On sale", href: hrefWith({ onSale: false }) });
+    chips.push({ key: "sale", label: f.onSaleOnly, href: hrefWith({ onSale: false }) });
   if (filters.price)
     chips.push({
       key: "price",
@@ -268,7 +283,7 @@ export function ProductFilterChips({
         scroll={false}
         className="text-xs font-semibold text-[#64748B] underline underline-offset-2 hover:text-[#0B0F14]"
       >
-        Clear all
+        {dict.common.clearAll}
       </Link>
     </div>
   );
@@ -276,6 +291,8 @@ export function ProductFilterChips({
 
 export default function ProductFilters(props: Props) {
   const [open, setOpen] = useState(false);
+  const f = useDict().filters;
+  const p = useDict().common;
   const activeCount =
     props.filters.vendors.length +
     props.filters.productTypes.length +
@@ -290,7 +307,7 @@ export default function ProductFilters(props: Props) {
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger className="inline-flex items-center gap-2 rounded-full border-2 border-[#0B0F14] bg-white px-4 py-2 text-sm font-bold uppercase tracking-wide text-[#0B0F14] cursor-pointer">
             <SlidersHorizontal className="h-4 w-4" />
-            Filters
+            {f.filters}
             {activeCount > 0 && (
               <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#F9D20F] px-1.5 text-xs font-black text-[#0B0F14]">
                 {activeCount}
@@ -303,10 +320,10 @@ export default function ProductFilters(props: Props) {
           >
             <SheetHeader className="sticky top-0 z-10 border-b border-[#E2E8F0] bg-white p-5">
               <SheetTitle className="text-lg font-black uppercase tracking-tight text-[#0B0F14]">
-                Filters
+                {f.filters}
               </SheetTitle>
               <p className="text-sm text-[#64748B]">
-                {props.resultCount} products
+                {props.resultCount} {p.products.toLowerCase()}
               </p>
             </SheetHeader>
             <div className="p-5">
@@ -315,7 +332,7 @@ export default function ProductFilters(props: Props) {
           </SheetContent>
         </Sheet>
         <span className="text-sm text-[#64748B]">
-          {props.resultCount} products
+          {props.resultCount} {p.products.toLowerCase()}
         </span>
       </div>
 
@@ -325,7 +342,7 @@ export default function ProductFilters(props: Props) {
           <div className="mb-5 flex items-center gap-2">
             <SlidersHorizontal className="h-4 w-4 text-[#F9D20F]" />
             <span className="text-sm font-black uppercase tracking-widest text-[#0B0F14]">
-              Filters
+              {f.filters}
             </span>
           </div>
           <FilterPanel {...props} />

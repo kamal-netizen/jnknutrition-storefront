@@ -21,7 +21,7 @@ export async function loadMoreCollection(
   filters: ActiveFilters,
   after: string
 ): Promise<LoadMoreResult> {
-  const sort = resolveSort(COLLECTION_SORT_OPTIONS, filters.sortLabel);
+  const sort = resolveSort(COLLECTION_SORT_OPTIONS, filters.sortId);
   const page = await getCollectionProductsPage(handle, {
     first: PAGE_SIZE,
     after,

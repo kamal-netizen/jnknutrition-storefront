@@ -10,6 +10,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import type { Product, ProductVariant } from "@/lib/queries/products";
+import { useDict, useLocale } from "@/lib/locale-context";
 import ProductGallery from "@/components/ProductGallery";
 import AddToCart from "@/components/AddToCart";
 import StickyAddToCart from "@/components/StickyAddToCart";
@@ -23,6 +24,10 @@ type Props = {
 };
 
 export default function ProductDetails({ product, recommendations, descriptionHtml }: Props) {
+  const dict = useDict();
+  const locale = useLocale();
+  const c = dict.common;
+  const t = dict.product;
   const images = product.images.edges.map((e) => e.node);
   const [activeIndex, setActiveIndex] = useState(0);
   const [activeVariantImageUrl, setActiveVariantImageUrl] = useState<string | null>(null);
@@ -57,19 +62,19 @@ export default function ProductDetails({ product, recommendations, descriptionHt
         <ol className="flex flex-wrap items-center gap-1.5 text-xs font-medium text-[#64748B]">
           <li>
             <Link href="/" className="hover:text-[#0B0F14] transition-colors">
-              Home
+              {c.home}
             </Link>
           </li>
-          <ChevronRight className="w-3.5 h-3.5 text-[#94A3B8]" aria-hidden="true" />
+          <ChevronRight className="w-3.5 h-3.5 text-[#94A3B8] rtl:rotate-180" aria-hidden="true" />
           <li>
             <Link
               href="/products"
               className="hover:text-[#0B0F14] transition-colors"
             >
-              Products
+              {c.products}
             </Link>
           </li>
-          <ChevronRight className="w-3.5 h-3.5 text-[#94A3B8]" aria-hidden="true" />
+          <ChevronRight className="w-3.5 h-3.5 text-[#94A3B8] rtl:rotate-180" aria-hidden="true" />
           <li>
             <span className="text-[#0B0F14] line-clamp-1" aria-current="page">
               {product.title}
@@ -107,27 +112,27 @@ export default function ProductDetails({ product, recommendations, descriptionHt
           <ul className="mt-6 grid grid-cols-2 gap-3">
             <li className="flex items-center gap-2 text-sm text-[#64748B]">
               <BadgeCheck className="w-4 h-4 text-[#F9D20F] shrink-0" aria-hidden="true" />
-              <span>100% Authentic</span>
+              <span>{t.authentic}</span>
             </li>
             <li className="flex items-center gap-2 text-sm text-[#64748B]">
               <ShieldCheck className="w-4 h-4 text-[#F9D20F] shrink-0" aria-hidden="true" />
-              <span>Secure Checkout</span>
+              <span>{t.secureCheckout}</span>
             </li>
             <li className="flex items-center gap-2 text-sm text-[#64748B]">
               <Truck className="w-4 h-4 text-[#F9D20F] shrink-0" aria-hidden="true" />
-              <span>Fast UAE Shipping</span>
+              <span>{t.fastShipping}</span>
             </li>
             <li className="flex items-center gap-2 text-sm text-[#64748B]">
               <RotateCcw className="w-4 h-4 text-[#F9D20F] shrink-0" aria-hidden="true" />
-              <span>Easy 7-Day Returns</span>
+              <span>{t.easyReturns}</span>
             </li>
           </ul>
 
           <div className="mt-4 flex items-center gap-2 text-sm text-[#64748B]">
             <Truck className="w-4 h-4 text-[#F9D20F] shrink-0" />
             <span>
-              Free shipping on orders over{" "}
-              <span className="font-bold text-[#0B0F14]">AED149</span>
+              {t.freeShippingOver}{" "}
+              <span className="font-bold text-[#0B0F14]">{locale.code === "ar" ? "149 د.إ" : "AED149"}</span>
             </span>
           </div>
 
@@ -135,13 +140,14 @@ export default function ProductDetails({ product, recommendations, descriptionHt
             {descriptionHtml && (
               <details className="group py-5" open>
                 <summary className="flex cursor-pointer items-center justify-between gap-4 list-none text-sm font-bold uppercase tracking-widest text-[#0B0F14]">
-                  Details
+                  {t.details}
                   <ChevronRight
-                    className="w-4 h-4 text-[#F9D20F] shrink-0 transition-transform group-open:rotate-90"
+                    className="w-4 h-4 text-[#F9D20F] shrink-0 transition-transform group-open:rotate-90 rtl:rotate-180 rtl:group-open:-rotate-90"
                     aria-hidden="true"
                   />
                 </summary>
                 <div
+                  dir="auto"
                   className="mt-4 prose prose-sm max-w-none text-[#64748B] [&_a]:text-[#F9D20F] [&_strong]:text-[#0B0F14]"
                   dangerouslySetInnerHTML={{ __html: descriptionHtml }}
                 />
@@ -151,26 +157,24 @@ export default function ProductDetails({ product, recommendations, descriptionHt
             {/* Shipping & returns */}
             <details className="group py-5">
               <summary className="flex cursor-pointer items-center justify-between gap-4 list-none text-sm font-bold uppercase tracking-widest text-[#0B0F14]">
-                Shipping &amp; Returns
+                {t.shippingReturns}
                 <ChevronRight
-                  className="w-4 h-4 text-[#F9D20F] shrink-0 transition-transform group-open:rotate-90"
+                  className="w-4 h-4 text-[#F9D20F] shrink-0 transition-transform group-open:rotate-90 rtl:rotate-180 rtl:group-open:-rotate-90"
                   aria-hidden="true"
                 />
               </summary>
               <div className="mt-4 space-y-3 text-sm text-[#64748B]">
                 <p>
-                  <span className="font-bold text-[#0B0F14]">Fast delivery:</span>{" "}
-                  Same-day dispatch on orders placed before the daily cut-off, with
-                  delivery across the UAE in 1–3 working days.
+                  <span className="font-bold text-[#0B0F14]">{t.fastDelivery}</span>{" "}
+                  {t.fastDeliveryBody}
                 </p>
                 <p>
-                  <span className="font-bold text-[#0B0F14]">Free shipping:</span>{" "}
-                  Enjoy free delivery on every order over AED&nbsp;149.
+                  <span className="font-bold text-[#0B0F14]">{t.freeShippingLabel}</span>{" "}
+                  {t.freeShippingBody}
                 </p>
                 <p>
-                  <span className="font-bold text-[#0B0F14]">Easy returns:</span>{" "}
-                  Unopened items can be returned within 7 days of delivery. Damaged
-                  or incorrect items are replaced free of charge.
+                  <span className="font-bold text-[#0B0F14]">{t.easyReturnsLabel}</span>{" "}
+                  {t.easyReturnsBody}
                 </p>
               </div>
             </details>
@@ -193,7 +197,7 @@ export default function ProductDetails({ product, recommendations, descriptionHt
           id="product-faq-heading"
           className="text-2xl md:text-3xl font-black text-[#0B0F14] uppercase tracking-tight mb-8"
         >
-          Frequently Asked Questions
+          {t.faq}
         </h2>
         <div className="max-w-3xl divide-y divide-[#E2E8F0] border-y border-[#E2E8F0]">
           {PRODUCT_FAQ.map((item) => (
@@ -201,7 +205,7 @@ export default function ProductDetails({ product, recommendations, descriptionHt
               <summary className="flex cursor-pointer items-center justify-between gap-4 list-none font-bold text-[#0B0F14]">
                 <span>{item.question}</span>
                 <ChevronRight
-                  className="w-4 h-4 text-[#F9D20F] shrink-0 transition-transform group-open:rotate-90"
+                  className="w-4 h-4 text-[#F9D20F] shrink-0 transition-transform group-open:rotate-90 rtl:rotate-180 rtl:group-open:-rotate-90"
                   aria-hidden="true"
                 />
               </summary>
@@ -214,7 +218,7 @@ export default function ProductDetails({ product, recommendations, descriptionHt
       {recommendations.length > 0 && (
         <section className="mt-20">
           <h2 className="text-2xl md:text-3xl font-black text-[#0B0F14] uppercase tracking-tight mb-8">
-            You Might Also Like
+            {t.youMightAlsoLike}
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {recommendations.slice(0, 4).map((rec) => (

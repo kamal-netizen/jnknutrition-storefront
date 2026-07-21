@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "@/components/LocaleLink";
 import { ShieldCheck, Zap, Headphones, BadgeCheck } from "lucide-react";
 import { getPage } from "@/lib/queries/content";
+import { getDictionary } from "@/lib/dictionaries";
+import { getLocale } from "@/lib/i18n";
 import BrandCard, { BRANDS } from "@/components/home/BrandCard";
 
 export const revalidate = 600;
@@ -17,67 +19,58 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const STATS = [
-  { value: "50+", label: "Genuine Brands" },
-  { value: "2,000+", label: "Products Stocked" },
-  { value: "100%", label: "Authentic Guarantee" },
-  { value: "24/7", label: "Customer Support" },
-] as const;
-
-const VALUES = [
-  {
-    icon: BadgeCheck,
-    title: "100% Authentic",
-    body: "Every product is sourced directly from authorised distributors. No fakes, no compromises — only the real deal.",
-  },
-  {
-    icon: Zap,
-    title: "Real Results",
-    body: "We stock the formulas that actually work, so your training, recovery, and goals stay on track.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Trusted & Safe",
-    body: "Secure checkout, verified brands, and honest labelling you can rely on with every order.",
-  },
-  {
-    icon: Headphones,
-    title: "Expert Support",
-    body: "Our team lives and breathes fitness. Reach out any time for guidance on picking the right stack.",
-  },
-] as const;
-
-export default async function AboutPage() {
+export default async function AboutPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
+  const locale = getLocale(lang);
+  const dict = getDictionary(locale);
+  const a = dict.about;
+  const c = dict.common;
   const page = await getPage("about");
 
+  const STATS = [
+    { value: "50+", label: a.genuineBrands },
+    { value: "2,000+", label: a.productsStocked },
+    { value: "100%", label: a.authenticGuarantee },
+    { value: "24/7", label: a.customerSupport },
+  ];
+
+  const VALUES = [
+    { icon: BadgeCheck, title: a.val1Title, body: a.val1Body },
+    { icon: Zap, title: a.val2Title, body: a.val2Body },
+    { icon: ShieldCheck, title: a.val3Title, body: a.val3Body },
+    { icon: Headphones, title: a.val4Title, body: a.val4Body },
+  ];
+
   return (
-    <div className="flex flex-col">
+    <div dir="auto" className="flex flex-col">
       {/* ─── Hero band ────────────────────────────────────────── */}
       <section className="bg-[#0B0F14]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 w-full">
           <p className="text-[#F9D20F] text-xs font-black uppercase tracking-[0.2em] mb-3">
-            About Us
+            {a.aboutUs}
           </p>
           <h1 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tight max-w-4xl">
-            {page?.title || "Fuel Your Ambition"}
+            {page?.title || a.heroTitle}
           </h1>
           <p className="mt-6 text-lg md:text-xl text-[#94A3B8] max-w-2xl">
-            JNK is your trusted destination for 100% authentic sports nutrition
-            and supplements — hand-picked from the world&apos;s most respected
-            brands and delivered fast.
+            {a.heroBody}
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
               href="/collections"
               className="inline-flex items-center bg-[#F9D20F] text-[#0B0F14] font-bold uppercase tracking-wide px-6 py-3 rounded hover:bg-[#E7BF00] transition-colors"
             >
-              Shop Now →
+              {c.shopNow} →
             </Link>
             <Link
               href="/pages/contact"
               className="inline-flex items-center border border-[#334155] text-white font-bold uppercase tracking-wide px-6 py-3 rounded hover:border-[#F9D20F] hover:text-[#F9D20F] transition-colors"
             >
-              Contact Us
+              {a.contactUs}
             </Link>
           </div>
         </div>
@@ -104,26 +97,18 @@ export default async function AboutPage() {
       {/* ─── Story / Mission ──────────────────────────────────── */}
       <section className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 w-full">
         <h2 className="text-2xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight mb-6">
-          Our Story
+          {a.ourStory}
         </h2>
         {page?.body ? (
           <div
+            dir="auto"
             className="prose max-w-none text-[#64748B] [&_a]:text-[#F9D20F] [&_h2]:text-[#0B0F14] [&_h3]:text-[#0B0F14] [&_strong]:text-[#0B0F14]"
             dangerouslySetInnerHTML={{ __html: page.body }}
           />
         ) : (
-          <div className="space-y-4 text-[#64748B] text-lg leading-relaxed">
-            <p>
-              JNK started with a simple frustration: too many athletes were
-              being sold counterfeit or low-quality supplements. We set out to
-              change that by building a store where every single product is
-              guaranteed genuine.
-            </p>
-            <p>
-              Today we partner with the biggest names in sports nutrition to
-              bring you protein, pre-workouts, creatine, and wellness essentials
-              at fair prices — backed by people who actually train.
-            </p>
+          <div dir="auto" className="space-y-4 text-[#64748B] text-lg leading-relaxed">
+            <p>{a.storyP1}</p>
+            <p>{a.storyP2}</p>
           </div>
         )}
       </section>
@@ -132,10 +117,10 @@ export default async function AboutPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 w-full">
         <div className="mb-8">
           <h2 className="text-2xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight">
-            Why Choose JNK
+            {a.whyChoose}
           </h2>
           <p className="mt-2 text-[#64748B]">
-            What sets us apart from the rest.
+            {a.whyChooseSub}
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
@@ -166,10 +151,10 @@ export default async function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 w-full">
           <div className="mb-8">
             <h2 className="text-2xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight">
-              Brands We Carry
+              {a.brandsWeCarry}
             </h2>
             <p className="mt-2 text-[#64748B]">
-              Trusted names, authentic products.
+              {a.brandsWeCarrySub}
             </p>
           </div>
           <div className="flex flex-wrap gap-3 md:gap-4">
@@ -184,17 +169,16 @@ export default async function AboutPage() {
       <section className="bg-[#0B0F14]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20 w-full text-center">
           <h2 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tight">
-            Ready To Level Up?
+            {a.ctaTitle}
           </h2>
           <p className="mt-4 text-[#94A3B8] max-w-xl mx-auto">
-            Explore our full range and get the genuine supplements your training
-            deserves.
+            {a.ctaBody}
           </p>
           <Link
             href="/collections"
             className="mt-8 inline-flex items-center bg-[#F9D20F] text-[#0B0F14] font-bold uppercase tracking-wide px-8 py-4 rounded hover:bg-[#E7BF00] transition-colors"
           >
-            Shop All Products →
+            {a.shopAllProducts}
           </Link>
         </div>
       </section>

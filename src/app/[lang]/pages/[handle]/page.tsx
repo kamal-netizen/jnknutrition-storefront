@@ -30,6 +30,7 @@ export default async function CmsPage({ params }: Props) {
         {page.title}
       </h1>
       <div
+        dir="auto"
         className="prose max-w-none text-[#64748B] [&_a]:text-[#F9D20F] [&_h2]:text-[#0B0F14] [&_h3]:text-[#0B0F14] [&_strong]:text-[#0B0F14]"
         dangerouslySetInnerHTML={{ __html: page.body }}
       />

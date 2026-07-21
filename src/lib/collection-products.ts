@@ -116,7 +116,7 @@ export async function getCollectionProductsView(
   filters: ActiveFilters,
   language?: string
 ): Promise<CollectionProductsView | null> {
-  const selectedSort = resolveSort(COLLECTION_SORT_OPTIONS, filters.sortLabel);
+  const selectedSort = resolveSort(COLLECTION_SORT_OPTIONS, filters.sortId);
   const discountOnly = DISCOUNT_ONLY_HANDLES.has(handle);
   const isAggregateDeal = AGGREGATE_DEALS_HANDLES.has(handle);
   const isTypeCollection = handle in TYPE_COLLECTION_MAP;

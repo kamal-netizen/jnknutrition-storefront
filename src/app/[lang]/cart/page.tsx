@@ -11,6 +11,7 @@ import {
   useCheckoutUrl,
   useCartSavings,
 } from "@/lib/store/cart";
+import { useDict } from "@/lib/locale-context";
 import { Button } from "@/components/ui/button";
 import Price from "@/components/Price";
 import FreeShippingBar from "@/components/FreeShippingBar";
@@ -22,6 +23,10 @@ export default function CartPage() {
   const total = useCartTotal();
   const checkoutUrl = useCheckoutUrl();
   const savings = useCartSavings();
+  const dict = useDict();
+  const ct = dict.cart;
+  const c = dict.common;
+  const t = dict.product;
 
   useEffect(() => {
     refreshCart();
@@ -30,19 +35,19 @@ export default function CartPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
       <h1 className="text-4xl md:text-5xl font-black text-[#0B0F14] uppercase tracking-tight mb-10">
-        Your Cart
+        {ct.yourCart}
       </h1>
 
       {lines.length === 0 ? (
         <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-16 text-center flex flex-col items-center gap-4">
           <ShoppingBag className="w-14 h-14 text-[#E2E8F0]" />
-          <p className="text-[#64748B]">Your cart is empty.</p>
+          <p className="text-[#64748B]">{ct.empty}</p>
           <Button
             render={<Link href="/products" />}
             nativeButton={false}
             className="bg-[#F9D20F] text-[#0B0F14] font-bold hover:bg-[#E7BF00] uppercase tracking-wide"
           >
-            Start Shopping
+            {c.startShopping}
           </Button>
         </div>
       ) : (
@@ -135,18 +140,18 @@ export default function CartPage() {
           <div className="lg:col-span-1">
             <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-6 space-y-4 sticky top-24">
               <h2 className="text-lg font-bold text-[#0B0F14] uppercase tracking-tight">
-                Order Summary
+                {t.orderSummary}
               </h2>
               {savings.amount > 0 && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-[#16A34A] font-semibold">You save</span>
+                  <span className="text-[#16A34A] font-semibold">{ct.youSave}</span>
                   <span className="text-[#16A34A] font-bold tabular-nums">
                     {savings.currencyCode} {savings.amount.toFixed(2)}
                   </span>
                 </div>
               )}
               <div className="flex justify-between text-sm">
-                <span className="text-[#64748B]">Subtotal</span>
+                <span className="text-[#64748B]">{ct.subtotal}</span>
                 {total && (
                   <Price
                     amount={total.amount}
@@ -156,7 +161,7 @@ export default function CartPage() {
                 )}
               </div>
               <p className="text-xs text-[#64748B]">
-                Shipping and taxes calculated at checkout.
+                {ct.shippingNote}
               </p>
               <FreeShippingBar className="rounded-md border border-[#E2E8F0] bg-white p-3" />
               <Button
@@ -166,23 +171,23 @@ export default function CartPage() {
                 className="w-full h-12 bg-[#F9D20F] text-[#0B0F14] font-bold hover:bg-[#E7BF00] uppercase tracking-wide"
               >
                 {isLoading ? (
-                  "Updating..."
+                  ct.updating
                 ) : (
                   <>
-                    <Lock className="w-4 h-4" /> Secure Checkout
+                    <Lock className="w-4 h-4" /> {ct.secureCheckout}
                   </>
                 )}
               </Button>
               <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#64748B]">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#16A34A]" aria-hidden="true" />
-                <span>Secure payments · Tamara · Visa · Mastercard · Apple Pay</span>
+                <span>{ct.securePayments}</span>
               </div>
               <Button
                 variant="ghost"
                 render={<Link href="/products" />}
                 className="w-full text-[#64748B] hover:text-[#0B0F14]"
               >
-                Continue Shopping
+                {t.continueShopping}
               </Button>
             </div>
           </div>

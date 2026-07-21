@@ -159,6 +159,7 @@ export default async function NewsArticlePage({ params }: Props) {
 
       {/* ─── Body prose ───────────────────────────────────── */}
       <div
+        dir="auto"
         className="
           prose max-w-none
           text-[17px] text-[#475569] leading-[1.85]

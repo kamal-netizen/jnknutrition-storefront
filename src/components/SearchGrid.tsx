@@ -4,13 +4,14 @@ import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import type { Product } from "@/lib/queries/products";
 import { loadMoreSearch } from "@/app/[lang]/search/actions";
+import { useDict } from "@/lib/locale-context";
 
 type Props = {
   initialProducts: Product[];
   initialCursor: string | null;
   initialHasNextPage: boolean;
   query: string;
-  sortLabel: string;
+  sortId: string;
   filters: string[];
 };
 
@@ -19,9 +20,10 @@ export default function SearchGrid({
   initialCursor,
   initialHasNextPage,
   query,
-  sortLabel,
+  sortId,
   filters,
 }: Props) {
+  const c = useDict().common;
   const [products, setProducts] = useState(initialProducts);
   const [cursor, setCursor] = useState(initialCursor);
   const [hasNextPage, setHasNextPage] = useState(initialHasNextPage);
@@ -33,7 +35,7 @@ export default function SearchGrid({
     try {
       const res = await loadMoreSearch({
         query,
-        sortLabel,
+        sortId,
         filters,
         after: cursor,
       });
@@ -60,7 +62,7 @@ export default function SearchGrid({
             disabled={loading}
             className="inline-flex items-center justify-center rounded-md border-2 border-[#0B0F14] bg-[#0B0F14] px-8 py-3 text-sm font-bold uppercase tracking-widest text-white transition-colors hover:bg-[#F9D20F] hover:text-[#0B0F14] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? "Loading…" : "Load More"}
+            {loading ? c.loading : c.loadMore}
           </button>
         </div>
       )}

@@ -8,6 +8,7 @@ import type { Product } from "@/lib/queries/products";
 import { getProducts } from "@/lib/queries/products";
 import { useCartStore, useCartLines, useCartSubtotal } from "@/lib/store/cart";
 import { freeShippingRemaining, FREE_SHIPPING_CURRENCY } from "@/lib/shipping";
+import { useDict, useLocale } from "@/lib/locale-context";
 import Price from "@/components/Price";
 
 type Props = {
@@ -19,6 +20,8 @@ export default function CartSuggestions({ className, onNavigate }: Props) {
   const subtotal = useCartSubtotal();
   const lines = useCartLines();
   const { addLine, isLoading } = useCartStore();
+  const ct = useDict().cart;
+  const locale = useLocale();
   const [products, setProducts] = useState<Product[]>([]);
   const [addedId, setAddedId] = useState<string | null>(null);
   // Stable random order, computed once per fetched batch.
@@ -86,15 +89,18 @@ export default function CartSuggestions({ className, onNavigate }: Props) {
   return (
     <div className={className}>
       <p className="text-xs font-bold uppercase tracking-widest text-[#0B0F14]">
-        {unlocked ? "You might also like" : "Add a little more for free shipping"}
+        {unlocked ? ct.youMightLike : ct.addForFreeShipping}
       </p>
       <p className="mt-0.5 text-[11px] text-[#64748B]">
         {unlocked ? (
-          "Complete your stack with these picks."
+          ct.completeStack
         ) : (
           <>
-            You&apos;re {FREE_SHIPPING_CURRENCY} {remaining.toFixed(2)} away —
-            grab a small add-on.
+            {ct.youre}{" "}
+            {locale.code === "ar"
+              ? `${remaining.toFixed(2)} د.إ`
+              : `${FREE_SHIPPING_CURRENCY} ${remaining.toFixed(2)}`}{" "}
+            {ct.awayFrom}
           </>
         )}
       </p>

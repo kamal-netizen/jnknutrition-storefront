@@ -31,7 +31,7 @@ import Price from "@/components/Price";
 import CartDrawer from "@/components/CartDrawer";
 import DesktopNav from "@/components/MegaMenu";
 import LanguageToggle from "@/components/LanguageToggle";
-import { useDict, useLocalizePath } from "@/lib/locale-context";
+import { useDict, useLocalizePath, useNavLabel } from "@/lib/locale-context";
 import {
   GOAL_CARDS,
   CATEGORY_GROUPS,
@@ -71,6 +71,9 @@ function getAppStoreUrl() {
   return /iPhone|iPad|iPod|Macintosh/i.test(ua) ? APP_STORE_URL : PLAY_STORE_URL;
 }
 
+// Built once at module load, so `label` here is always the English source text.
+// `goalId` / `handle` are carried through so the render pass can look up a
+// translation; brand names are proper nouns and stay as-is in every locale.
 const MOBILE_SECTIONS = [
   {
     label: "Shop by Goals",
@@ -78,8 +81,11 @@ const MOBILE_SECTIONS = [
     groups: [
       {
         title: "",
+        groupHandle: "",
         links: GOAL_CARDS.map((g) => ({
           label: g.title,
+          goalId: g.id,
+          handle: "",
           href: collectionHref(g.handle),
         })),
       },
@@ -90,8 +96,11 @@ const MOBILE_SECTIONS = [
     icon: Layers,
     groups: CATEGORY_GROUPS.map((c) => ({
       title: c.title,
+      groupHandle: c.viewAllHandle,
       links: c.items.map((i) => ({
         label: i.label,
+        goalId: "",
+        handle: i.handle,
         href: collectionHref(i.handle),
       })),
     })),
@@ -102,8 +111,11 @@ const MOBILE_SECTIONS = [
     groups: [
       {
         title: "",
+        groupHandle: "",
         links: MEGA_BRANDS.map((b) => ({
           label: b.name,
+          goalId: "",
+          handle: "",
           href: collectionHref(b.handle),
         })),
       },
@@ -125,6 +137,7 @@ export default function Header({
   const t = dict.header;
   const c = dict.common;
   const localize = useLocalizePath();
+  const navLabel = useNavLabel();
   const ANNOUNCEMENTS = buildAnnouncements(t);
   // Mobile drawer section labels are keyed by their (stable, English) const
   // value; translate only the display text.
@@ -290,12 +303,12 @@ export default function Header({
                   <div className="mt-3 flex flex-wrap gap-2">
                     {TRENDING_SEARCHES.slice(0, 6).map((term) => (
                       <Link
-                        key={term}
-                        href={`/search?q=${encodeURIComponent(term)}`}
+                        key={term.query}
+                        href={`/search?q=${encodeURIComponent(term.query)}`}
                         onClick={() => setMobileOpen(false)}
                         className="rounded-full border border-[#E2E8F0] bg-white px-3 py-1.5 text-xs font-medium text-[#475569] hover:border-[#F9D20F] hover:text-[#0B0F14] transition-colors"
                       >
-                        {term}
+                        {navLabel(term.labelKey, term.query)}
                       </Link>
                     ))}
                   </div>
@@ -352,7 +365,8 @@ export default function Header({
                               <div key={group.title} className="pt-1">
                                 {group.title && (
                                   <p className="pt-2 pb-1 text-[10px] font-black uppercase tracking-[0.15em] text-[#94A3B8]">
-                                    {group.title}
+                                    {dict.nav.categories[group.groupHandle] ??
+                                      group.title}
                                   </p>
                                 )}
                                 {group.links.map((link) => (
@@ -362,7 +376,8 @@ export default function Header({
                                     onClick={() => setMobileOpen(false)}
                                     className="block py-2.5 min-h-[44px] text-sm font-medium text-[#475569] hover:text-[#0B0F14]"
                                   >
-                                    {link.label}
+                                    {dict.nav.goals[link.goalId]?.title ??
+                                      navLabel(link.handle, link.label)}
                                   </Link>
                                 ))}
                               </div>

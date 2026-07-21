@@ -13,11 +13,11 @@ export type LoadMoreResult = {
 
 export async function loadMoreSearch(args: {
   query: string;
-  sortLabel?: string;
+  sortId?: string;
   filters: string[];
   after: string;
 }): Promise<LoadMoreResult> {
-  const sort = resolveSort(args.sortLabel);
+  const sort = resolveSort(args.sortId);
 
   const productFilters: ProductFilterInput[] = args.filters
     .map((f) => {

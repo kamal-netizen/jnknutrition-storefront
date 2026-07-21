@@ -63,6 +63,7 @@ export default async function ArticlePage({ params }: Props) {
       )}
 
       <div
+        dir="auto"
         className="prose max-w-none mt-10 text-[#64748B] [&_a]:text-[#F9D20F] [&_h2]:text-[#0B0F14] [&_h3]:text-[#0B0F14] [&_strong]:text-[#0B0F14]"
         dangerouslySetInnerHTML={{ __html: data.contentHtml }}
       />

@@ -8,6 +8,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { predictiveSearch } from "@/lib/queries/search";
 import type { PredictiveSearchResults } from "@/lib/queries/search";
 import { TRENDING_SEARCHES } from "@/lib/nav";
+import { useDict, useNavLabel } from "@/lib/locale-context";
 import Price from "@/components/Price";
 
 // Terms cycled through the collapsed pill's typewriter placeholder.
@@ -38,6 +39,8 @@ function prefersReducedMotion() {
 export default function FloatingSearch() {
   const router = useRouter();
   const pathname = usePathname();
+  const c = useDict().common;
+  const navLabel = useNavLabel();
 
   const [open, setOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
@@ -235,16 +238,16 @@ export default function FloatingSearch() {
             <div className="px-4 py-4">
               <p className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-[#94A3B8]">
                 <TrendingUp className="h-3 w-3" />
-                Popular Searches
+                {c.trendingSearches}
               </p>
               <div className="flex flex-wrap gap-2">
                 {PRESETS.map((term) => (
                   <button
-                    key={term}
-                    onClick={() => submit(term)}
+                    key={term.query}
+                    onClick={() => submit(term.query)}
                     className="rounded-full border border-[#E2E8F0] bg-white px-3 py-1.5 text-xs font-medium text-[#475569] transition-colors hover:border-[#F9D20F] hover:text-[#0B0F14]"
                   >
-                    {term}
+                    {navLabel(term.labelKey, term.query)}
                   </button>
                 ))}
               </div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ShoppingBag, Check } from "lucide-react";
 import type { Product, ProductVariant } from "@/lib/queries/products";
 import { useCartStore } from "@/lib/store/cart";
+import { useDict } from "@/lib/locale-context";
 import { Button } from "@/components/ui/button";
 import Price from "@/components/Price";
 import TamaraWidget from "@/components/TamaraWidget";
@@ -16,6 +17,9 @@ type Props = {
 export default function AddToCart({ product, onVariantChange }: Props) {
   const variants = product.variants.edges.map((e) => e.node);
   const { addLine, isLoading } = useCartStore();
+  const dict = useDict();
+  const c = dict.common;
+  const p = dict.product;
 
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
     variants.find((v) => v.availableForSale) ?? variants[0]
@@ -70,7 +74,7 @@ export default function AddToCart({ product, onVariantChange }: Props) {
         )}
         {discountPercent > 0 && (
           <span className="rounded bg-[#F9D20F] px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-[#0B0F14]">
-            Save {discountPercent}%
+            {p.save} {discountPercent}%
           </span>
         )}
       </div>
@@ -85,7 +89,7 @@ export default function AddToCart({ product, onVariantChange }: Props) {
       {hasVariants && (
         <div className="space-y-2">
           <label className="text-xs font-bold uppercase tracking-widest text-[#64748B]">
-            Options
+            {p.options}
           </label>
           <div className="flex flex-wrap gap-2">
             {variants.map((variant) => {
@@ -112,7 +116,7 @@ export default function AddToCart({ product, onVariantChange }: Props) {
       {/* Quantity */}
       <div className="space-y-2">
         <label className="text-xs font-bold uppercase tracking-widest text-[#64748B]">
-          Quantity
+          {p.quantity}
         </label>
         <div className="inline-flex items-center border border-[#E2E8F0] rounded">
           <button
@@ -142,16 +146,16 @@ export default function AddToCart({ product, onVariantChange }: Props) {
         className="w-full h-14 bg-[#F9D20F] text-[#0B0F14] font-bold hover:bg-[#E7BF00] uppercase tracking-wide text-base disabled:bg-[#E2E8F0] disabled:text-[#94A3B8]"
       >
         {soldOut ? (
-          "Sold Out"
+          c.soldOut
         ) : justAdded ? (
           <>
-            <Check className="w-5 h-5" /> Added to Cart
+            <Check className="w-5 h-5" /> {p.addedToCart}
           </>
         ) : isLoading ? (
-          "Adding..."
+          p.adding
         ) : (
           <>
-            <ShoppingBag className="w-5 h-5" /> Add to Cart
+            <ShoppingBag className="w-5 h-5" /> {c.addToCart}
           </>
         )}
       </Button>

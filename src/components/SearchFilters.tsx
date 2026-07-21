@@ -11,6 +11,13 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { SORT_OPTIONS } from "@/app/[lang]/search/constants";
+import { useDict } from "@/lib/locale-context";
+
+const SORT_LABEL_MAP: Record<string, string> = {
+  relevance: "relevance",
+  "price-asc": "priceLowHigh",
+  "price-desc": "priceHighLow",
+};
 
 type FacetValue = {
   id: string;
@@ -27,28 +34,31 @@ type Facet = {
 
 type Props = {
   query: string;
-  sortLabel: string;
+  sortId: string;
   selectedFilters: string[];
   facets: Facet[];
   resultCount: number;
 };
 
-function buildHref(query: string, sortLabel: string, filters: string[]): string {
+function buildHref(query: string, sortId: string, filters: string[]): string {
   const params = new URLSearchParams();
   params.set("q", query);
-  if (sortLabel !== SORT_OPTIONS[0].label) params.set("sort", sortLabel);
+  if (sortId !== SORT_OPTIONS[0].id) params.set("sort", sortId);
   for (const filter of filters) params.append("filter", filter);
   return `/search?${params.toString()}`;
 }
 
 export default function SearchFilters({
   query,
-  sortLabel,
+  sortId,
   selectedFilters,
   facets,
   resultCount,
 }: Props) {
   const [open, setOpen] = useState(false);
+  const dict = useDict();
+  const f = dict.filters;
+  const sortDict = dict.sort as Record<string, string>;
 
   const activeFilters = selectedFilters.length;
   const labelByInput = new Map(
@@ -62,7 +72,7 @@ export default function SearchFilters({
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border-2 border-[#0B0F14] bg-white px-4 py-2.5 text-sm font-bold uppercase tracking-wide text-[#0B0F14] cursor-pointer transition-colors active:bg-[#0B0F14] active:text-white">
           <Filter className="h-4 w-4" />
-          Filters & Sort
+          {f.filtersAndSort}
           {activeFilters > 0 && (
             <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#F9D20F] px-1.5 text-xs font-black text-[#0B0F14]">
               {activeFilters}
@@ -72,23 +82,23 @@ export default function SearchFilters({
         <SheetContent side="left" className="w-[90%] max-w-sm overflow-y-auto p-0">
           <SheetHeader className="sticky top-0 z-10 border-b border-[#E2E8F0] bg-white p-5">
             <SheetTitle className="text-lg font-black uppercase tracking-tight text-[#0B0F14]">
-              Filters & Sort
+              {f.filtersAndSort}
             </SheetTitle>
-            <p className="text-sm text-[#64748B]">{resultCount} results</p>
+            <p className="text-sm text-[#64748B]">{resultCount} {f.results}</p>
           </SheetHeader>
 
           <div className="space-y-5 p-5">
             <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-4">
               <h3 className="text-xs font-bold uppercase tracking-widest text-[#0B0F14] mb-3">
-                Sort By
+                {f.sortBy}
               </h3>
               <div className="flex flex-col gap-1">
                 {SORT_OPTIONS.map((option) => {
-                  const href = buildHref(query, option.label, selectedFilters);
-                  const isSelected = option.label === sortLabel;
+                  const href = buildHref(query, option.id, selectedFilters);
+                  const isSelected = option.id === sortId;
                   return (
                     <Link
-                      key={option.label}
+                      key={option.id}
                       href={href}
                       onClick={() => setOpen(false)}
                       className={`flex items-center gap-2.5 rounded-md px-2 py-2 text-sm transition-colors ${
@@ -106,7 +116,7 @@ export default function SearchFilters({
                           <span className="h-2 w-2 rounded-full bg-[#F9D20F]" />
                         )}
                       </span>
-                      {option.label}
+                      {sortDict[SORT_LABEL_MAP[option.id] ?? ""] ?? option.label}
                     </Link>
                   );
                 })}
@@ -117,14 +127,14 @@ export default function SearchFilters({
               <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-xs font-bold uppercase tracking-widest text-[#0B0F14]">
-                    Active
+                    {f.active}
                   </h3>
                   <Link
-                    href={buildHref(query, sortLabel, [])}
+                    href={buildHref(query, sortId, [])}
                     onClick={() => setOpen(false)}
                     className="text-xs text-[#64748B] hover:text-[#0B0F14] underline"
                   >
-                    Clear all
+                    {dict.common.clearAll}
                   </Link>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -134,7 +144,7 @@ export default function SearchFilters({
                     return (
                       <Link
                         key={filter}
-                        href={buildHref(query, sortLabel, nextFilters)}
+                        href={buildHref(query, sortId, nextFilters)}
                         onClick={() => setOpen(false)}
                         className="inline-flex items-center gap-1 rounded-full bg-[#0B0F14] px-3 py-1 text-xs text-white hover:bg-[#F9D20F] hover:text-[#0B0F14] transition-colors"
                       >
@@ -172,7 +182,7 @@ export default function SearchFilters({
                       return (
                         <Link
                           key={value.input}
-                          href={buildHref(query, sortLabel, nextFilters)}
+                          href={buildHref(query, sortId, nextFilters)}
                           onClick={() => setOpen(false)}
                           className="group flex items-center justify-between gap-2 py-1.5 text-sm"
                         >
@@ -213,7 +223,7 @@ export default function SearchFilters({
       </Sheet>
 
       <span className="shrink-0 whitespace-nowrap text-sm text-[#64748B]">
-        {resultCount} results
+        {resultCount} {f.results}
       </span>
     </div>
   );

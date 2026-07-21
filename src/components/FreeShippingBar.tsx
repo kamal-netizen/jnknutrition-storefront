@@ -7,6 +7,7 @@ import {
   freeShippingRemaining,
   freeShippingProgress,
 } from "@/lib/shipping";
+import { useDict, useLocale } from "@/lib/locale-context";
 
 type Props = {
   className?: string;
@@ -14,6 +15,8 @@ type Props = {
 
 export default function FreeShippingBar({ className }: Props) {
   const subtotal = useCartSubtotal();
+  const ct = useDict().cart;
+  const locale = useLocale();
   if (!subtotal) return null;
 
   const amount = parseFloat(subtotal.amount);
@@ -33,14 +36,16 @@ export default function FreeShippingBar({ className }: Props) {
         )}
         <p className="text-xs font-semibold text-[#0B0F14]">
           {unlocked ? (
-            "You've unlocked FREE shipping!"
+            ct.freeShippingUnlocked
           ) : (
             <>
-              Add{" "}
+              {ct.add}{" "}
               <span className="font-bold text-[#0B0F14]">
-                {FREE_SHIPPING_CURRENCY} {remaining.toFixed(2)}
+                {locale.code === "ar"
+                  ? `${remaining.toFixed(2)} د.إ`
+                  : `${FREE_SHIPPING_CURRENCY} ${remaining.toFixed(2)}`}
               </span>{" "}
-              for FREE shipping
+              {ct.addAmountForFree}
             </>
           )}
         </p>

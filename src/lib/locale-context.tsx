@@ -51,3 +51,14 @@ export function useLocalizePath(): (path: string) => string {
   const locale = useLocale();
   return (path: string) => localizePath(path, locale);
 }
+
+/**
+ * Translate a nav entry by its collection handle. nav.ts owns the structure and
+ * the English copy; the dictionary supplies translations keyed by handle. An
+ * untranslated handle falls back to the English label rather than rendering
+ * blank, so adding a collection to nav.ts can never break the menu.
+ */
+export function useNavLabel(): (handle: string, fallback: string) => string {
+  const dict = useDict();
+  return (handle, fallback) => dict.nav.labels[handle] ?? fallback;
+}

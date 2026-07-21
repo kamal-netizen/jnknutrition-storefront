@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ShoppingBag, Check, Loader2 } from "lucide-react";
 import type { Product, ProductVariant } from "@/lib/queries/products";
 import { useCartStore } from "@/lib/store/cart";
+import { useDict } from "@/lib/locale-context";
 import Price from "@/components/Price";
 
 type Props = {
@@ -16,6 +17,8 @@ type Props = {
 
 export default function StickyAddToCart({ product, selectedVariant, watchRef }: Props) {
   const { addLine, isLoading } = useCartStore();
+  const dict = useDict();
+  const c = dict.common;
   const [visible, setVisible] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
 
@@ -88,16 +91,16 @@ export default function StickyAddToCart({ product, selectedVariant, watchRef }: 
           className="shrink-0 inline-flex items-center justify-center gap-2 h-11 px-5 rounded-lg bg-[#F9D20F] text-[#0B0F14] text-sm font-bold uppercase tracking-wide hover:bg-[#E7BF00] transition-colors disabled:bg-[#E2E8F0] disabled:text-[#94A3B8]"
         >
           {soldOut ? (
-            "Sold Out"
+            c.soldOut
           ) : justAdded ? (
             <>
-              <Check className="w-4 h-4" /> Added
+              <Check className="w-4 h-4" /> {c.added}
             </>
           ) : isLoading ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
             <>
-              <ShoppingBag className="w-4 h-4" /> Add to Cart
+              <ShoppingBag className="w-4 h-4" /> {c.addToCart}
             </>
           )}
         </button>

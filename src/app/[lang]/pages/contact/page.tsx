@@ -56,7 +56,7 @@ export default async function ContactPage() {
   const page = await getPage("contact");
 
   return (
-    <div className="flex flex-col">
+    <div dir="auto" className="flex flex-col">
       {/* ─── Hero band ────────────────────────────────────────── */}
       <section className="bg-[#0B0F14]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 w-full">
@@ -83,6 +83,7 @@ export default async function ContactPage() {
 
             {page?.body ? (
               <div
+                dir="auto"
                 className="prose max-w-none text-[#64748B] mb-8 [&_a]:text-[#F9D20F] [&_h2]:text-[#0B0F14] [&_h3]:text-[#0B0F14] [&_strong]:text-[#0B0F14]"
                 dangerouslySetInnerHTML={{ __html: page.body }}
               />

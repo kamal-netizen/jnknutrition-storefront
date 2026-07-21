@@ -228,16 +228,21 @@ export const FEATURED_ITEMS: FeaturedItem[] = [
 
 // ─── Section 5: Popular / Trending Searches ──────────────────────────────────
 
-export const TRENDING_SEARCHES: string[] = [
-  "Creatine",
-  "Whey Protein",
-  "Mass Gainer",
-  "Fish Oil",
-  "Pre Workout",
-  "Multivitamin",
-  "Protein Bars",
-  "Electrolytes",
-  "BCAA",
+// `query` is the literal string sent to Shopify search and stays English in
+// every locale — product titles are indexed in English, so an Arabic query
+// returns nothing. `labelKey` selects the translated text shown on the chip.
+export type TrendingSearch = { query: string; labelKey: string };
+
+export const TRENDING_SEARCHES: TrendingSearch[] = [
+  { query: "Creatine", labelKey: "creatine" },
+  { query: "Whey Protein", labelKey: "whey-protein" },
+  { query: "Mass Gainer", labelKey: "mass-gainers" },
+  { query: "Fish Oil", labelKey: "fish-oil" },
+  { query: "Pre Workout", labelKey: "pre-workouts" },
+  { query: "Multivitamin", labelKey: "multivitamin" },
+  { query: "Protein Bars", labelKey: "protein-bars" },
+  { query: "Electrolytes", labelKey: "electrolytes" },
+  { query: "BCAA", labelKey: "bcaa" },
 ];
 
 // ─── Simple top-level links (no mega) ────────────────────────────────────────

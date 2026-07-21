@@ -5,7 +5,7 @@ import Link from "@/components/LocaleLink";
 import { useRef, useState, useCallback, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 import type { Collection } from "@/lib/queries/collections";
-import { useDict } from "@/lib/locale-context";
+import { useDict, useNavLabel } from "@/lib/locale-context";
 import {
   GOAL_CARDS,
   CATEGORY_GROUPS,
@@ -25,11 +25,12 @@ type MenuId = "goals" | "category" | "brands" | "featured";
 
 function Badge({ tag }: { tag: BadgeTag }) {
   const b = BADGE_STYLES[tag];
+  const badges = useDict().nav.badges;
   return (
     <span
       className={`ml-2 rounded-full px-1.5 py-0.5 text-[9px] font-black uppercase leading-none tracking-wide ${b.className}`}
     >
-      {b.label}
+      {badges[tag] ?? b.label}
     </span>
   );
 }
@@ -191,7 +192,10 @@ function GoalCardTile({
   onNavigate: () => void;
 }) {
   const Icon = goal.icon;
-  const c = useDict().common;
+  const dict = useDict();
+  const c = dict.common;
+  const goalCopy = dict.nav.goals[goal.id];
+  const navLabel = useNavLabel();
   return (
     <Link
       href={collectionHref(goal.handle)}
@@ -204,10 +208,10 @@ function GoalCardTile({
         </span>
         <div>
           <h3 className="text-sm font-black uppercase tracking-tight text-[#0B0F14] leading-tight">
-            {goal.title}
+            {goalCopy?.title ?? goal.title}
           </h3>
           <p className="text-[11px] text-[#94A3B8] leading-tight">
-            {goal.subtitle}
+            {goalCopy?.subtitle ?? goal.subtitle}
           </p>
         </div>
       </div>
@@ -217,7 +221,7 @@ function GoalCardTile({
             key={item.handle}
             className="flex items-center text-[12px] font-medium text-[#475569]"
           >
-            {item.label}
+            {navLabel(item.handle, item.label)}
             {item.badge && <Badge tag={item.badge} />}
           </li>
         ))}
@@ -232,6 +236,7 @@ function GoalCardTile({
 
 function GoalsTab({ onNavigate }: { onNavigate: () => void }) {
   const c = useDict().common;
+  const navLabel = useNavLabel();
   return (
     <div>
       <div className="grid grid-cols-3 gap-4">
@@ -247,12 +252,12 @@ function GoalsTab({ onNavigate }: { onNavigate: () => void }) {
         <div className="flex flex-wrap gap-2">
           {TRENDING_SEARCHES.map((term) => (
             <Link
-              key={term}
-              href={`/search?q=${encodeURIComponent(term)}`}
+              key={term.query}
+              href={`/search?q=${encodeURIComponent(term.query)}`}
               onClick={onNavigate}
               className="rounded-full border border-[#ECECEC] bg-white px-3.5 py-1.5 text-[13px] font-medium text-[#475569] transition-colors hover:border-[#F9D20F] hover:bg-[#FAFAFA] hover:text-[#0B0F14]"
             >
-              {term}
+              {navLabel(term.labelKey, term.query)}
             </Link>
           ))}
         </div>
@@ -264,13 +269,15 @@ function GoalsTab({ onNavigate }: { onNavigate: () => void }) {
 // ─── Category tab ────────────────────────────────────────────────────────────
 
 function CategoryTab({ onNavigate }: { onNavigate: () => void }) {
-  const c = useDict().common;
+  const dict = useDict();
+  const c = dict.common;
+  const navLabel = useNavLabel();
   return (
     <div className="grid grid-cols-5 gap-6">
       {CATEGORY_GROUPS.map((group) => (
-        <div key={group.title}>
+        <div key={group.viewAllHandle}>
           <h3 className="mb-4 text-[11px] font-black uppercase tracking-[0.15em] text-[#94A3B8]">
-            {group.title}
+            {dict.nav.categories[group.viewAllHandle] ?? group.title}
           </h3>
           <ul className="space-y-1.5">
             {group.items.map((item) => (
@@ -281,7 +288,7 @@ function CategoryTab({ onNavigate }: { onNavigate: () => void }) {
                   className="flex items-center text-[15px] font-medium text-[#334155] transition-colors hover:text-[#0B0F14]"
                 >
                   <span className="relative">
-                    {item.label}
+                    {navLabel(item.handle, item.label)}
                     <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[#F9D20F] transition-all duration-200 group-hover:w-full" />
                   </span>
                   {item.badge && <Badge tag={item.badge} />}
@@ -353,6 +360,7 @@ function FeaturedTab({
   collectionByHandle: (handle: string) => Collection | undefined;
 }) {
   const c = useDict().common;
+  const navLabel = useNavLabel();
   return (
     <div className="grid grid-cols-3 gap-4">
       {FEATURED_ITEMS.map((item) => {
@@ -389,7 +397,7 @@ function FeaturedTab({
               {item.emoji}
             </span>
             <span className="relative mt-2.5 text-lg font-black uppercase tracking-tight text-white">
-              {item.label}
+              {navLabel(item.handle, item.label)}
             </span>
             <span className="relative mt-1 inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-[0.15em] text-[#F9D20F]">
               {c.shopNow}

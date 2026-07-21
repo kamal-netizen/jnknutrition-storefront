@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getProductsPage, getProductFacets } from "@/lib/queries/products";
 import type { FacetValue } from "@/components/ProductFilters";
+import { getDictionary } from "@/lib/dictionaries";
+import { getLocale } from "@/lib/i18n";
 import ProductsBrowserView from "@/components/ProductsBrowserView";
 import ProductsBrowserClient from "@/components/ProductsBrowserClient";
 import {
@@ -27,15 +29,23 @@ const DEFAULT_FILTERS: ActiveFilters = {
   productTypes: [],
   price: null,
   onSale: false,
-  sortLabel: "",
+  sortId: "",
 };
 
-export default async function ProductsPage() {
+export default async function ProductsPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
+  const locale = getLocale(lang);
+  const dict = getDictionary(locale);
+  const pp = dict.productsPage;
   // No `searchParams` read here — that's what keeps this route statically
   // cacheable (ISR, revalidate=300) instead of forced-dynamic on every visit.
   // Filter/sort interactions are handled client-side in ProductsBrowserClient;
   // see its file comment for why.
-  const sort = resolveSort(SORT_OPTIONS, DEFAULT_FILTERS.sortLabel);
+  const sort = resolveSort(SORT_OPTIONS, DEFAULT_FILTERS.sortId);
 
   const [facets, page] = await Promise.all([
     getProductFacets(),
@@ -71,14 +81,13 @@ export default async function ProductsPage() {
         />
         <div className="relative">
           <p className="text-[11px] font-black uppercase tracking-[0.25em] text-[#F9D20F]">
-            The Full Range
+            {pp.fullRange}
           </p>
           <h1 className="mt-2 text-4xl md:text-6xl font-black uppercase leading-none tracking-tight text-white">
-            All Products
+            {pp.allProducts}
           </h1>
           <p className="mt-3 max-w-xl text-sm md:text-base text-[#94A3B8]">
-            Premium supplements from the brands athletes trust. Filter by brand,
-            category, price and more to find exactly what you need.
+            {pp.bannerBody}
           </p>
         </div>
       </div>

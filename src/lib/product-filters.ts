@@ -4,6 +4,9 @@ import type { Product } from "@/lib/queries/products";
 // ─── Sort ────────────────────────────────────────────────────────────────────
 
 export type SortOption = {
+  /** Stable, locale-independent identifier. This is what goes in the URL. */
+  id: string;
+  /** Display text only — safe to translate. Never used for matching. */
   label: string;
   sortKey: string;
   reverse: boolean;
@@ -11,24 +14,34 @@ export type SortOption = {
 
 // Sort keys valid for the top-level `products` connection (ProductSortKeys).
 export const SORT_OPTIONS: SortOption[] = [
-  { label: "Best Selling", sortKey: "BEST_SELLING", reverse: false },
-  { label: "Newest", sortKey: "CREATED_AT", reverse: true },
-  { label: "Price: Low to High", sortKey: "PRICE", reverse: false },
-  { label: "Price: High to Low", sortKey: "PRICE", reverse: true },
-  { label: "A–Z", sortKey: "TITLE", reverse: false },
+  { id: "best-selling", label: "Best Selling", sortKey: "BEST_SELLING", reverse: false },
+  { id: "newest", label: "Newest", sortKey: "CREATED_AT", reverse: true },
+  { id: "price-asc", label: "Price: Low to High", sortKey: "PRICE", reverse: false },
+  { id: "price-desc", label: "Price: High to Low", sortKey: "PRICE", reverse: true },
+  { id: "title", label: "A–Z", sortKey: "TITLE", reverse: false },
 ];
 
 // Equivalent sort keys for `collection.products` (ProductCollectionSortKeys).
 export const COLLECTION_SORT_OPTIONS: SortOption[] = [
-  { label: "Featured", sortKey: "COLLECTION_DEFAULT", reverse: false },
-  { label: "Best Selling", sortKey: "BEST_SELLING", reverse: false },
-  { label: "Newest", sortKey: "CREATED", reverse: true },
-  { label: "Price: Low to High", sortKey: "PRICE", reverse: false },
-  { label: "Price: High to Low", sortKey: "PRICE", reverse: true },
+  { id: "featured", label: "Featured", sortKey: "COLLECTION_DEFAULT", reverse: false },
+  { id: "best-selling", label: "Best Selling", sortKey: "BEST_SELLING", reverse: false },
+  { id: "newest", label: "Newest", sortKey: "CREATED", reverse: true },
+  { id: "price-asc", label: "Price: Low to High", sortKey: "PRICE", reverse: false },
+  { id: "price-desc", label: "Price: High to Low", sortKey: "PRICE", reverse: true },
 ];
 
-export function resolveSort(options: SortOption[], label?: string): SortOption {
-  return options.find((o) => o.label === label) ?? options[0];
+/**
+ * Resolve a `?sort=` param to an option, falling back to the first (default).
+ * Matches on `id`; the legacy label match keeps links minted before sort ids
+ * existed (e.g. `?sort=Price:+Low+to+High`) pointing at the same option.
+ */
+export function resolveSort(options: SortOption[], id?: string): SortOption {
+  if (!id) return options[0];
+  return (
+    options.find((o) => o.id === id) ??
+    options.find((o) => o.label === id) ??
+    options[0]
+  );
 }
 
 // ─── Price buckets ───────────────────────────────────────────────────────────
@@ -61,7 +74,8 @@ export type ActiveFilters = {
   productTypes: string[];
   price: PriceBucket | null;
   onSale: boolean;
-  sortLabel: string;
+  /** Selected SortOption id; "" means the default option. */
+  sortId: string;
 };
 
 type RawSearchParams = Record<string, string | string[] | undefined>;
@@ -88,7 +102,7 @@ export function parseProductFilters(sp: RawSearchParams): ActiveFilters {
     productTypes: toList(sp.type),
     price: resolvePriceBucket(firstValue(sp.price)),
     onSale: firstValue(sp.sale) === "1",
-    sortLabel: firstValue(sp.sort) ?? "",
+    sortId: firstValue(sp.sort) ?? "",
   };
 }
 
@@ -100,7 +114,7 @@ export function buildFilterHref(
   filters: ActiveFilters
 ): string {
   const params = new URLSearchParams();
-  if (filters.sortLabel) params.set("sort", filters.sortLabel);
+  if (filters.sortId) params.set("sort", filters.sortId);
   if (filters.includeSoldOut) params.set("stock", "all");
   if (filters.vendors.length) params.set("brand", filters.vendors.join(","));
   if (filters.productTypes.length)

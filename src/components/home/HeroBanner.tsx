@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "@/components/LocaleLink";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
-import { useDict } from "@/lib/locale-context";
+import { useDict, useLocale } from "@/lib/locale-context";
 
 type CtaKey =
   | "heroCtaSale"
@@ -15,13 +15,28 @@ type CtaKey =
 
 type Banner = {
   src: string;
+  /** Locale-specific artwork, keyed by locale code. Falls back to `src`. */
+  srcByLocale?: Record<string, string>;
   alt: string;
+  /** Localized alt text, when the artwork itself is translated. */
+  altKey?: "heroAltTopProducts";
   href: string;
-  ctaKey: CtaKey;
+  /**
+   * Glass CTA pill. Omit when the artwork already carries its own call to
+   * action, so the pill doesn't duplicate or overlap the baked-in text.
+   */
+  ctaKey?: CtaKey;
   external?: boolean;
 };
 
 const BANNERS: Banner[] = [
+  {
+    src: "/banners/top products en.jpg",
+    srcByLocale: { ar: "/banners/top products ar.jpg" },
+    alt: "Fuel Your Goals — everything you need for strength, recovery and performance",
+    altKey: "heroAltTopProducts",
+    href: "/products",
+  },
   {
     src: "/banners/summer-sale.jpg",
     alt: "Summer Sale — Fuel Your Summer. Build Your Best.",
@@ -59,6 +74,7 @@ const INTERVAL = 5000;
 
 export default function HeroBanner() {
   const t = useDict().home;
+  const locale = useLocale();
   const [index, setIndex] = useState(0);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -96,6 +112,10 @@ export default function HeroBanner() {
                   const linkProps = banner.external
                     ? { target: "_blank", rel: "noopener noreferrer" }
                     : {};
+                  // Prefer locale-specific artwork (e.g. the Arabic-typeset
+                  // banner on /ar) and its translated alt text.
+                  const src = banner.srcByLocale?.[locale.code] ?? banner.src;
+                  const alt = banner.altKey ? t[banner.altKey] : banner.alt;
                   return (
                     <div
                       key={banner.src}
@@ -107,13 +127,13 @@ export default function HeroBanner() {
                       <Link
                         href={banner.href}
                         tabIndex={i === index ? 0 : -1}
-                        aria-label={banner.alt}
+                        aria-label={alt}
                         className="absolute inset-0"
                         {...linkProps}
                       >
                         <Image
-                          src={banner.src}
-                          alt={banner.alt}
+                          src={src}
+                          alt={alt}
                           fill
                           priority={i === 0}
                           sizes="(max-width: 1280px) 100vw, 1280px"
@@ -125,17 +145,20 @@ export default function HeroBanner() {
                         className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/45 to-transparent"
                         aria-hidden
                       />
-                      {/* Glass CTA pill */}
-                      <Link
-                        href={banner.href}
-                        tabIndex={-1}
-                        aria-hidden="true"
-                        {...linkProps}
-                        className="hidden sm:inline-flex absolute bottom-6 left-6 lg:bottom-10 lg:left-10 items-center gap-2 rounded-full border border-white/30 bg-white/15 px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-white shadow-lg backdrop-blur-md transition-all hover:border-[#F9D20F] hover:bg-[#F9D20F] hover:text-[#0B0F14]"
-                      >
-                        {t[banner.ctaKey]}
-                        <ArrowRight className="w-4 h-4" />
-                      </Link>
+                      {/* Glass CTA pill — only when the artwork doesn't
+                          already carry its own call to action. */}
+                      {banner.ctaKey && (
+                        <Link
+                          href={banner.href}
+                          tabIndex={-1}
+                          aria-hidden="true"
+                          {...linkProps}
+                          className="hidden sm:inline-flex absolute bottom-6 left-6 lg:bottom-10 lg:left-10 items-center gap-2 rounded-full border border-white/30 bg-white/15 px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-white shadow-lg backdrop-blur-md transition-all hover:border-[#F9D20F] hover:bg-[#F9D20F] hover:text-[#0B0F14]"
+                        >
+                          {t[banner.ctaKey]}
+                          <ArrowRight className="w-4 h-4" />
+                        </Link>
+                      )}
                     </div>
                   );
                 })}

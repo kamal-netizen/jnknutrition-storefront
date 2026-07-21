@@ -3,9 +3,17 @@ import Link from "@/components/LocaleLink";
 import { Check } from "lucide-react";
 import { searchProducts } from "@/lib/queries/search";
 import type { ProductFilterInput } from "@/lib/queries/collections";
+import { getDictionary } from "@/lib/dictionaries";
+import { getLocale } from "@/lib/i18n";
 import SearchGrid from "@/components/SearchGrid";
 import SearchFilters from "@/components/SearchFilters";
-import { SEARCH_PAGE_SIZE, SORT_OPTIONS } from "./constants";
+import { SEARCH_PAGE_SIZE, SORT_OPTIONS, resolveSort } from "./constants";
+
+const SORT_LABEL_MAP: Record<string, string> = {
+  relevance: "relevance",
+  "price-asc": "priceLowHigh",
+  "price-desc": "priceHighLow",
+};
 
 export const metadata: Metadata = {
   title: "Search",
@@ -14,6 +22,7 @@ export const metadata: Metadata = {
 };
 
 type Props = {
+  params: Promise<{ lang: string }>;
   searchParams: Promise<{
     q?: string;
     sort?: string;
@@ -30,23 +39,30 @@ function toArray(value: string | string[] | undefined): string[] {
 // Build an href for the search page with a modified query string.
 function buildHref(
   query: string,
-  sortLabel: string,
+  sortId: string,
   filters: string[]
 ): string {
   const params = new URLSearchParams();
   params.set("q", query);
-  if (sortLabel !== SORT_OPTIONS[0].label) params.set("sort", sortLabel);
+  if (sortId !== SORT_OPTIONS[0].id) params.set("sort", sortId);
   for (const f of filters) params.append("filter", f);
   return `/search?${params.toString()}`;
 }
 
-export default async function SearchPage({ searchParams }: Props) {
+export default async function SearchPage({ params, searchParams }: Props) {
+  const { lang } = await params;
+  const locale = getLocale(lang);
+  const dict = getDictionary(locale);
+  const f = dict.filters;
+  const c = dict.common;
+  const h = dict.header;
+  const sortDict = dict.sort as Record<string, string>;
+
   const { q, sort, filter } = await searchParams;
   const query = q?.trim() ?? "";
 
   const selectedFilters = toArray(filter);
-  const selectedSort =
-    SORT_OPTIONS.find((o) => o.label === sort) ?? SORT_OPTIONS[0];
+  const selectedSort = resolveSort(sort);
 
   const productFilters: ProductFilterInput[] = selectedFilters
     .map((f) => {
@@ -75,33 +91,33 @@ export default async function SearchPage({ searchParams }: Props) {
       <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight">
         {query ? (
           <>
-            Search:{" "}
+            {c.search}:{" "}
             <span className="rounded bg-[#FFF2B8] px-1.5 text-[#0B0F14]">
               {query}
             </span>
           </>
         ) : (
-          "Search"
+          c.search
         )}
       </h1>
 
       {results && (
         <p className="mt-2 text-[#64748B]">
-          {results.totalCount} {results.totalCount === 1 ? "result" : "results"}
+          {results.totalCount} {f.results}
         </p>
       )}
 
       {!query ? (
         <div className="mt-10 rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-10 text-center">
           <p className="text-[#64748B]">
-            Enter a search term to find products.
+            {h.startTyping}
           </p>
         </div>
       ) : (
         <div className="mt-6 lg:mt-10 flex flex-col lg:flex-row gap-8">
           <SearchFilters
             query={query}
-            sortLabel={selectedSort.label}
+            sortId={selectedSort.id}
             selectedFilters={selectedFilters}
             facets={facets}
             resultCount={results?.totalCount ?? 0}
@@ -112,15 +128,15 @@ export default async function SearchPage({ searchParams }: Props) {
             {/* Sort */}
             <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-5">
               <h3 className="text-xs font-bold uppercase tracking-widest text-[#0B0F14] mb-3">
-                Sort By
+                {f.sortBy}
               </h3>
               <div className="flex flex-col gap-1">
                 {SORT_OPTIONS.map((option) => {
-                  const isSelected = option.label === selectedSort.label;
+                  const isSelected = option.id === selectedSort.id;
                   return (
                     <Link
-                      key={option.label}
-                      href={buildHref(query, option.label, selectedFilters)}
+                      key={option.id}
+                      href={buildHref(query, option.id, selectedFilters)}
                       className={`flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm transition-colors ${
                         isSelected
                           ? "bg-white font-semibold text-[#0B0F14]"
@@ -136,7 +152,7 @@ export default async function SearchPage({ searchParams }: Props) {
                           <span className="h-2 w-2 rounded-full bg-[#F9D20F]" />
                         )}
                       </span>
-                      {option.label}
+                      {sortDict[SORT_LABEL_MAP[option.id] ?? ""] ?? option.label}
                     </Link>
                   );
                 })}
@@ -148,13 +164,13 @@ export default async function SearchPage({ searchParams }: Props) {
               <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-5">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-xs font-bold uppercase tracking-widest text-[#0B0F14]">
-                    Active
+                    {f.active}
                   </h3>
                   <Link
-                    href={buildHref(query, selectedSort.label, [])}
+                    href={buildHref(query, selectedSort.id, [])}
                     className="text-xs text-[#64748B] hover:text-[#0B0F14] underline"
                   >
-                    Clear all
+                    {c.clearAll}
                   </Link>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -166,7 +182,7 @@ export default async function SearchPage({ searchParams }: Props) {
                           key={v.id}
                           href={buildHref(
                             query,
-                            selectedSort.label,
+                            selectedSort.id,
                             selectedFilters.filter((s) => s !== v.input)
                           )}
                           className="inline-flex items-center gap-1 rounded-full bg-[#0B0F14] px-3 py-1 text-xs text-white hover:bg-[#F9D20F] hover:text-[#0B0F14] transition-colors"
@@ -210,7 +226,7 @@ export default async function SearchPage({ searchParams }: Props) {
                           key={value.input}
                           href={buildHref(
                             query,
-                            selectedSort.label,
+                            selectedSort.id,
                             nextFilters
                           )}
                           className="group flex items-center justify-between gap-2 py-1.5 text-sm"
@@ -253,24 +269,21 @@ export default async function SearchPage({ searchParams }: Props) {
           <div className="flex-1 min-w-0">
             {products.length > 0 ? (
               <SearchGrid
-                key={`${query}|${selectedSort.label}|${selectedFilters.join(",")}`}
+                key={`${query}|${selectedSort.id}|${selectedFilters.join(",")}`}
                 initialProducts={products}
                 initialCursor={results?.pageInfo.endCursor ?? null}
                 initialHasNextPage={results?.pageInfo.hasNextPage ?? false}
                 query={query}
-                sortLabel={selectedSort.label}
+                sortId={selectedSort.id}
                 filters={selectedFilters}
               />
             ) : (
               <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-10 text-center">
                 <p className="text-[#64748B]">
-                  No results for{" "}
+                  {h.noResultsFor}{" "}
                   <span className="text-[#0B0F14] font-semibold">
                     &quot;{query}&quot;
                   </span>
-                  {hasActiveFilters
-                    ? " with the selected filters. Try clearing filters."
-                    : ". Try a different search term."}
                 </p>
               </div>
             )}

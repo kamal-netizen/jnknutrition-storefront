@@ -14,6 +14,7 @@ import {
   collectionFallbackTitle,
   collectionFallbackDescription,
 } from "@/lib/seo";
+import { getDictionary } from "@/lib/dictionaries";
 import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
 import { getCollectionSeo } from "@/lib/collection-seo";
 import { loadMoreCollection } from "./actions";
@@ -26,7 +27,7 @@ const DEFAULT_FILTERS: ActiveFilters = {
   productTypes: [],
   price: null,
   onSale: false,
-  sortLabel: "",
+  sortId: "",
 };
 
 type Props = {
@@ -90,6 +91,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CollectionPage({ params }: Props) {
   const { handle, lang } = await params;
   const locale = getLocale(lang);
+  const dict = getDictionary(locale);
   const language = locale.isDefault ? undefined : locale.shopifyLanguage;
 
   // No `searchParams` read here — that's what keeps this route statically
@@ -206,13 +208,13 @@ export default async function CollectionPage({ params }: Props) {
             className="mb-4 flex flex-wrap items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-white/60"
           >
             <Link href="/" className="transition-colors hover:text-[#F9D20F]">
-              Home
+              {dict.common.home}
             </Link>
-            <ChevronRight className="h-3 w-3" aria-hidden="true" />
+            <ChevronRight className="h-3 w-3 rtl:rotate-180" aria-hidden="true" />
             <Link href="/collections" className="transition-colors hover:text-[#F9D20F]">
-              Collections
+              {dict.common.collections}
             </Link>
-            <ChevronRight className="h-3 w-3" aria-hidden="true" />
+            <ChevronRight className="h-3 w-3 rtl:rotate-180" aria-hidden="true" />
             <span className="text-white/90">{collection.title}</span>
           </nav>
 
@@ -279,7 +281,7 @@ export default async function CollectionPage({ params }: Props) {
       {seoContent?.faqs && seoContent.faqs.length > 0 && (
         <section className="mt-16 border-t border-[#E2E8F0] pt-10">
           <h2 className="text-2xl font-black uppercase tracking-tight text-[#0B0F14]">
-            Frequently Asked Questions
+            {dict.product.faq}
           </h2>
           <dl className="mt-6 max-w-3xl divide-y divide-[#E2E8F0]">
             {seoContent.faqs.map((faq) => (

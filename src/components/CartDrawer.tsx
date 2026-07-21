@@ -4,6 +4,7 @@ import { X, Minus, Plus, ShoppingBag, Lock, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "@/components/LocaleLink";
 import { useCartStore, useCartLines, useCartTotal, useCheckoutUrl, useCartSavings } from "@/lib/store/cart";
+import { useDict } from "@/lib/locale-context";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import Price from "@/components/Price";
@@ -16,6 +17,9 @@ export default function CartDrawer() {
   const total = useCartTotal();
   const checkoutUrl = useCheckoutUrl();
   const savings = useCartSavings();
+  const dict = useDict();
+  const ct = dict.cart;
+  const c = dict.common;
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && closeCart()}>
@@ -26,10 +30,10 @@ export default function CartDrawer() {
         <SheetHeader className="px-6 py-5 border-b border-[#E2E8F0]">
           <SheetTitle className="text-[#0B0F14] font-bold text-lg flex items-center gap-2">
             <ShoppingBag className="w-5 h-5 text-[#F9D20F]" />
-            Your Cart
+            {ct.yourCart}
             {lines.length > 0 && (
               <span className="ml-auto text-sm font-normal text-[#64748B]">
-                {lines.length} {lines.length === 1 ? "item" : "items"}
+                {lines.length} {lines.length === 1 ? ct.item : ct.items}
               </span>
             )}
           </SheetTitle>
@@ -44,7 +48,7 @@ export default function CartDrawer() {
           {lines.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
               <ShoppingBag className="w-12 h-12 text-[#E2E8F0]" />
-              <p className="text-[#64748B] text-sm">Your cart is empty.</p>
+              <p className="text-[#64748B] text-sm">{ct.empty}</p>
               <Button
                 variant="outline"
                 size="sm"
@@ -53,7 +57,7 @@ export default function CartDrawer() {
                 onClick={closeCart}
                 className="border-[#F9D20F] text-[#F9D20F] hover:bg-[#F9D20F] hover:text-[#0B0F14]"
               >
-                Start Shopping
+                {c.startShopping}
               </Button>
             </div>
           ) : (
@@ -161,14 +165,14 @@ export default function CartDrawer() {
           <div className="px-6 py-5 border-t border-[#E2E8F0] space-y-4">
             {savings.amount > 0 && (
               <div className="flex justify-between text-sm">
-                <span className="text-[#16A34A] font-semibold">You save</span>
+                <span className="text-[#16A34A] font-semibold">{ct.youSave}</span>
                 <span className="text-[#16A34A] font-bold tabular-nums">
                   {savings.currencyCode} {savings.amount.toFixed(2)}
                 </span>
               </div>
             )}
             <div className="flex justify-between text-sm">
-              <span className="text-[#64748B]">Subtotal</span>
+              <span className="text-[#64748B]">{ct.subtotal}</span>
               {total && (
                 <Price
                   amount={total.amount}
@@ -178,7 +182,7 @@ export default function CartDrawer() {
               )}
             </div>
             <p className="text-xs text-[#64748B]">
-              Shipping and taxes calculated at checkout.
+              {ct.shippingNote}
             </p>
             <Button
               render={<a href={checkoutUrl ?? "#"} />}
@@ -187,16 +191,16 @@ export default function CartDrawer() {
               className="w-full h-13 bg-[#F9D20F] text-[#0B0F14] text-sm font-bold hover:bg-[#E7BF00] uppercase tracking-wide shadow-card"
             >
               {isLoading ? (
-                "Updating..."
+                ct.updating
               ) : (
                 <>
-                  <Lock className="w-4 h-4" /> Secure Checkout
+                  <Lock className="w-4 h-4" /> {ct.secureCheckout}
                 </>
               )}
             </Button>
             <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#64748B]">
               <ShieldCheck className="w-3.5 h-3.5 text-[#16A34A]" aria-hidden="true" />
-              <span>Secure payments · Tamara · Visa · Mastercard · Apple Pay</span>
+              <span>{ct.securePayments}</span>
             </div>
             <Button
               variant="ghost"
@@ -206,7 +210,7 @@ export default function CartDrawer() {
               onClick={closeCart}
               className="w-full text-[#64748B] hover:text-[#0B0F14]"
             >
-              View Full Cart
+              {ct.viewFullCart}
             </Button>
           </div>
         )}
