@@ -3,15 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "@/components/LocaleLink";
-import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useDict, useLocale } from "@/lib/locale-context";
-
-type CtaKey =
-  | "heroCtaSale"
-  | "heroCtaShopNow"
-  | "heroCtaCoreChamps"
-  | "heroCtaFatBurners"
-  | "heroCtaGetApp";
 
 type Banner = {
   src: string;
@@ -21,51 +14,37 @@ type Banner = {
   /** Localized alt text, when the artwork itself is translated. */
   altKey?: "heroAltTopProducts";
   href: string;
-  /**
-   * Glass CTA pill. Omit when the artwork already carries its own call to
-   * action, so the pill doesn't duplicate or overlap the baked-in text.
-   */
-  ctaKey?: CtaKey;
   external?: boolean;
 };
 
+// Each banner is fully-designed artwork with baked-in headline and CTA,
+// supplied in both English and Arabic. The `en` art is the default `src`;
+// the Arabic typeset version is served on /ar via `srcByLocale`.
 const BANNERS: Banner[] = [
   {
-    src: "/banners/top products en.jpg",
-    srcByLocale: { ar: "/banners/top products ar.jpg" },
+    src: "/banners/banner/EN/top products en.jpg",
+    srcByLocale: { ar: "/banners/banner/AR/top products ar.jpg" },
     alt: "Fuel Your Goals — everything you need for strength, recovery and performance",
     altKey: "heroAltTopProducts",
     href: "/products",
   },
   {
-    src: "/banners/summer-sale.jpg",
-    alt: "Summer Sale — Fuel Your Summer. Build Your Best.",
-    href: "/products/animal-100-whey-protein",
-    ctaKey: "heroCtaSale",
-  },
-  {
-    src: "/banners/Top Brands. Best Prices. Fast Results.jpg",
-    alt: "Top Brands. Best Prices. Fast Results.",
-    href: "/products",
-    ctaKey: "heroCtaShopNow",
-  },
-  {
-    src: "/banners/core chamos eaa banner for jnk.jpg",
-    alt: "Core Champs EAA",
+    src: "/banners/banner/EN/CORE CHAMPS EN.jpg",
+    srcByLocale: { ar: "/banners/banner/AR/CORE CHAMPS AR.jpg" },
+    alt: "Core Champs",
     href: "/collections/core-champs",
-    ctaKey: "heroCtaCoreChamps",
   },
   {
-    src: "/banners/fat burn banner 2.jpg",
-    alt: "Fat Burn",
-    href: "/collections/fat-burner",
-    ctaKey: "heroCtaFatBurners",
+    src: "/banners/banner/EN/ISO 100 EN.jpg",
+    srcByLocale: { ar: "/banners/banner/AR/ISO 100 AR.jpg" },
+    alt: "ISO 100 — hydrolyzed whey protein isolate",
+    href: "/collections/isolate-protein",
   },
   {
-    src: "/banners/DOWNLOAD APP.jpg",
+    src: "/banners/banner/EN/DOWNLOAD APP EN.jpg",
+    srcByLocale: { ar: "/banners/banner/AR/DOWNLOAD APP PUSH AR.jpg" },
     alt: "Download the App",
     href: "https://play.google.com/store/apps/details?id=com.simicart.jnknutrition",
-    ctaKey: "heroCtaGetApp",
     external: true,
   },
 ];
@@ -140,25 +119,6 @@ export default function HeroBanner() {
                           className="object-cover"
                         />
                       </Link>
-                      {/* Bottom gradient scrim for CTA legibility */}
-                      <div
-                        className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/45 to-transparent"
-                        aria-hidden
-                      />
-                      {/* Glass CTA pill — only when the artwork doesn't
-                          already carry its own call to action. */}
-                      {banner.ctaKey && (
-                        <Link
-                          href={banner.href}
-                          tabIndex={-1}
-                          aria-hidden="true"
-                          {...linkProps}
-                          className="hidden sm:inline-flex absolute bottom-6 left-6 lg:bottom-10 lg:left-10 items-center gap-2 rounded-full border border-white/30 bg-white/15 px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-white shadow-lg backdrop-blur-md transition-all hover:border-[#F9D20F] hover:bg-[#F9D20F] hover:text-[#0B0F14]"
-                        >
-                          {t[banner.ctaKey]}
-                          <ArrowRight className="w-4 h-4" />
-                        </Link>
-                      )}
                     </div>
                   );
                 })}
