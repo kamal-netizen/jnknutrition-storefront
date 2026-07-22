@@ -29,7 +29,7 @@ const STATIC_ROUTES: {
   { path: "/pages/about", changeFrequency: "monthly", priority: 0.5 },
   { path: "/pages/contact", changeFrequency: "monthly", priority: 0.5 },
   { path: "/pages/faq", changeFrequency: "monthly", priority: 0.5 },
-  { path: "/pages/wholesale", changeFrequency: "monthly", priority: 0.5 },
+  { path: "/pages/wholesale", changeFrequency: "monthly", priority: 0.7 },
 ];
 
 const POLICY_HANDLES = [

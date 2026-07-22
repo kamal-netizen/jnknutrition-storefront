@@ -10,7 +10,11 @@ import {
   Tags,
   Handshake,
   BookOpen,
+  ChevronDown,
 } from "lucide-react";
+import { SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/seo";
+import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
+import { getDictionary } from "@/lib/dictionaries";
 
 function WhatsAppIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -20,11 +24,24 @@ function WhatsAppIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-export const metadata: Metadata = {
-  title: "Wholesale & Distribution | JNK Nutrition",
-  description:
-    "Partner with JNK Nutrition for wholesale supply, worldwide export, private label manufacturing and distributorship of 100% authentic sports nutrition and supplements.",
-};
+const WHOLESALE_PATH = "/pages/wholesale";
+
+/** B2B / trade-intent keyword cluster — low competition, high commercial value. */
+const WHOLESALE_KEYWORDS = [
+  "wholesale supplements UAE",
+  "bulk supplements UAE",
+  "wholesale supplements Dubai",
+  "supplement distributor UAE",
+  "supplement distributor Dubai",
+  "wholesale sports nutrition UAE",
+  "supplement export UAE",
+  "private label supplements UAE",
+  "private label protein manufacturer",
+  "become a supplement distributor",
+  "bulk protein wholesale Dubai",
+  "gym supplement supplier UAE",
+  "JNK Nutrition wholesale",
+];
 
 const WHATSAPP_NUMBER = "971556238582";
 const WHATSAPP_DISPLAY = "+971 55 623 8582";
@@ -32,93 +49,159 @@ const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent
   "Hi JNK Nutrition, I'm interested in your wholesale program.",
 )}`;
 
-const BENEFITS = [
-  {
-    icon: BadgeCheck,
-    title: "100% Authentic Stock",
-    body: "Every product sourced directly from authorised distributors — guaranteed genuine for your shelves.",
-  },
-  {
-    icon: Wallet,
-    title: "Competitive Trade Prices",
-    body: "Tiered wholesale pricing designed to protect your margins as your order volume grows.",
-  },
-  {
-    icon: Truck,
-    title: "Fast UAE Fulfilment",
-    body: "Reliable, quick delivery across the Emirates so you never run out of best sellers.",
-  },
-  {
-    icon: Store,
-    title: "Full Brand Range",
-    body: "Access 50+ leading brands and 2,000+ SKUs across protein, pre-workout, creatine and wellness.",
-  },
-] as const;
+type PageProps = { params: Promise<{ lang: string }> };
 
-const SERVICES = [
-  {
-    icon: Globe,
-    title: "Worldwide Export",
-    body: "We ship wholesale orders internationally with full export documentation, compliant labelling and reliable freight partners — delivering authentic supplements to your market anywhere in the world.",
-  },
-  {
-    icon: Tags,
-    title: "Build Your Own Label",
-    body: "Launch your own supplement brand with our private-label service. We help with formulation, manufacturing, packaging and compliance so you can go to market with a product that carries your name.",
-  },
-  {
-    icon: Handshake,
-    title: "Distributorship",
-    body: "Distribute many of the world's leading supplement brands in your region. Get protected territory pricing, marketing support and priority stock allocation to grow a profitable supplement business.",
-  },
-  {
-    icon: BookOpen,
-    title: "Sales Guide & Support",
-    body: "New to selling supplements? Our team shares proven product knowledge, best-seller lists, pricing guidance and merchandising tips to help you sell faster from day one.",
-  },
-] as const;
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { lang } = await params;
+  const locale = getLocale(lang);
+  const w = getDictionary(locale).wholesale;
+  const url = localizePath(WHOLESALE_PATH, locale);
+  return {
+    // `absolute` owns an exact, keyword-led SERP title (bypasses the root
+    // "%s | JNK Nutrition" template) while still carrying the brand suffix.
+    title: { absolute: w.metaTitle },
+    description: w.metaDescription,
+    keywords: WHOLESALE_KEYWORDS,
+    alternates: {
+      canonical: url,
+      languages: hreflangAlternates(WHOLESALE_PATH),
+    },
+    openGraph: {
+      title: w.ogTitle,
+      description: w.metaDescription,
+      url,
+      type: "website",
+    },
+  };
+}
 
-const STEPS = [
-  {
-    step: "01",
-    title: "Get in touch",
-    body: "Message us on WhatsApp or send an enquiry telling us your business, location and the categories you want to stock.",
-  },
-  {
-    step: "02",
-    title: "Receive your price list",
-    body: "We send you tiered wholesale pricing, MOQs and — if you want — private-label and distributorship options tailored to you.",
-  },
-  {
-    step: "03",
-    title: "Place your order",
-    body: "Confirm your selection and quantities. We prepare your order with authentic stock and export-ready paperwork.",
-  },
-  {
-    step: "04",
-    title: "Sell & restock",
-    body: "We deliver fast, share a sales guide to help you move product, and keep you stocked as you grow.",
-  },
-] as const;
+export default async function WholesalePage({ params }: PageProps) {
+  const { lang } = await params;
+  const locale = getLocale(lang);
+  const w = getDictionary(locale).wholesale;
+  const pageUrl = absoluteUrl(localizePath(WHOLESALE_PATH, locale));
 
-export default function WholesalePage() {
+  const BENEFITS = [
+    { icon: BadgeCheck, title: w.benefit1Title, body: w.benefit1Body },
+    { icon: Wallet, title: w.benefit2Title, body: w.benefit2Body },
+    { icon: Truck, title: w.benefit3Title, body: w.benefit3Body },
+    { icon: Store, title: w.benefit4Title, body: w.benefit4Body },
+  ];
+
+  const SERVICES = [
+    { icon: Globe, title: w.service1Title, body: w.service1Body },
+    { icon: Tags, title: w.service2Title, body: w.service2Body },
+    { icon: Handshake, title: w.service3Title, body: w.service3Body },
+    { icon: BookOpen, title: w.service4Title, body: w.service4Body },
+  ];
+
+  const STEPS = [
+    { step: "01", title: w.step1Title, body: w.step1Body },
+    { step: "02", title: w.step2Title, body: w.step2Body },
+    { step: "03", title: w.step3Title, body: w.step3Body },
+    { step: "04", title: w.step4Title, body: w.step4Body },
+  ];
+
+  // Localized FAQ — the visible content AND the FAQPage markup share this source
+  // so the structured data always matches what the crawler sees on the page.
+  const FAQS = [
+    { q: w.faq1Q, a: w.faq1A },
+    { q: w.faq2Q, a: w.faq2A },
+    { q: w.faq3Q, a: w.faq3A },
+    { q: w.faq4Q, a: w.faq4A },
+    { q: w.faq5Q, a: w.faq5A },
+    { q: w.faq6Q, a: w.faq6A },
+  ];
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: absoluteUrl(localizePath("/", locale)),
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Wholesale",
+        item: pageUrl,
+      },
+    ],
+  };
+
+  const serviceJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "Wholesale Supplement Supply & Distribution",
+    serviceType: "Wholesale supplement distribution",
+    description: w.metaDescription,
+    url: pageUrl,
+    provider: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
+    areaServed: [
+      { "@type": "Country", name: "United Arab Emirates" },
+      { "@type": "AdministrativeArea", name: "GCC" },
+      "Worldwide",
+    ],
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: "JNK Nutrition Wholesale Services",
+      itemListElement: SERVICES.map((s) => ({
+        "@type": "Offer",
+        itemOffered: {
+          "@type": "Service",
+          name: s.title,
+          description: s.body,
+        },
+      })),
+    },
+  };
+
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQS.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+
   return (
     <div dir="auto" className="flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       {/* ─── Hero band ────────────────────────────────────────── */}
       <section className="bg-[#0B0F14]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 w-full">
           <p className="text-[#F9D20F] text-xs font-black uppercase tracking-[0.2em] mb-3">
-            Wholesale
+            {w.eyebrow}
           </p>
           <h1 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tight max-w-4xl">
-            Stock Your Shelves With The Real Deal
+            {w.heroTitle}
           </h1>
           <p className="mt-6 text-lg md:text-xl text-[#94A3B8] max-w-2xl">
-            Become a JNK Nutrition wholesale partner and supply your customers
-            with 100% authentic supplements from the world&apos;s top brands. We
-            supply retailers, gyms and distributors across the UAE and
-            <span className="text-white"> export worldwide</span> — plus help you
-            build your own label and grow a distributorship.
+            {w.heroBodyA}
+            <span className="text-white">{w.heroBodyHighlight}</span>
+            {w.heroBodyB}
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <a
@@ -128,13 +211,13 @@ export default function WholesalePage() {
               className="inline-flex items-center gap-2 bg-[#25D366] text-[#0B0F14] font-bold uppercase tracking-wide px-6 py-3 rounded hover:bg-[#1EBE57] transition-colors"
             >
               <WhatsAppIcon className="w-5 h-5" />
-              Chat on WhatsApp
+              {w.chatWhatsApp}
             </a>
             <Link
               href="/pages/contact"
               className="inline-flex items-center border border-[#334155] text-white font-bold uppercase tracking-wide px-6 py-3 rounded hover:border-[#F9D20F] hover:text-[#F9D20F] transition-colors"
             >
-              Contact Us
+              {w.contactUs}
             </Link>
           </div>
         </div>
@@ -143,7 +226,7 @@ export default function WholesalePage() {
       {/* ─── Benefits ─────────────────────────────────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 w-full">
         <h2 className="text-2xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight mb-8">
-          Why Partner With JNK
+          {w.whyPartner}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {BENEFITS.map(({ icon: Icon, title, body }) => (
@@ -165,12 +248,9 @@ export default function WholesalePage() {
       <section className="bg-[#EEF4FF] border-y border-[#CBD5E1]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 w-full">
           <h2 className="text-2xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight mb-3">
-            More Than Wholesale
+            {w.servicesTitle}
           </h2>
-          <p className="text-[#64748B] max-w-2xl mb-8">
-            From single wholesale orders to launching your own brand, we support
-            you at every stage of your supplement business.
-          </p>
+          <p className="text-[#64748B] max-w-2xl mb-8">{w.servicesSub}</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {SERVICES.map(({ icon: Icon, title, body }) => (
               <div
@@ -195,12 +275,9 @@ export default function WholesalePage() {
       {/* ─── How it works / Sales guide ───────────────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 w-full">
         <h2 className="text-2xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight mb-3">
-          How It Works
+          {w.howItWorks}
         </h2>
-        <p className="text-[#64748B] max-w-2xl mb-8">
-          Getting started is simple — and we guide you through every step, from
-          your first order to selling like a pro.
-        </p>
+        <p className="text-[#64748B] max-w-2xl mb-8">{w.howItWorksSub}</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {STEPS.map(({ step, title, body }) => (
             <div key={step} className="relative rounded-xl border border-[#E2E8F0] bg-white p-6">
@@ -214,17 +291,48 @@ export default function WholesalePage() {
         </div>
       </section>
 
+      {/* ─── FAQ (crawlable content + FAQPage rich results) ───── */}
+      <section className="bg-[#F5F7FA] border-y border-[#E2E8F0]">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 w-full">
+          <h2 className="text-2xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight mb-3">
+            {w.faqTitle}
+          </h2>
+          <p className="text-[#64748B] mb-8">{w.faqSub}</p>
+          <div className="flex flex-col gap-3">
+            {FAQS.map(({ q, a }) => (
+              <details
+                key={q}
+                className="group rounded-xl border border-[#E2E8F0] bg-white px-5 py-4 [&_summary::-webkit-details-marker]:hidden"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold text-[#0B0F14]">
+                  {q}
+                  <ChevronDown
+                    className="w-5 h-5 shrink-0 text-[#F9D20F] transition-transform group-open:rotate-180"
+                    aria-hidden
+                  />
+                </summary>
+                <p className="mt-3 text-sm text-[#64748B] leading-relaxed">
+                  {a}
+                </p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ─── WhatsApp CTA ─────────────────────────────────────── */}
       <section className="bg-[#082D4C]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-16 w-full flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div>
             <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tight">
-              Ready to place a wholesale order?
+              {w.ctaTitle}
             </h2>
             <p className="mt-2 text-[#C7D0DA]">
-              Message our trade team directly on WhatsApp at{" "}
-              <span className="font-bold text-white">{WHATSAPP_DISPLAY}</span>{" "}
-              for a price list and to get started.
+              {w.ctaBodyA}
+              <span dir="ltr" className="font-bold text-white">
+                {WHATSAPP_DISPLAY}
+              </span>
+              {w.ctaBodyB}
             </p>
           </div>
           <a
@@ -234,7 +342,7 @@ export default function WholesalePage() {
             className="inline-flex items-center gap-2 shrink-0 bg-[#25D366] text-[#0B0F14] font-bold uppercase tracking-wide px-8 py-4 rounded hover:bg-[#1EBE57] transition-colors"
           >
             <WhatsAppIcon className="w-5 h-5" />
-            Chat on WhatsApp
+            {w.chatWhatsApp}
           </a>
         </div>
       </section>
