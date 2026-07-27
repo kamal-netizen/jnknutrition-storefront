@@ -7,10 +7,16 @@ import { revalidatePath, revalidateTag } from "next/cache";
 // away, so shoppers never see a stale price or stock state for long.
 //
 // Setup (Shopify admin → Settings → Notifications → Webhooks):
-//   URL     https://www.jnknutrition.com/api/revalidate
+//   URL     https://jnknutrition-storefront.vercel.app/api/revalidate
 //   Topics  products/create, products/update, products/delete,
 //           collections/update, inventory_levels/update
 //   Then copy the webhook signing secret into SHOPIFY_WEBHOOK_SECRET.
+//
+// The URL must NOT be www.jnknutrition.com: Shopify refuses to send webhooks to
+// any domain attached to the store ("Address cannot be any of the domains…"),
+// which is an anti-loop guard and cannot be worked around. The .vercel.app alias
+// serves the same production deployment and therefore the same ISR cache, so
+// invalidating through it clears the pages served on the live domain.
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
