@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "Browse all brands available at JNK Nutrition.",
 };
 
-export const revalidate = 300;
+export const revalidate = 1800;
 
 // Normalise a name to compare collection titles against product vendors.
 const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");

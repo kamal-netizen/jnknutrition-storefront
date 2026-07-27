@@ -22,27 +22,27 @@ type Banner = {
 // the Arabic typeset version is served on /ar via `srcByLocale`.
 const BANNERS: Banner[] = [
   {
-    src: "/banners/banner/EN/top products en.jpg",
-    srcByLocale: { ar: "/banners/banner/AR/top products ar.jpg" },
+    src: "/banners/banner/EN/top products en.webp",
+    srcByLocale: { ar: "/banners/banner/AR/top products ar.webp" },
     alt: "Fuel Your Goals — everything you need for strength, recovery and performance",
     altKey: "heroAltTopProducts",
     href: "/products",
   },
   {
-    src: "/banners/banner/EN/CORE CHAMPS EN.jpg",
-    srcByLocale: { ar: "/banners/banner/AR/CORE CHAMPS AR.jpg" },
+    src: "/banners/banner/EN/CORE CHAMPS EN.webp",
+    srcByLocale: { ar: "/banners/banner/AR/CORE CHAMPS AR.webp" },
     alt: "Core Champs",
     href: "/collections/core-champs",
   },
   {
-    src: "/banners/banner/EN/ISO 100 EN.jpg",
-    srcByLocale: { ar: "/banners/banner/AR/ISO 100 AR.jpg" },
+    src: "/banners/banner/EN/ISO 100 EN.webp",
+    srcByLocale: { ar: "/banners/banner/AR/ISO 100 AR.webp" },
     alt: "ISO 100 — hydrolyzed whey protein isolate",
     href: "/collections/isolate-protein",
   },
   {
-    src: "/banners/banner/EN/DOWNLOAD APP EN.jpg",
-    srcByLocale: { ar: "/banners/banner/AR/DOWNLOAD APP PUSH AR.jpg" },
+    src: "/banners/banner/EN/DOWNLOAD APP EN.webp",
+    srcByLocale: { ar: "/banners/banner/AR/DOWNLOAD APP PUSH AR.webp" },
     alt: "Download the App",
     href: "https://play.google.com/store/apps/details?id=com.simicart.jnknutrition",
     external: true,

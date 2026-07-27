@@ -16,7 +16,7 @@ import {
 import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
 import { PRODUCT_FAQ } from "@/lib/product-faq";
 
-export const revalidate = 300;
+export const revalidate = 1800;
 
 type Props = {
   params: Promise<{ handle: string; lang: string }>;

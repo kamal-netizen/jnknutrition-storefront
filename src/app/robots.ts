@@ -9,6 +9,10 @@ export default function robots(): MetadataRoute.Robots {
       disallow: [
         "/account",
         "/cart",
+        // Search is noindex already, but it is also the one route that cannot
+        // be cached (every ?q= is unique), so each crawl hit is a full server
+        // render. Keep bots out of it entirely.
+        "/search",
         // Filter/sort query-string variants of /collections/* and /products
         // are combinatorial (brand x type x price x sort x stock x sale) and
         // already noindex — disallow crawling them too so bots don't burn

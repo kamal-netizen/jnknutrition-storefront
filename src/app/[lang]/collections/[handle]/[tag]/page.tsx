@@ -12,7 +12,15 @@ import {
 import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
 import { getCollectionSeo, prettifyTag } from "@/lib/collection-seo";
 
-export const revalidate = 300;
+export const revalidate = 1800;
+
+// No prebuilt paths: the tag space is combinatorial, so we let each URL be
+// rendered on first request and then cached (ISR) for `revalidate` seconds.
+// Without this the route stays fully dynamic and every crawler hit on a
+// /collections/{handle}/{tag} permutation costs a fresh server render.
+export function generateStaticParams() {
+  return [];
+}
 
 type Props = {
   params: Promise<{ handle: string; tag: string; lang: string }>;

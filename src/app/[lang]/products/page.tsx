@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   description: "Shop the full JNK Nutrition range of premium supplements.",
 };
 
-export const revalidate = 300;
+export const revalidate = 1800;
 
 // The unfiltered, default-sort view — used both for the initial server
 // render and as the data fed to ProductsBrowserClient for hydration.

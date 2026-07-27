@@ -276,7 +276,7 @@ export const getInStockDiscountedProducts = unstable_cache(
     return collected.slice(0, max);
   },
   ["in-stock-discounted-products"],
-  { revalidate: 300, tags: ["products"] }
+  { revalidate: 1800, tags: ["products"] }
 );
 
 export const getProductRecommendations = cache(async function getProductRecommendations(
@@ -351,7 +351,7 @@ export const getProductFacets = unstable_cache(
     };
   },
   ["product-facets"],
-  { revalidate: 300, tags: ["products"] }
+  { revalidate: 1800, tags: ["products"] }
 );
 
 /**

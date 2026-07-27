@@ -15,7 +15,7 @@ import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, DEFAULT_KEYWORDS } from "@/l
 import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionaries";
 
-export const revalidate = 300;
+export const revalidate = 1800;
 
 type PageProps = { params: Promise<{ lang: string }> };
 

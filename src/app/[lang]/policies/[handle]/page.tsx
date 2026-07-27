@@ -3,7 +3,12 @@ import { notFound } from "next/navigation";
 import { getPolicies } from "@/lib/queries/content";
 import type { Policy, ShopPolicies } from "@/lib/queries/content";
 
-export const revalidate = 600;
+export const revalidate = 86400;
+
+// Render on first request, then serve from the ISR cache.
+export function generateStaticParams() {
+  return [];
+}
 
 type Props = {
   params: Promise<{ handle: string }>;

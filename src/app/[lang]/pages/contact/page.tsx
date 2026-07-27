@@ -4,7 +4,7 @@ import { Mail, Phone, MessageCircle, MapPin, Clock } from "lucide-react";
 import { getPage } from "@/lib/queries/content";
 import ContactForm from "@/components/ContactForm";
 
-export const revalidate = 600;
+export const revalidate = 86400;
 
 // Update these with your real business details.
 const CONTACT_EMAIL = "support@jnknutrition.com";

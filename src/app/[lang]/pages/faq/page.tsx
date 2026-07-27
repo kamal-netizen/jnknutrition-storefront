@@ -3,7 +3,7 @@ import Link from "@/components/LocaleLink";
 import { Plus } from "lucide-react";
 import { getPage } from "@/lib/queries/content";
 
-export const revalidate = 600;
+export const revalidate = 86400;
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPage("faq");

@@ -34,7 +34,7 @@ export const NEWS: NewsArticle[] = [
     publishedAt: "2026-06-24",
     readingMinutes: 9,
     image: {
-      url: "/blog-image/Protein%20Timing%20Myths%20Debunked%20When%20Should%20You%20Really%20Take%20Whey.png",
+      url: "/blog-image/Protein%20Timing%20Myths%20Debunked%20When%20Should%20You%20Really%20Take%20Whey.webp",
       alt: "Scoop of whey protein powder for post-workout nutrition",
     },
     seo: {
@@ -150,7 +150,7 @@ export const NEWS: NewsArticle[] = [
     publishedAt: "2026-06-18",
     readingMinutes: 10,
     image: {
-      url: "/blog-image/Creatine%20Monohydrate%20The%20Most%20Studied%20Supplement%2C%20Explained.png",
+      url: "/blog-image/Creatine%20Monohydrate%20The%20Most%20Studied%20Supplement%2C%20Explained.webp",
       alt: "Creatine monohydrate powder measured with a scoop",
     },
     seo: {
@@ -272,7 +272,7 @@ export const NEWS: NewsArticle[] = [
     publishedAt: "2026-06-12",
     readingMinutes: 8,
     image: {
-      url: "/blog-image/EAAs%20vs%20BCAAs%20Which%20Amino%20Acid%20Supplement%20Actually%20Wins.png",
+      url: "/blog-image/EAAs%20vs%20BCAAs%20Which%20Amino%20Acid%20Supplement%20Actually%20Wins.webp",
       alt: "Essential amino acid supplement drink",
     },
     seo: {
@@ -398,7 +398,7 @@ export const NEWS: NewsArticle[] = [
     publishedAt: "2026-06-05",
     readingMinutes: 9,
     image: {
-      url: "/blog-image/Pre-Workout%20Ingredients%20That%20Actually%20Work%20%28And%20Ones%20That%20Don%27t%29.png",
+      url: "/blog-image/Pre-Workout%20Ingredients%20That%20Actually%20Work%20%28And%20Ones%20That%20Don%27t%29.webp",
       alt: "Pre-workout supplement powder ready to mix",
     },
     seo: {
@@ -512,7 +512,7 @@ export const NEWS: NewsArticle[] = [
     publishedAt: "2026-05-28",
     readingMinutes: 9,
     image: {
-      url: "/blog-image/Fat-Loss%20Supplements%20An%20Honest%20Look%20at%20What%20Helps.png",
+      url: "/blog-image/Fat-Loss%20Supplements%20An%20Honest%20Look%20at%20What%20Helps.webp",
       alt: "Fat-loss support supplements and measuring tape",
     },
     seo: {
@@ -629,7 +629,7 @@ export const NEWS: NewsArticle[] = [
     publishedAt: "2026-05-20",
     readingMinutes: 9,
     image: {
-      url: "/blog-image/Do%20You%20Really%20Need%20a%20Multivitamin%20A%20Practical%20Breakdown.png",
+      url: "/blog-image/Do%20You%20Really%20Need%20a%20Multivitamin%20A%20Practical%20Breakdown.webp",
       alt: "Multivitamin and mineral supplement tablets",
     },
     seo: {
@@ -739,7 +739,7 @@ export const NEWS: NewsArticle[] = [
     publishedAt: "2026-05-14",
     readingMinutes: 9,
     image: {
-      url: "/blog-image/How%20to%20Spot%20Fake%20Supplements%20in%20the%20UAE%20Market.png",
+      url: "/blog-image/How%20to%20Spot%20Fake%20Supplements%20in%20the%20UAE%20Market.webp",
       alt: "Authentic sports nutrition supplements from top brands",
     },
     seo: {
@@ -876,7 +876,7 @@ export const NEWS: NewsArticle[] = [
     publishedAt: "2026-05-06",
     readingMinutes: 10,
     image: {
-      url: "/blog-image/Hydration%20and%20Electrolytes%20The%20Overlooked%20Performance%20Edge.png",
+      url: "/blog-image/Hydration%20and%20Electrolytes%20The%20Overlooked%20Performance%20Edge.webp",
       alt: "Electrolyte and amino acid hydration drink for training",
     },
     seo: {
@@ -1003,7 +1003,7 @@ export const NEWS: NewsArticle[] = [
     publishedAt: "2026-04-29",
     readingMinutes: 9,
     image: {
-      url: "/blog-image/Building%20Your%20First%20Supplement%20Stack%20on%20a%20Budget.png",
+      url: "/blog-image/Building%20Your%20First%20Supplement%20Stack%20on%20a%20Budget.webp",
       alt: "Starter supplement stack essentials",
     },
     seo: {
@@ -1142,7 +1142,7 @@ export const NEWS: NewsArticle[] = [
     publishedAt: "2026-04-22",
     readingMinutes: 9,
     image: {
-      url: "/blog-image/Sleep%2C%20Recovery%2C%20and%20Muscle%20Growth%20The%20Missing%20Link.png",
+      url: "/blog-image/Sleep%2C%20Recovery%2C%20and%20Muscle%20Growth%20The%20Missing%20Link.webp",
       alt: "Recovery and rest for muscle growth",
     },
     seo: {

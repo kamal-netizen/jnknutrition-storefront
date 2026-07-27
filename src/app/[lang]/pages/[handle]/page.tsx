@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPage } from "@/lib/queries/content";
 
-export const revalidate = 600;
+export const revalidate = 86400;
+
+// Render on first request, then serve from the ISR cache (see the note in
+// collections/[handle]/[tag] — without this the route is dynamic per-hit).
+export function generateStaticParams() {
+  return [];
+}
 
 type Props = {
   params: Promise<{ handle: string }>;

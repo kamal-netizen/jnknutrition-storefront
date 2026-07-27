@@ -4,7 +4,7 @@ import Link from "@/components/LocaleLink";
 import { notFound } from "next/navigation";
 import { getArticle } from "@/lib/queries/content";
 
-export const revalidate = 600;
+export const revalidate = 86400;
 
 type Props = {
   params: Promise<{ blog: string; article: string }>;

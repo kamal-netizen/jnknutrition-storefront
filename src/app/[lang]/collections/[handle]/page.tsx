@@ -19,7 +19,7 @@ import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
 import { getCollectionSeo } from "@/lib/collection-seo";
 import { loadMoreCollection } from "./actions";
 
-export const revalidate = 300;
+export const revalidate = 1800;
 
 const DEFAULT_FILTERS: ActiveFilters = {
   includeSoldOut: false,

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "Browse JNK Nutrition product collections.",
 };
 
-export const revalidate = 300;
+export const revalidate = 1800;
 
 export default async function CollectionsPage() {
   const collections = await getCollections(50);
