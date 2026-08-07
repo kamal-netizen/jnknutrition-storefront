@@ -149,6 +149,15 @@ const en = {
     cart: "Cart",
     account: "Account",
   },
+  notFound: {
+    title: "Page Not Found",
+    body: "The page you're looking for doesn't exist, or it moved when we rebuilt the store.",
+    popularCategories: "Popular Categories",
+    helpfulLinks: "Helpful Links",
+    backToHome: "Back to Home",
+    stillStuck: "Still can't find it?",
+    stillStuckBody: "Search the full range, or message the team and we'll point you to the right product.",
+  },
   productsPage: {
     fullRange: "The Full Range",
     allProducts: "All Products",
@@ -532,6 +541,15 @@ const ar: Dictionary = {
     categories: "الفئات",
     cart: "السلة",
     account: "حسابي",
+  },
+  notFound: {
+    title: "الصفحة غير موجودة",
+    body: "الصفحة التي تبحث عنها غير موجودة، أو تم نقلها عند تحديث المتجر.",
+    popularCategories: "الفئات الشائعة",
+    helpfulLinks: "روابط مفيدة",
+    backToHome: "العودة إلى الرئيسية",
+    stillStuck: "لم تجد ما تبحث عنه؟",
+    stillStuckBody: "ابحث في التشكيلة الكاملة، أو راسل فريقنا وسنرشدك إلى المنتج المناسب.",
   },
   productsPage: {
     fullRange: "التشكيلة الكاملة",

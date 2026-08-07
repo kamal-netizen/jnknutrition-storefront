@@ -21,6 +21,13 @@ const AR_MARKETS = "ar-ae|ar-sa|ar-qa|ar-bh|ar-kw|ar-om";
 const EN_MARKETS = "en-sa|en-qa|en-bh|en-kw|en-om";
 
 const nextConfig: NextConfig = {
+  // Serves app/global-not-found.tsx for URLs that match no route. Without it
+  // those fall through to Next's built-in black-and-white 404, because this
+  // app's root layout sits under the dynamic app/[lang] segment and an
+  // unmatched path never reaches it.
+  experimental: {
+    globalNotFound: true,
+  },
   async redirects() {
     return [
       // Shopify's nested product URL → the flat one this app serves.
