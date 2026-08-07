@@ -238,6 +238,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           <FloatingSearch />
           <WhatsAppButton />
         </LocaleProvider>
+        {/*
+          Shipyard first-party analytics. Relative path on purpose: the host
+          proxy routes /_sy on this domain to the collector, so this loads from
+          our own origin. A plain deferred tag, not next/script — the tracker
+          has to patch the History API before client-side routing starts, which
+          next/script's post-hydration strategies would miss.
+        */}
+        <script defer src="/_sy/s.js" />
       </body>
     </html>
   );
