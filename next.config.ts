@@ -28,6 +28,57 @@ const nextConfig: NextConfig = {
   experimental: {
     globalNotFound: true,
   },
+  // These lived in vercel.json until the move to Shipyard, which does not read
+  // that file — verified on production, where /feature image/whey.webp came
+  // back `Cache-Control: public, max-age=0` against the year-long immutable
+  // rule vercel.json declares. Every banner and brand logo was revalidating on
+  // each page load. headers() is framework-level, so it survives the next
+  // platform move too.
+  //
+  // Security headers are deliberately NOT restated here: Shipyard already sets
+  // HSTS, X-Content-Type-Options, X-Frame-Options and X-XSS-Protection at its
+  // edge, and duplicating them risks two conflicting values on one response.
+  async headers() {
+    // Fingerprinted or content-stable asset directories. Replacing an image
+    // means replacing the filename — these are cached for a year.
+    // `source` is matched against the raw request path, so the directory with a
+    // space in its name has to be listed percent-encoded — "/feature image"
+    // never matches an incoming "/feature%20image/whey.webp". Both spellings are
+    // listed so a hand-typed URL is covered too.
+    const IMMUTABLE_ASSET_DIRS = [
+      "/banners",
+      "/blog-image",
+      "/BRAND",
+      "/feature image",
+      "/feature%20image",
+    ];
+
+    return [
+      ...IMMUTABLE_ASSET_DIRS.map((dir) => ({
+        source: `${dir}/:path*`,
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      })),
+      {
+        source: "/api/:path*",
+        headers: [{ key: "Cache-Control", value: "no-store" }],
+      },
+      // Account pages carry customer data. The route is dynamic so Next already
+      // sends no-store, but this covers every locale prefix explicitly rather
+      // than relying on that — vercel.json only ever listed /account and
+      // /ar/account, and would have missed any locale added later.
+      {
+        source: "/:locale(ar|en-sa|ar-sa)?/account/:path*",
+        headers: [
+          { key: "Cache-Control", value: "no-store, private" },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return [
       // Shopify's nested product URL → the flat one this app serves.
