@@ -53,7 +53,7 @@ export default function StickyAddToCart({ product, selectedVariant, watchRef }: 
 
   async function handleAdd() {
     if (soldOut || isLoading) return;
-    await addLine(selectedVariant.id, 1);
+    if (!(await addLine(selectedVariant.id, 1))) return;
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 2000);
   }

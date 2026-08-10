@@ -40,7 +40,9 @@ export default function AddToCart({ product, onVariantChange }: Props) {
 
   async function handleAdd() {
     if (!selectedVariant?.availableForSale) return;
-    await addLine(selectedVariant.id, quantity);
+    // Only flip to "Added" if it really was — the store surfaces the failure
+    // as a toast, and a tick next to it would contradict the message.
+    if (!(await addLine(selectedVariant.id, quantity))) return;
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 2000);
   }

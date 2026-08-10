@@ -25,7 +25,7 @@ export default function QuickAddButton({ product, variant = "bar" }: Props) {
 
   async function handleAdd() {
     if (!defaultVariant?.availableForSale || isLoading) return;
-    await addLine(defaultVariant.id, 1);
+    if (!(await addLine(defaultVariant.id, 1))) return;
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 2000);
   }

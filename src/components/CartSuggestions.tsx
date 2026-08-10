@@ -81,7 +81,7 @@ export default function CartSuggestions({ className, onNavigate }: Props) {
       product.variants.edges.find((e) => e.node.availableForSale)?.node ??
       product.variants.edges[0]?.node;
     if (!variant || isLoading) return;
-    await addLine(variant.id, 1);
+    if (!(await addLine(variant.id, 1))) return;
     setAddedId(product.id);
     setTimeout(() => setAddedId((id) => (id === product.id ? null : id)), 2000);
   }

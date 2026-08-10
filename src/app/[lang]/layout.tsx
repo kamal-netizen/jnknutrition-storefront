@@ -12,6 +12,7 @@ import FloatingSearch from "@/components/FloatingSearch";
 import { getCollections } from "@/lib/queries/collections";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SITE_TAGLINE, DEFAULT_KEYWORDS, BUSINESS_LOCALITY, BUSINESS_REGION, BUSINESS_COUNTRY, BUSINESS_PHONE, BUSINESS_STREET_ADDRESS, BUSINESS_POSTAL_CODE, BUSINESS_LATITUDE, BUSINESS_LONGITUDE, BUSINESS_OPENING_HOURS, HAS_LOCAL_BUSINESS_DATA, absoluteUrl } from "@/lib/seo";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import Toaster from "@/components/Toaster";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -237,6 +238,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           <BottomNav />
           <FloatingSearch />
           <WhatsAppButton />
+          <Toaster />
         </LocaleProvider>
         {/*
           Shipyard first-party analytics. Relative path on purpose: the host

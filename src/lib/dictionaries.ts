@@ -321,6 +321,10 @@ const en = {
     freeShippingUnlocked: "You've unlocked FREE shipping!",
     addAmountForFree: "for FREE shipping",
     add: "Add",
+    errorAdd: "We couldn't add that to your cart. Please try again.",
+    errorUpdate: "We couldn't update that quantity. Please try again.",
+    errorRemove: "We couldn't remove that item. Please try again.",
+    errorTitle: "Something went wrong",
   },
   language: {
     label: "Language",
@@ -712,6 +716,10 @@ const ar: Dictionary = {
     freeShippingUnlocked: "لقد حصلت على شحن مجاني!",
     addAmountForFree: "للشحن المجاني",
     add: "أضف",
+    errorAdd: "تعذّرت إضافة المنتج إلى السلة. حاول مرة أخرى.",
+    errorUpdate: "تعذّر تحديث الكمية. حاول مرة أخرى.",
+    errorRemove: "تعذّرت إزالة المنتج. حاول مرة أخرى.",
+    errorTitle: "حدث خطأ ما",
   },
   language: {
     label: "اللغة",
