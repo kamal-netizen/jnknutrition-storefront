@@ -72,6 +72,17 @@ export function localeFromPathname(pathname: string): Locale {
  * (un-prefixed) form — e.g. "/ar/collections/x" → "/collections/x", "/ar" → "/".
  */
 export function stripLocalePrefix(pathname: string): string {
+  // The proxy rewrites un-prefixed URLs under the internal default-locale
+  // segment (/products/x → /en-ae/products/x), and on the client
+  // `usePathname()` reports that rewritten path, not the address bar's. Strip it
+  // first, or callers building a cross-locale link emit /ar/en-ae/products/x —
+  // which is a 404, and was showing up in production logs as exactly that.
+  const internal = `/${DEFAULT_LOCALE.code}`;
+  if (pathname === internal) return "/";
+  if (pathname.startsWith(`${internal}/`)) {
+    pathname = pathname.slice(internal.length);
+  }
+
   for (const l of LOCALES) {
     if (l.isDefault) continue;
     if (pathname === l.prefix) return "/";
