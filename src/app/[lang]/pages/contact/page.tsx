@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "@/components/LocaleLink";
-import { Mail, Phone, MessageCircle, MapPin, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import { getPage } from "@/lib/queries/content";
 import ContactForm from "@/components/ContactForm";
 import {
@@ -48,7 +49,7 @@ const METHODS = [
     href: `tel:${CONTACT_PHONE_HREF}`,
   },
   {
-    icon: MessageCircle,
+    icon: WhatsAppIcon,
     title: "WhatsApp",
     value: WHATSAPP,
     href: `https://wa.me/${WHATSAPP_HREF}`,
