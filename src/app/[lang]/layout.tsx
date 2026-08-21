@@ -10,7 +10,7 @@ import Footer from "@/components/Footer";
 import BottomNav from "@/components/BottomNav";
 import FloatingSearch from "@/components/FloatingSearch";
 import { getCollections } from "@/lib/queries/collections";
-import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SITE_TAGLINE, DEFAULT_KEYWORDS, BUSINESS_LOCALITY, BUSINESS_REGION, BUSINESS_COUNTRY, BUSINESS_PHONE, BUSINESS_STREET_ADDRESS, BUSINESS_POSTAL_CODE, BUSINESS_LATITUDE, BUSINESS_LONGITUDE, BUSINESS_OPENING_HOURS, HAS_LOCAL_BUSINESS_DATA, absoluteUrl } from "@/lib/seo";
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SITE_TAGLINE, DEFAULT_KEYWORDS, BUSINESS_LOCALITY, BUSINESS_REGION, BUSINESS_COUNTRY, BUSINESS_PHONE, BUSINESS_STREET_ADDRESS, BUSINESS_POSTAL_CODE, BUSINESS_LATITUDE, BUSINESS_LONGITUDE, BUSINESS_OPENING_HOURS, HAS_LOCAL_BUSINESS_DATA, SOCIAL_PROFILE_URLS, absoluteUrl } from "@/lib/seo";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import Toaster from "@/components/Toaster";
 
@@ -107,6 +107,9 @@ export default async function RootLayout({
       "Wholesale supplement supply",
       "International supplement export",
     ],
+    // Links the brand entity to its verified profiles. Omitted entirely until
+    // real profile URLs are configured in seo.ts.
+    ...(SOCIAL_PROFILE_URLS.length ? { sameAs: SOCIAL_PROFILE_URLS } : {}),
     contactPoint: [
       {
         "@type": "ContactPoint",

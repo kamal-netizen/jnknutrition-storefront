@@ -44,16 +44,46 @@ export const BUSINESS_COUNTRY = "AE";
 // ("supplement store dubai", "…near me"). Fields left EMPTY are omitted from the
 // schema — never emit fabricated address/geo/hours data. Fill with the real
 // storefront details to switch on local rich results.
-export const BUSINESS_PHONE = "+971556238582";
-export const BUSINESS_STREET_ADDRESS = ""; // e.g. "Shop 5, Baniyas Square"
+export const BUSINESS_PHONE = "+97142522426";
+export const BUSINESS_STREET_ADDRESS =
+  "Shop 6, Baniyas Complex Building (Wasl R260), Opp. Choithrams, Deira";
 export const BUSINESS_POSTAL_CODE = "";
 export const BUSINESS_LATITUDE = ""; // e.g. "25.2685"
 export const BUSINESS_LONGITUDE = ""; // e.g. "55.3095"
 /** schema.org openingHours specs, e.g. ["Mo-Sa 10:00-22:00", "Su 14:00-22:00"]. */
-export const BUSINESS_OPENING_HOURS: string[] = [];
+export const BUSINESS_OPENING_HOURS: string[] = [
+  "Mo-Sa 10:00-23:00",
+  "Su 17:00-23:00",
+];
 
 /** True when enough real address data is present to emit LocalBusiness schema. */
 export const HAS_LOCAL_BUSINESS_DATA = Boolean(BUSINESS_STREET_ADDRESS);
+
+// ─── Shared contact details (footer + contact page) ──────────────────────────
+// Display-formatted counterparts to the schema values above. Kept here so the
+// footer and the contact page can never drift apart.
+export const BUSINESS_PHONE_DISPLAY = "+971 4 252 2426";
+export const BUSINESS_WHATSAPP = "971556238582";
+export const BUSINESS_WHATSAPP_DISPLAY = "+971 55 623 8582";
+export const BUSINESS_EMAIL = "support@jnknutrition.com";
+export const BUSINESS_MAPS_URL =
+  "https://www.google.com/maps/search/?api=1&query=" +
+  encodeURIComponent("JNK Nutrition, Baniyas Complex Building, Deira, Dubai");
+
+// ─── Social profiles ─────────────────────────────────────────────────────────
+// Real profile URLs only. Empty entries are omitted from the footer and from
+// the Organization `sameAs` — a bare "https://instagram.com" is a broken link
+// that dumps shoppers on a platform homepage, and fake `sameAs` entries link
+// the brand entity to profiles Google can't verify.
+export const SOCIAL_PROFILES: Record<string, string> = {
+  Instagram: "",
+  Facebook: "",
+  Twitter: "",
+  YouTube: "",
+};
+
+/** Non-empty profile URLs, for Organization `sameAs`. */
+export const SOCIAL_PROFILE_URLS = Object.values(SOCIAL_PROFILES).filter(Boolean);
 
 /**
  * Collections that deserve elevated sitemap priority — high commercial intent or

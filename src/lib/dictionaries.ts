@@ -142,6 +142,10 @@ const en = {
     termsOfService: "Terms of Service",
     myAccount: "My Account",
     rightsReserved: "All rights reserved.",
+    visitUs: "Visit Us",
+    storeAddress:
+      "Shop 6, Baniyas Complex Building, Opp. Choithrams, Deira, Dubai",
+    storeHours: "Mon – Sat 10 AM – 11 PM · Sun 5 PM – 11 PM",
   },
   bottomNav: {
     home: "Home",
@@ -539,6 +543,9 @@ const ar: Dictionary = {
     termsOfService: "شروط الخدمة",
     myAccount: "حسابي",
     rightsReserved: "جميع الحقوق محفوظة.",
+    visitUs: "زورونا",
+    storeAddress: "محل رقم 6، مبنى بانياس كومبلكس، مقابل شويترامز، ديرة، دبي",
+    storeHours: "الاثنين - السبت 10 ص - 11 م · الأحد 5 م - 11 م",
   },
   bottomNav: {
     home: "الرئيسية",

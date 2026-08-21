@@ -1,8 +1,14 @@
 import Link from "@/components/LocaleLink";
 import Image from "next/image";
-import { Truck, ShieldCheck, Store, Headset } from "lucide-react";
+import { Truck, ShieldCheck, Store, Headset, MapPin, Phone } from "lucide-react";
 import type { SVGProps } from "react";
 import type { Dictionary } from "@/lib/dictionaries";
+import {
+  SOCIAL_PROFILES,
+  BUSINESS_PHONE,
+  BUSINESS_PHONE_DISPLAY,
+  BUSINESS_MAPS_URL,
+} from "@/lib/seo";
 
 function InstagramIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -63,12 +69,20 @@ function StarIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-const SOCIALS = [
-  { label: "Instagram", href: "https://instagram.com", Icon: InstagramIcon },
-  { label: "Facebook", href: "https://facebook.com", Icon: FacebookIcon },
-  { label: "Twitter", href: "https://twitter.com", Icon: TwitterIcon },
-  { label: "YouTube", href: "https://youtube.com", Icon: YoutubeIcon },
-];
+const SOCIAL_ICONS = {
+  Instagram: InstagramIcon,
+  Facebook: FacebookIcon,
+  Twitter: TwitterIcon,
+  YouTube: YoutubeIcon,
+} as const;
+
+// Only profiles with a real URL configured in seo.ts are rendered.
+const SOCIALS = Object.entries(SOCIAL_ICONS)
+  .map(([label, Icon]) => ({ label, Icon, href: SOCIAL_PROFILES[label] ?? "" }))
+  .filter((s) => s.href);
+
+/** App-store rating shown beside the star row. */
+const APP_RATING = 4.7;
 
 const APP_LINKS = [
   {
@@ -179,20 +193,59 @@ export default function Footer({ dict }: { dict: Dictionary }) {
             <p className="mt-3 text-sm text-[#C7D0DA] leading-relaxed max-w-xs">
               {f.tagline}
             </p>
-            <div className="flex items-center gap-4 mt-5">
-              {SOCIALS.map(({ label, href, Icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="text-[#C7D0DA] hover:text-[#F9D20F] transition-colors"
-                >
-                  <Icon className="w-5 h-5" />
-                </a>
-              ))}
-            </div>
+
+            {/* Store NAP — repeating name/address/phone on every page is a
+                standard local-search signal for the physical Deira store. */}
+            <address className="mt-5 not-italic space-y-3 max-w-xs">
+              <a
+                href={BUSINESS_MAPS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-start gap-2.5 text-sm text-[#C7D0DA] hover:text-white transition-colors"
+              >
+                <MapPin
+                  className="w-4 h-4 mt-0.5 shrink-0 text-[#F9D20F]"
+                  aria-hidden="true"
+                />
+                <span>
+                  <span className="block font-bold text-white uppercase tracking-wide text-[11px] mb-0.5">
+                    {f.visitUs}
+                  </span>
+                  <span className="leading-relaxed">{f.storeAddress}</span>
+                  <span className="block mt-1 text-xs text-[#9FB0C0]">
+                    {f.storeHours}
+                  </span>
+                </span>
+              </a>
+              <a
+                href={`tel:${BUSINESS_PHONE}`}
+                dir="ltr"
+                className="flex items-center gap-2.5 text-sm text-[#C7D0DA] hover:text-white transition-colors"
+              >
+                <Phone
+                  className="w-4 h-4 shrink-0 text-[#F9D20F]"
+                  aria-hidden="true"
+                />
+                <span>{BUSINESS_PHONE_DISPLAY}</span>
+              </a>
+            </address>
+
+            {SOCIALS.length > 0 ? (
+              <div className="flex items-center gap-4 mt-5">
+                {SOCIALS.map(({ label, href, Icon }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="text-[#C7D0DA] hover:text-[#F9D20F] transition-colors"
+                  >
+                    <Icon className="w-5 h-5" />
+                  </a>
+                ))}
+              </div>
+            ) : null}
           </div>
 
           {/* Get the App */}
@@ -203,11 +256,29 @@ export default function Footer({ dict }: { dict: Dictionary }) {
             <p className="text-sm text-[#C7D0DA] leading-relaxed max-w-xs">
               {f.getAppSub}
             </p>
-            <div className="flex items-center gap-1 mt-3 text-[#F9D20F]">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <StarIcon key={i} className="w-3.5 h-3.5" />
-              ))}
-              <span className="ml-1.5 text-xs text-[#C7D0DA]">4.7 / 5</span>
+            {/* Stars are clipped to the real score — five solid stars next to
+                "4.7 / 5" reads as a perfect rating. */}
+            <div
+              className="flex items-center gap-1.5 mt-3"
+              role="img"
+              aria-label={`${APP_RATING} out of 5`}
+            >
+              <span dir="ltr" className="relative inline-flex" aria-hidden="true">
+                <span className="flex gap-1 text-[#3E5C78]">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <StarIcon key={i} className="w-3.5 h-3.5" />
+                  ))}
+                </span>
+                <span
+                  className="absolute inset-0 flex gap-1 overflow-hidden text-[#F9D20F]"
+                  style={{ width: `${(APP_RATING / 5) * 100}%` }}
+                >
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <StarIcon key={i} className="w-3.5 h-3.5 shrink-0" />
+                  ))}
+                </span>
+              </span>
+              <span className="text-xs text-[#C7D0DA]">{APP_RATING} / 5</span>
             </div>
             <div className="flex flex-col sm:flex-row md:flex-col gap-3 mt-4">
               {APP_LINKS.map(({ href, Icon, line1, line2 }) => (

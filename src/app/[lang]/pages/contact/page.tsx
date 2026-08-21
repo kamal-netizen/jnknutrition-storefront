@@ -3,16 +3,25 @@ import Link from "@/components/LocaleLink";
 import { Mail, Phone, MessageCircle, MapPin, Clock } from "lucide-react";
 import { getPage } from "@/lib/queries/content";
 import ContactForm from "@/components/ContactForm";
+import {
+  BUSINESS_EMAIL,
+  BUSINESS_PHONE,
+  BUSINESS_PHONE_DISPLAY,
+  BUSINESS_WHATSAPP,
+  BUSINESS_WHATSAPP_DISPLAY,
+  BUSINESS_MAPS_URL,
+} from "@/lib/seo";
 
 export const revalidate = 86400;
 
-// Update these with your real business details.
-const CONTACT_EMAIL = "support@jnknutrition.com";
-const CONTACT_PHONE = "+971 4 000 0000";
-const CONTACT_PHONE_HREF = "+97140000000";
-const WHATSAPP = "+971 50 000 0000";
-const WHATSAPP_HREF = "971500000000";
-const ADDRESS = "Dubai, United Arab Emirates";
+const CONTACT_EMAIL = BUSINESS_EMAIL;
+const CONTACT_PHONE = BUSINESS_PHONE_DISPLAY;
+const CONTACT_PHONE_HREF = BUSINESS_PHONE;
+const WHATSAPP = BUSINESS_WHATSAPP_DISPLAY;
+const WHATSAPP_HREF = BUSINESS_WHATSAPP;
+const ADDRESS =
+  "Shop 6, Baniyas Complex Building, Opp. Choithrams, Deira, Dubai";
+const MAPS_URL = BUSINESS_MAPS_URL;
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPage("contact");
@@ -46,9 +55,9 @@ const METHODS = [
   },
   {
     icon: MapPin,
-    title: "Location",
+    title: "Visit Our Store",
     value: ADDRESS,
-    href: null,
+    href: MAPS_URL,
   },
 ] as const;
 
@@ -111,6 +120,9 @@ export default async function ContactPage() {
                   <a
                     key={method.title}
                     href={method.href}
+                    {...(method.href.startsWith("http")
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : {})}
                     className="flex items-center gap-3 rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-4 hover:border-[#F9D20F] transition-colors"
                   >
                     {inner}
@@ -130,10 +142,11 @@ export default async function ContactPage() {
               <Clock className="h-5 w-5 text-[#0B0F14] shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-bold text-[#0B0F14] uppercase tracking-wide">
-                  Support Hours
+                  Store Hours
                 </p>
                 <p className="text-sm text-[#64748B]">
-                  Sat – Thu, 9:00 AM – 9:00 PM (GST). We reply within 24 hours.
+                  Mon – Sat, 10:00 AM – 11:00 PM · Sun, 5:00 PM – 11:00 PM
+                  (GST). We reply to messages within 24 hours.
                 </p>
               </div>
             </div>
