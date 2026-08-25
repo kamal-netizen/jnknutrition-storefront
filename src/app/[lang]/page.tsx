@@ -139,12 +139,22 @@ export default async function Home({ params }: PageProps) {
         <UAEFlagBanner label={t.proudOfUae} />
       </div>
 
-      {/* Page H1 — local commercial intent ("supplement store dubai/uae"). */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-6 md:pt-8">
-        <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-[#0B0F14]">
+      {/* Page H1 — local commercial intent ("supplement store dubai/uae").
+          Sized above the section H2s beneath it (36px): as the page heading it
+          was previously rendering smaller than every heading it introduces. The
+          accent bar is the same one SectionHeading carries, which ties this
+          block into the rest of the page instead of leaving it as loose text,
+          and the bottom padding stops the paragraph butting straight into the
+          deals band below — it had none, so the two were touching. */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-8 pb-10 md:pt-12 md:pb-14">
+        <h1 className="max-w-4xl text-3xl md:text-5xl font-black uppercase tracking-tight leading-[1.05] text-[#0B0F14]">
           {t.heroTitle}
         </h1>
-        <p className="mt-2 max-w-2xl text-sm md:text-base text-[#55637A]">
+        <span
+          aria-hidden="true"
+          className="mt-4 block h-1 w-14 rounded-full bg-gradient-to-r from-[#F9D20F] to-[#F9D20F]/30"
+        />
+        <p className="mt-4 max-w-2xl text-sm md:text-base leading-relaxed text-[#55637A]">
           {t.heroBody}
         </p>
       </div>
