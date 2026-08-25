@@ -868,38 +868,103 @@
     width: 10px;
     height: 10px;
   }
-  /* The dumbbell is the widest prop and the first thing to overflow. The CTA
-     stays — that is the departure from the handoff package. */
-  .jnk-bell {
-    display: none;
-  }
   .jnk-cta {
+    flex-direction: row;
     align-items: center;
+    justify-content: center;
   }
 }
 
-/* Below 640px even the shrunken props and the wordmark do not fit on one line —
-   the star and the tag were being clipped by the strip's own overflow. Giving
-   the wordmark its own row keeps it legible instead of shrinking all three
-   until the type stops reading as a wordmark. */
+/* Phones keep the desktop composition — star, wordmark, tag reading straight
+   across, with the eyebrow and button on their own line under it. The type and
+   the props are sized down together so the row still clears a 375px viewport;
+   an earlier version stacked the wordmark on its own line instead, which lost
+   the horizontal strip the design is built around. */
 @media (max-width: 640px) {
+  .jnk-row {
+    gap: 12px;
+    padding: 18px 12px 20px;
+  }
   .jnk-art {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
   }
   .jnk-word {
-    order: -1;
-    flex-basis: 100%;
-    justify-content: center;
+    gap: 6px;
+    padding: 0;
   }
   .jnk-word span:not(.jnk-shine) {
-    font-size: 38px;
-    -webkit-text-stroke-width: 5px;
+    font-size: 26px;
+    -webkit-text-stroke-width: 3px;
   }
+  .jnk-star {
+    flex-basis: 28px;
+    width: 28px;
+    height: 28px;
+  }
+  .jnk-tag {
+    flex-basis: 40px;
+    width: 40px;
+    height: 42px;
+  }
+  .jnk-tag .body,
+  .jnk-tag .pct {
+    left: 3px;
+    top: 3px;
+    width: 34px;
+    height: 34px;
+  }
+  .jnk-tag .body {
+    border-radius: 8px 8px 8px 14px;
+    box-shadow: 0 4px 0 #b98f00, 0 8px 12px rgba(11, 43, 74, 0.22),
+      inset 0 2px 0 rgba(255, 255, 255, 0.6);
+  }
+  .jnk-tag .pct {
+    font-size: 18px;
+  }
+  .jnk-tag .hole {
+    left: 25px;
+    top: 6px;
+    width: 8px;
+    height: 8px;
+  }
+  /* Scaled to sit alongside the other props rather than dominate them; the
+     children carry fixed pixel offsets, so each one is restated here. */
+  .jnk-bell {
+    flex-basis: 44px;
+    width: 44px;
+    height: 22px;
+  }
+  .jnk-bell .bar {
+    left: 10px;
+    top: 8px;
+    width: 24px;
+    height: 5px;
+    border-radius: 3px;
+    box-shadow: 0 1px 0 #7d93a8;
+  }
+  .jnk-bell .plate {
+    top: 1px;
+    width: 10px;
+    height: 20px;
+    border-radius: 4px;
+    box-shadow: 0 3px 0 #061c33, 0 5px 7px rgba(11, 43, 74, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  }
+  .jnk-cta {
+    gap: 8px;
+  }
+  .jnk-eyebrow {
+    height: 22px;
+    padding: 0 8px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+  /* Arabic sits on the fallback face, which runs wider at the same size. */
   [dir="rtl"] .jnk-word span:not(.jnk-shine) {
-    font-size: 34px;
-    -webkit-text-stroke-width: 4px;
+    font-size: 22px;
+    -webkit-text-stroke-width: 3px;
   }
 }
 

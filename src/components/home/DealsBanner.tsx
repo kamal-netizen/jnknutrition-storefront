@@ -77,7 +77,7 @@ export default function DealsBanner({
           <Link
             href={href}
             aria-label={`${ctaLabel}: ${title}`}
-            className="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-[#F9D20F] px-6 py-3 text-sm font-bold uppercase tracking-wide text-[#0B0F14] shadow-card hover:bg-[#E7BF00] hover:shadow-card-hover transition-all"
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-[#F9D20F] px-3.5 py-2 text-xs sm:px-6 sm:py-3 sm:text-sm font-bold uppercase tracking-wide text-[#0B0F14] shadow-card hover:bg-[#E7BF00] hover:shadow-card-hover transition-all"
           >
             {ctaLabel}{" "}
             <span aria-hidden="true" className="rtl:rotate-180">
