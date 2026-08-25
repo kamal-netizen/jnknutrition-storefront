@@ -1,4 +1,5 @@
 import Link from "@/components/LocaleLink";
+import type { ReactNode } from "react";
 import type { ProductCardData } from "@/lib/queries/products";
 import ProductCard from "@/components/ProductCard";
 import ScrollRow from "@/components/home/ScrollRow";
@@ -28,6 +29,12 @@ type Props = {
   cta?: "pill" | "button";
   /** Label for the call-to-action. Defaults to "View All". */
   ctaLabel?: string;
+  /**
+   * Replaces the whole heading + CTA row. The deals section passes its animated
+   * banner here, which carries its own H2 and button — rendering both would say
+   * "Today's Deals" and "Shop Deals" twice on the same section.
+   */
+  header?: ReactNode;
   className?: string;
 };
 
@@ -41,12 +48,14 @@ export default function SectionStrip({
   tone = "default",
   cta = "pill",
   ctaLabel = "View All",
+  header,
   className = "",
 }: Props) {
   if (products.length === 0) return null;
 
   const inner = (
     <>
+      {header ?? (
       <div
         className={`mb-8 gap-4 ${
           cta === "button"
@@ -76,6 +85,7 @@ export default function SectionStrip({
           {ctaLabel} <span aria-hidden="true" className="rtl:rotate-180">→</span>
         </Link>
       </div>
+      )}
 
       {grid ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">

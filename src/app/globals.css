@@ -489,3 +489,422 @@
     opacity: 1;
   }
 }
+
+/* ─── Today's Deals animated strip ─────────────────────────── */
+/* Ported from the design handoff package. Two deliberate departures from it:
+   the Google Fonts @import is gone — Baloo 2 is loaded through next/font in
+   app/[lang]/layout.tsx, so it is self-hosted and preloaded rather than a
+   render-blocking request to a third party — and the CTA is no longer hidden
+   on small screens, since mobile is most of this store's traffic and the
+   package dropped the whole call to action below 900px. Every keyframe here
+   moves only transform and opacity. */
+.jnk-strip {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: linear-gradient(180deg, #fffdf2 0%, #fef6d6 55%, #fbeab3 100%);
+}
+
+.jnk-hill {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: -190px;
+  height: 280px;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  background: linear-gradient(180deg, #f7e6ae 0%, #f3dc94 100%);
+  opacity: 0.85;
+}
+
+.jnk-hill--back {
+  bottom: -210px;
+  background: #f0d47c;
+  opacity: 0.55;
+}
+
+.jnk-row {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 0 32px;
+}
+
+.jnk-art {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+}
+
+.jnk-cta {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.jnk-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #082d4c;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+/* ── Wordmark ── */
+.jnk-word {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 4px;
+  margin: 0;
+}
+
+.jnk-word span:not(.jnk-shine) {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 76px;
+  line-height: 0.95;
+  color: #0b2b4a;
+  letter-spacing: -1px;
+  -webkit-text-stroke: 9px #fff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 8px 0 rgba(11, 43, 74, 0.14))
+    drop-shadow(0 14px 18px rgba(11, 43, 74, 0.18));
+}
+
+/* The shine sits first in the markup, so the word spans start at nth-of-type(2).
+   Alternating rather than naming positions 2 and 3: the heading is whatever the
+   locale dictionary holds, and a three-word title would otherwise leave its last
+   word sitting still next to two bouncing ones. */
+.jnk-word span:not(.jnk-shine):nth-of-type(even) {
+  animation: jnkBounce 2.4s ease-in-out infinite;
+}
+
+.jnk-word span:not(.jnk-shine):nth-of-type(odd) {
+  animation: jnkBounce2 2.4s ease-in-out infinite 0.28s;
+}
+
+.jnk-shine {
+  position: absolute;
+  inset: -8px -18px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.jnk-shine i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 70px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.75) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: jnkShine 4.8s ease-in-out infinite;
+}
+
+/* ── Star ── */
+.jnk-star {
+  position: relative;
+  flex: 0 0 74px;
+  width: 74px;
+  height: 74px;
+  animation: jnkFloatStar 3.6s ease-in-out infinite;
+}
+
+.jnk-star i {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(
+    50% 0%, 63% 36%, 100% 38%, 70% 60%, 81% 100%,
+    50% 76%, 19% 100%, 30% 60%, 0% 38%, 37% 36%
+  );
+}
+
+.jnk-star i:nth-child(1) {
+  background: #0b2b4a;
+  transform: translate(3px, 4px) scale(1.06);
+}
+
+.jnk-star i:nth-child(2) {
+  background: radial-gradient(circle at 35% 28%, #fff6bd 0%, #f9d20f 45%, #e0b400 100%);
+}
+
+/* ── Discount tag ── */
+.jnk-tag {
+  position: relative;
+  flex: 0 0 96px;
+  width: 96px;
+  height: 88px;
+  animation: jnkFloatTag 4.2s ease-in-out infinite;
+}
+
+.jnk-tag .body {
+  position: absolute;
+  left: 8px;
+  top: 6px;
+  width: 76px;
+  height: 76px;
+  border-radius: 16px 16px 16px 30px;
+  background: linear-gradient(150deg, #fbe27a 0%, #f9d20f 42%, #d9ab00 100%);
+  box-shadow: 0 8px 0 #b98f00, 0 16px 22px rgba(11, 43, 74, 0.22),
+    inset 0 3px 0 rgba(255, 255, 255, 0.6);
+  transform: rotate(-38deg);
+}
+
+.jnk-tag .hole {
+  position: absolute;
+  left: 56px;
+  top: 12px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #0b2b4a;
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.45);
+}
+
+.jnk-tag .pct {
+  position: absolute;
+  left: 8px;
+  top: 6px;
+  width: 76px;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 40px;
+  color: #0b2b4a;
+}
+
+/* ── Dumbbell ── */
+.jnk-bell {
+  position: relative;
+  flex: 0 0 120px;
+  width: 120px;
+  height: 56px;
+  animation: jnkFloatBell 3.9s ease-in-out infinite;
+}
+
+.jnk-bell .bar {
+  position: absolute;
+  left: 26px;
+  top: 22px;
+  width: 68px;
+  height: 13px;
+  border-radius: 7px;
+  background: linear-gradient(180deg, #dfe7ef 0%, #9fb3c6 100%);
+  box-shadow: 0 3px 0 #7d93a8;
+}
+
+.jnk-bell .plate {
+  position: absolute;
+  top: 2px;
+  width: 26px;
+  height: 52px;
+  border-radius: 9px;
+  background: linear-gradient(150deg, #1c4f7d 0%, #0b2b4a 70%);
+  box-shadow: 0 7px 0 #061c33, 0 14px 18px rgba(11, 43, 74, 0.25),
+    inset 0 3px 0 rgba(255, 255, 255, 0.22);
+}
+
+.jnk-bell .plate.l {
+  left: 0;
+}
+
+.jnk-bell .plate.r {
+  right: 0;
+}
+
+/* ── Sparkles ── */
+.jnk-sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.jnk-sparkles i {
+  position: absolute;
+  background: #f9d20f;
+  clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%);
+  animation: jnkSparkle 2.8s ease-in-out infinite;
+}
+
+.jnk-sparkles i:nth-child(1) { left: 31%; top: 26%; width: 16px; height: 16px; }
+.jnk-sparkles i:nth-child(2) { left: 64%; top: 62%; width: 12px; height: 12px; background: #fff; animation-delay: 0.9s; }
+.jnk-sparkles i:nth-child(3) { left: 70%; top: 22%; width: 14px; height: 14px; animation-delay: 1.6s; }
+.jnk-sparkles i:nth-child(4) { left: 24%; top: 66%; width: 10px; height: 10px; background: #fff; animation-delay: 2.1s; }
+
+@keyframes jnkBounce {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+}
+
+@keyframes jnkBounce2 {
+  0%, 100% { transform: translateY(-8px) rotate(1.5deg); }
+  50% { transform: translateY(2px) rotate(-1deg); }
+}
+
+@keyframes jnkFloatStar {
+  0%, 100% { transform: translateY(0) rotate(-8deg) scale(1); }
+  50% { transform: translateY(-16px) rotate(10deg) scale(1.06); }
+}
+
+@keyframes jnkFloatTag {
+  0%, 100% { transform: translateY(4px) rotate(14deg); }
+  50% { transform: translateY(-12px) rotate(2deg); }
+}
+
+@keyframes jnkFloatBell {
+  0%, 100% { transform: translateY(-6px) rotate(-14deg); }
+  50% { transform: translateY(8px) rotate(-4deg); }
+}
+
+@keyframes jnkSparkle {
+  0%, 100% { opacity: 0; transform: scale(0.4) rotate(0); }
+  40% { opacity: 1; transform: scale(1) rotate(45deg); }
+}
+
+@keyframes jnkShine {
+  0% { transform: translateX(-120%) skewX(-18deg); }
+  55%, 100% { transform: translateX(320%) skewX(-18deg); }
+}
+
+/* The sweep reads as a glancing light travelling with the text, so under RTL it
+   has to run the other way. Arabic also falls back off Baloo 2, which has no
+   Arabic subset — the 9px outline was sized for that face and swamps the
+   thinner strokes of the fallback, so it comes down. */
+[dir="rtl"] .jnk-shine i {
+  animation-name: jnkShineRtl;
+}
+
+[dir="rtl"] .jnk-word span:not(.jnk-shine) {
+  font-size: 60px;
+  letter-spacing: 0;
+  -webkit-text-stroke-width: 6px;
+}
+
+@media (max-width: 900px) {
+  [dir="rtl"] .jnk-word span:not(.jnk-shine) {
+    font-size: 38px;
+    -webkit-text-stroke-width: 4px;
+  }
+}
+
+@keyframes jnkShineRtl {
+  0% { transform: translateX(120%) skewX(18deg); }
+  55%, 100% { transform: translateX(-320%) skewX(18deg); }
+}
+
+@media (max-width: 900px) {
+  .jnk-strip {
+    height: auto;
+  }
+  .jnk-row {
+    flex-direction: column;
+    justify-content: center;
+    gap: 14px;
+    padding: 22px 16px 26px;
+  }
+  .jnk-art {
+    gap: 14px;
+  }
+  .jnk-word {
+    gap: 8px;
+  }
+  .jnk-word span:not(.jnk-shine) {
+    font-size: 44px;
+    -webkit-text-stroke: 6px #fff;
+  }
+  .jnk-star {
+    flex-basis: 46px;
+    width: 46px;
+    height: 46px;
+  }
+  .jnk-tag {
+    flex-basis: 60px;
+    width: 60px;
+    height: 56px;
+  }
+  .jnk-tag .body,
+  .jnk-tag .pct {
+    left: 5px;
+    top: 4px;
+    width: 48px;
+    height: 48px;
+  }
+  .jnk-tag .pct {
+    font-size: 26px;
+  }
+  .jnk-tag .hole {
+    left: 35px;
+    top: 8px;
+    width: 10px;
+    height: 10px;
+  }
+  /* The dumbbell is the widest prop and the first thing to overflow. The CTA
+     stays — that is the departure from the handoff package. */
+  .jnk-bell {
+    display: none;
+  }
+  .jnk-cta {
+    align-items: center;
+  }
+}
+
+/* Below 640px even the shrunken props and the wordmark do not fit on one line —
+   the star and the tag were being clipped by the strip's own overflow. Giving
+   the wordmark its own row keeps it legible instead of shrinking all three
+   until the type stops reading as a wordmark. */
+@media (max-width: 640px) {
+  .jnk-art {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  .jnk-word {
+    order: -1;
+    flex-basis: 100%;
+    justify-content: center;
+  }
+  .jnk-word span:not(.jnk-shine) {
+    font-size: 38px;
+    -webkit-text-stroke-width: 5px;
+  }
+  [dir="rtl"] .jnk-word span:not(.jnk-shine) {
+    font-size: 34px;
+    -webkit-text-stroke-width: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jnk-strip *,
+  .jnk-strip *::before,
+  .jnk-strip *::after {
+    animation: none !important;
+  }
+  .jnk-shine {
+    display: none;
+  }
+}

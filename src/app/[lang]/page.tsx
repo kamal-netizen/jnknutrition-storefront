@@ -11,6 +11,7 @@ import HeroBanner from "@/components/home/HeroBanner";
 import CoreChampsHero from "@/components/home/CoreChampsHero";
 import SectionHeading from "@/components/home/SectionHeading";
 import UAEFlagBanner from "@/components/home/UAEFlagBanner";
+import DealsBanner from "@/components/home/DealsBanner";
 import type { Metadata } from "next";
 import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, DEFAULT_KEYWORDS } from "@/lib/seo";
 import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
@@ -160,6 +161,14 @@ export default async function Home({ params }: PageProps) {
         tone="accent"
         cta="button"
         ctaLabel={t.shopDeals}
+        header={
+          <DealsBanner
+            title={t.todaysDeals}
+            eyebrow={t.limitedTime}
+            ctaLabel={t.shopDeals}
+            href="/collections/today-deals"
+          />
+        }
       />
 
       {/* ─── Near-expiry sale (proven high-CTR search niche) ──── */}

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Script from "next/script";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Baloo_2 } from "next/font/google";
 import "../globals.css";
 import { getLocale, LOCALE_CODES } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionaries";
@@ -23,6 +23,19 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+// Display face for the animated deals wordmark. Self-hosted through next/font
+// rather than the Google Fonts @import the handoff CSS shipped with — an
+// @import inside a stylesheet is a render-blocking request to a third party,
+// which is the one thing the rest of this page has been tuned to avoid.
+// Baloo 2 publishes no Arabic subset, so on /ar the wordmark falls through to
+// the next family in the stack per glyph — see the [dir="rtl"] rule in
+// globals.css, which thins the outline to suit it.
+const baloo = Baloo_2({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["800"],
 });
 
 export const metadata: Metadata = {
@@ -198,7 +211,7 @@ export default async function RootLayout({
     <html
       lang={locale.htmlLang}
       dir={locale.dir}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${baloo.variable} h-full antialiased`}
     >
       <head>
         {/* Google Tag Manager */}
