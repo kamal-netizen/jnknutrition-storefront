@@ -8,12 +8,14 @@ import ScrollRow from "@/components/home/ScrollRow";
 import GoalCard, { GOALS } from "@/components/home/GoalCard";
 import BrandCard, { BRANDS } from "@/components/home/BrandCard";
 import HeroBanner from "@/components/home/HeroBanner";
+import CoreChampsHero from "@/components/home/CoreChampsHero";
 import SectionHeading from "@/components/home/SectionHeading";
 import UAEFlagBanner from "@/components/home/UAEFlagBanner";
 import type { Metadata } from "next";
 import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, DEFAULT_KEYWORDS } from "@/lib/seo";
 import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionaries";
+import { FREE_SHIPPING_THRESHOLD, FREE_SHIPPING_CURRENCY } from "@/lib/shipping";
 
 export const revalidate = 1800;
 
@@ -273,6 +275,18 @@ export default async function Home({ params }: PageProps) {
           </ScrollRow>
         </div>
       </section>
+
+      {/* ─── Core Champs brand band ───────────────────────────── */}
+      <CoreChampsHero
+        headlineTop={t.ccHeadlineTop}
+        headlineBottom={t.ccHeadlineBottom}
+        tagline={t.ccTagline}
+        offer={t.ccOffer}
+        shippingLead={t.ccShippingLead}
+        shippingAmount={`${FREE_SHIPPING_CURRENCY} ${FREE_SHIPPING_THRESHOLD}`}
+        genuine={t.ccGenuine}
+        ctaLabel={t.ccCta}
+      />
 
       {/* ─── Core Champs (brand name kept in Latin) ───────────── */}
       <SectionStrip

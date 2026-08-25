@@ -284,3 +284,174 @@
     width: 100%;
   }
 }
+/* ─── Core Champs hero ─────────────────────────────────────── */
+/* Six products share one 16.2s loop, each offset by 2.7s (see
+   MOTION-DIRECTION.md). Every animated property is transform/opacity so the
+   whole band stays on the compositor. Classes are applied by
+   components/home/CoreChampsHero.tsx, which supplies the per-item delay. */
+
+.cc-cycle-img {
+  animation: cc-cycle-img 16.2s cubic-bezier(0.2, 0.9, 0.25, 1) infinite;
+}
+
+@keyframes cc-cycle-img {
+  0% {
+    opacity: 0;
+    transform: translateX(38%) scale(0.84);
+  }
+  4% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  13% {
+    opacity: 1;
+    transform: translateX(0) scale(1.015);
+  }
+  16.5% {
+    opacity: 0;
+    transform: translateX(-28%) scale(0.92);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(38%) scale(0.84);
+  }
+}
+
+/* Continuous float, deliberately de-synced from the 16.2s cycle so the hold
+   never reads as frozen. Nested inside .cc-cycle-img so the two transforms
+   compose instead of overwriting each other. */
+.cc-bob {
+  animation: cc-bob 6s ease-in-out infinite;
+}
+
+@keyframes cc-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3%);
+  }
+}
+
+.cc-cycle-name {
+  animation: cc-cycle-name 16.2s cubic-bezier(0.2, 0.9, 0.25, 1) infinite;
+}
+
+@keyframes cc-cycle-name {
+  0% {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  5% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  13.5% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  16.5% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+}
+
+/* A state change, not a scrub bar — the tick snaps on and snaps off. */
+.cc-cycle-tick {
+  animation: cc-cycle-tick 16.2s linear infinite;
+}
+
+@keyframes cc-cycle-tick {
+  0%,
+  16.6%,
+  100% {
+    background-color: rgba(255, 255, 255, 0.16);
+    box-shadow: none;
+  }
+  3%,
+  13.5% {
+    background-color: #ffffff;
+    box-shadow: 0 0 14px 2px rgba(255, 255, 255, 0.5);
+  }
+}
+
+.cc-spin {
+  animation: cc-spin 90s linear infinite;
+}
+
+.cc-spin-reverse {
+  animation: cc-spin 62s linear infinite reverse;
+}
+
+@keyframes cc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cc-flare {
+  animation: cc-flare 8s ease-in-out 1.2s infinite;
+}
+
+@keyframes cc-flare {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.72;
+    transform: scale(1.05);
+  }
+}
+
+/* Metal sweep across the "AT ITS CORE" wordmark. Clipped by the overflow-hidden
+   wrapper the band sits in. */
+.cc-sweep {
+  animation: cc-sweep 6.5s cubic-bezier(0.4, 0, 0.2, 1) 2.2s infinite;
+}
+
+@keyframes cc-sweep {
+  0% {
+    transform: translateX(-140%) skewX(-20deg);
+  }
+  60%,
+  100% {
+    transform: translateX(430%) skewX(-20deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Motion off, but the band must not go blank: park the first product and its
+     name at full opacity and light its tick. */
+  .cc-cycle-img,
+  .cc-bob,
+  .cc-cycle-name,
+  .cc-cycle-tick,
+  .cc-spin,
+  .cc-spin-reverse,
+  .cc-flare,
+  .cc-sweep {
+    animation: none;
+  }
+  .cc-sweep {
+    opacity: 0;
+  }
+  .cc-cycle-img,
+  .cc-cycle-name {
+    opacity: 0;
+    transform: none;
+  }
+  .cc-cycle-img:first-child,
+  .cc-cycle-name:first-child {
+    opacity: 1;
+  }
+  .cc-cycle-tick:first-child {
+    background-color: #ffffff;
+  }
+}
