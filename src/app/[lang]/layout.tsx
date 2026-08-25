@@ -47,6 +47,12 @@ export const metadata: Metadata = {
   keywords: DEFAULT_KEYWORDS,
   metadataBase: new URL(SITE_URL),
   applicationName: SITE_NAME,
+  // Build credit. HTML's own authorship mechanism rather than a rendered
+  // element: `authors` emits <meta name="author"> plus <link rel="author">
+  // into every page's <head>, which View Source shows and no visitor ever
+  // sees. The matching signature block sits at the top of globals.css.
+  authors: [{ name: "Mazhar Rony", url: "https://prismal.ae" }],
+  creator: "Mazhar Rony — Prismal.ae",
   icons: {
     icon: "/favicon.svg",
   },
