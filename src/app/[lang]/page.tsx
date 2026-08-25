@@ -72,7 +72,6 @@ export default async function Home({ params }: PageProps) {
     trending,
     fresh,
     deals,
-    nearExpiry,
     whey,
     creatine,
     preworkout,
@@ -87,7 +86,6 @@ export default async function Home({ params }: PageProps) {
     getProducts({ first: 15, sortKey: "BEST_SELLING", query: "available_for_sale:true", language }),
     getProducts({ first: 8, sortKey: "CREATED_AT", reverse: true, query: "available_for_sale:true", language }),
     getCollection("today-deals", { first: 8, filters: [{ available: true }], language }),
-    getCollection("near-expiry", { first: 8, filters: [{ available: true }], language }),
     getCollection("whey-protein", { first: 4, filters: [{ available: true }], language }),
     getCollection("creatine", { first: 8, filters: [{ available: true }], language }),
     getCollection("pre-workouts", { first: 8, filters: [{ available: true }], language }),
@@ -102,7 +100,6 @@ export default async function Home({ params }: PageProps) {
 
   const trendingProducts = nodes(trending);
   const freshProducts = nodes(fresh);
-  const nearExpiryProducts = nodes(nearExpiry?.products);
 
   const hasDiscount = (p: ProductCardData) =>
     p.variants.edges.some(({ node: v }) => {
@@ -170,19 +167,6 @@ export default async function Home({ params }: PageProps) {
           />
         }
       />
-
-      {/* ─── Near-expiry sale (proven high-CTR search niche) ──── */}
-      {nearExpiryProducts.length > 0 && (
-        <SectionStrip
-          title={t.nearExpirySale}
-          eyebrow={t.upTo70Off}
-          href="/collections/near-expiry"
-          products={nearExpiryProducts}
-          tone="accent"
-          cta="button"
-          ctaLabel={t.shopNearExpiry}
-        />
-      )}
 
       {/* ─── Shop your goal ───────────────────────────────────── */}
       {/* order-first on mobile: acts as the hero in place of the carousel */}
