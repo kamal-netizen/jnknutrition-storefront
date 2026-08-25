@@ -66,13 +66,22 @@ export default function ProductCard({ product }: Props) {
               className={`object-contain p-3 transition-opacity duration-300${secondImage ? " group-hover:opacity-0" : ""}`}
             />
             {secondImage && (
-              <Image
-                src={secondImage.url}
-                alt={secondImage.altText ?? product.title}
-                fill
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                className="object-contain p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              />
+              // Hidden below sm, matching the Quick Add split below: this image
+              // exists only for the desktop hover swap, and `group-hover` never
+              // fires on a touch device. `display: none` keeps a lazy image out
+              // of the fetch queue entirely, so a phone stops downloading a
+              // second picture per tile that it can never show. Wrapped rather
+              // than classed directly because `fill` owns the img's own
+              // positioning — the wrapper is what carries the breakpoint.
+              <div className="hidden sm:block absolute inset-0">
+                <Image
+                  src={secondImage.url}
+                  alt={secondImage.altText ?? product.title}
+                  fill
+                  sizes="(max-width: 1024px) 33vw, 25vw"
+                  className="object-contain p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                />
+              </div>
             )}
           </>
         ) : (
