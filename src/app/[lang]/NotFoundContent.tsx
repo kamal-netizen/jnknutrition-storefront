@@ -52,7 +52,7 @@ export default function NotFoundContent() {
         <h1 className="mt-4 text-3xl sm:text-4xl font-black text-[#0B0F14] uppercase tracking-tight">
           {dict.notFound.title}
         </h1>
-        <p className="mt-3 text-[#64748B] max-w-lg mx-auto">
+        <p className="mt-3 text-[#55637A] max-w-lg mx-auto">
           {dict.notFound.body}
         </p>
 
@@ -101,7 +101,7 @@ export default function NotFoundContent() {
             <li key={href}>
               <Link
                 href={href}
-                className="text-sm font-semibold text-[#64748B] underline-offset-4 hover:text-[#0B0F14] hover:underline transition-colors"
+                className="text-sm font-semibold text-[#55637A] underline-offset-4 hover:text-[#0B0F14] hover:underline transition-colors"
               >
                 {label}
               </Link>
@@ -114,7 +114,7 @@ export default function NotFoundContent() {
         <h2 className="text-lg font-black text-[#0B0F14] uppercase tracking-tight">
           {dict.notFound.stillStuck}
         </h2>
-        <p className="mt-2 text-sm text-[#64748B] max-w-md mx-auto">
+        <p className="mt-2 text-sm text-[#55637A] max-w-md mx-auto">
           {dict.notFound.stillStuckBody}
         </p>
         <Link

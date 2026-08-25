@@ -10,12 +10,12 @@ import {
   hasAnyActiveFilter,
   type ActiveFilters,
 } from "@/lib/product-filters";
-import type { Product } from "@/lib/queries/products";
+import type { ProductCardData } from "@/lib/queries/products";
 import { loadMoreProducts, getFilteredProductsFirstPage } from "@/app/[lang]/products/actions";
 
 type Props = {
   initialFilters: ActiveFilters;
-  initialProducts: Product[];
+  initialProducts: ProductCardData[];
   initialCursor: string | null;
   initialHasNextPage: boolean;
   vendorFacets: FacetValue[];
@@ -24,7 +24,7 @@ type Props = {
 
 type FetchedPage = {
   key: string;
-  products: Product[];
+  products: ProductCardData[];
   cursor: string | null;
   hasNextPage: boolean;
 };

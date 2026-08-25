@@ -4,7 +4,7 @@ import {
   IN_CONTEXT_ARGS,
   IN_CONTEXT_DIRECTIVE,
 } from "@/lib/shopify";
-import type { Product, MoneyV2, ProductImage } from "./products";
+import type { ProductCardData, MoneyV2, ProductImage } from "./products";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -46,7 +46,7 @@ export type CollectionWithProducts = Collection & {
   products: {
     pageInfo: { hasNextPage: boolean; endCursor: string | null };
     filters: Filter[];
-    edges: { node: Product }[];
+    edges: { node: ProductCardData }[];
   };
 };
 
@@ -56,26 +56,28 @@ export type CollectionConnection = {
 
 // ─── Fragments ───────────────────────────────────────────────────────────────
 
+// Collection products are only ever rendered as cards, so this mirrors
+// ProductCardData / PRODUCT_CARD_FRAGMENT in queries/products.ts. Keep the two
+// in step: widening one without the other silently costs payload on every
+// collection page.
 const PRODUCT_FRAGMENT = `
   fragment CollectionProductFragment on Product {
-    id title handle description descriptionHtml
+    id title handle
     tags vendor productType availableForSale
     priceRange {
       minVariantPrice { amount currencyCode }
       maxVariantPrice { amount currencyCode }
     }
-    images(first: 10) { edges { node { url altText width height } } }
+    images(first: 2) { edges { node { url altText width height } } }
     variants(first: 100) {
       edges {
         node {
-          id title availableForSale
+          id availableForSale
           price { amount currencyCode }
           compareAtPrice { amount currencyCode }
-          selectedOptions { name value }
         }
       }
     }
-    seo { title description }
   }
 `;
 
@@ -178,7 +180,7 @@ export async function getCollectionProductsPage(
     filters?: ProductFilterInput[];
   }
 ): Promise<{
-  products: Product[];
+  products: ProductCardData[];
   endCursor: string | null;
   hasNextPage: boolean;
 } | null> {

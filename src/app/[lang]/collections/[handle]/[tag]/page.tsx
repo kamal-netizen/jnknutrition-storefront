@@ -3,7 +3,7 @@ import Link from "@/components/LocaleLink";
 import { ChevronRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getCollection } from "@/lib/queries/collections";
-import type { Product } from "@/lib/queries/products";
+import type { ProductCardData } from "@/lib/queries/products";
 import ProductCard from "@/components/ProductCard";
 import {
   absoluteUrl,
@@ -85,7 +85,7 @@ export default async function CollectionTagPage({ params }: Props) {
 
   if (!collection) notFound();
 
-  const products: Product[] = collection.products.edges.map((e) => e.node);
+  const products: ProductCardData[] = collection.products.edges.map((e) => e.node);
   const tagLabel = prettifyTag(tag);
   const seoContent = locale.isDefault
     ? getCollectionSeo(`${handle}/${tag}`)
@@ -195,7 +195,7 @@ export default async function CollectionTagPage({ params }: Props) {
           <p className="text-lg font-bold text-[#0B0F14]">
             Nothing here right now
           </p>
-          <p className="mt-2 text-sm text-[#64748B]">
+          <p className="mt-2 text-sm text-[#55637A]">
             <Link
               href={`/collections/${handle}`}
               className="font-semibold text-[#0A3B66] underline"

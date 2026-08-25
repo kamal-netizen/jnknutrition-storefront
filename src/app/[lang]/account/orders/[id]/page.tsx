@@ -36,7 +36,7 @@ export default async function OrderDetailPage({ params }: Props) {
       <div className="flex items-center gap-3 mb-8">
         <Link
           href="/account/orders"
-          className="text-sm text-[#64748B] hover:text-[#0B0F14] transition-colors"
+          className="text-sm text-[#55637A] hover:text-[#0B0F14] transition-colors"
         >
           ← Orders
         </Link>
@@ -48,7 +48,7 @@ export default async function OrderDetailPage({ params }: Props) {
           <h1 className="text-3xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight">
             Order #{order.number}
           </h1>
-          <p className="mt-1 text-[#64748B]">
+          <p className="mt-1 text-[#55637A]">
             Placed{" "}
             {new Date(order.processedAt).toLocaleDateString(undefined, {
               year: "numeric",
@@ -90,7 +90,7 @@ export default async function OrderDetailPage({ params }: Props) {
                   className="flex flex-wrap items-center justify-between gap-3 rounded border border-[#E2E8F0] bg-white p-4"
                 >
                   <div className="flex items-center gap-3">
-                    <Package className="w-5 h-5 text-[#64748B]" />
+                    <Package className="w-5 h-5 text-[#55637A]" />
                     <div>
                       {track.company && (
                         <p className="text-sm font-semibold text-[#0B0F14]">
@@ -98,7 +98,7 @@ export default async function OrderDetailPage({ params }: Props) {
                         </p>
                       )}
                       {track.number && (
-                        <p className="text-sm text-[#64748B] tabular-nums">
+                        <p className="text-sm text-[#55637A] tabular-nums">
                           {track.number}
                         </p>
                       )}
@@ -119,7 +119,7 @@ export default async function OrderDetailPage({ params }: Props) {
             )}
           </div>
         ) : (
-          <p className="text-sm text-[#64748B]">
+          <p className="text-sm text-[#55637A]">
             {order.fulfillmentStatus === "FULFILLED"
               ? "This order has been fulfilled. Tracking details are not available."
               : "No tracking available yet. You'll be notified when your order ships."}
@@ -146,7 +146,7 @@ export default async function OrderDetailPage({ params }: Props) {
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-[#0B0F14]">{item.title}</p>
-                <p className="text-sm text-[#64748B]">Qty: {item.quantity}</p>
+                <p className="text-sm text-[#55637A]">Qty: {item.quantity}</p>
               </div>
               {item.price && (
                 <Price
@@ -167,7 +167,7 @@ export default async function OrderDetailPage({ params }: Props) {
             <h2 className="text-sm font-bold uppercase tracking-widest text-[#0B0F14] mb-4">
               Shipping Address
             </h2>
-            <address className="not-italic text-sm text-[#64748B] space-y-0.5">
+            <address className="not-italic text-sm text-[#55637A] space-y-0.5">
               {order.shippingAddress.formatted.map((line, i) => (
                 <p key={i}>{line}</p>
               ))}
@@ -183,7 +183,7 @@ export default async function OrderDetailPage({ params }: Props) {
           <div className="space-y-2 text-sm">
             {order.subtotal && (
               <div className="flex justify-between">
-                <span className="text-[#64748B]">Subtotal</span>
+                <span className="text-[#55637A]">Subtotal</span>
                 <Price
                   amount={order.subtotal.amount}
                   currencyCode={order.subtotal.currencyCode}
@@ -193,7 +193,7 @@ export default async function OrderDetailPage({ params }: Props) {
             )}
             {order.totalTax && (
               <div className="flex justify-between">
-                <span className="text-[#64748B]">Tax</span>
+                <span className="text-[#55637A]">Tax</span>
                 <Price
                   amount={order.totalTax.amount}
                   currencyCode={order.totalTax.currencyCode}

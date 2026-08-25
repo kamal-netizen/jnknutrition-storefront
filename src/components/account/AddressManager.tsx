@@ -98,7 +98,7 @@ function AddressForm({
             >
               <label
                 htmlFor={field.name}
-                className="text-xs font-bold uppercase tracking-widest text-[#64748B]"
+                className="text-xs font-bold uppercase tracking-widest text-[#55637A]"
               >
                 {field.label}
               </label>
@@ -141,7 +141,7 @@ function AddressForm({
           type="button"
           variant="ghost"
           onClick={onDone}
-          className="text-[#64748B] hover:text-[#0B0F14]"
+          className="text-[#55637A] hover:text-[#0B0F14]"
         >
           Cancel
         </Button>
@@ -189,7 +189,7 @@ export default function AddressManager({
                 key={address.id}
                 className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-6 flex flex-col justify-between"
               >
-                <address className="not-italic text-sm text-[#64748B] space-y-0.5">
+                <address className="not-italic text-sm text-[#55637A] space-y-0.5">
                   {address.formatted.map((line, i) => (
                     <p key={i} className={i === 0 ? "text-[#0B0F14] font-semibold" : ""}>
                       {line}
@@ -199,14 +199,14 @@ export default function AddressManager({
                 <div className="flex gap-2 mt-4 pt-4 border-t border-[#E2E8F0]">
                   <button
                     onClick={() => setEditingId(address.id)}
-                      className="inline-flex items-center gap-1 text-sm text-[#64748B] hover:text-[#F9D20F] transition-colors"
+                      className="inline-flex items-center gap-1 text-sm text-[#55637A] hover:text-[#F9D20F] transition-colors"
                   >
                     <Pencil className="w-3.5 h-3.5" /> Edit
                   </button>
                   <form action={deleteAddressAction.bind(null, address.id)}>
                     <button
                       type="submit"
-                      className="inline-flex items-center gap-1 text-sm text-[#64748B] hover:text-[#EF4444] transition-colors"
+                      className="inline-flex items-center gap-1 text-sm text-[#55637A] hover:text-[#EF4444] transition-colors"
                     >
                       <Trash2 className="w-3.5 h-3.5" /> Delete
                     </button>
@@ -219,7 +219,7 @@ export default function AddressManager({
       ) : (
         !adding && (
           <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-10 text-center">
-            <p className="text-[#64748B]">No saved addresses yet.</p>
+            <p className="text-[#55637A]">No saved addresses yet.</p>
           </div>
         )
       )}

@@ -1,5 +1,5 @@
 import { storefrontFetch } from "@/lib/shopify";
-import type { Product } from "./products";
+import type { ProductCardData } from "./products";
 import type { Filter, ProductFilterInput } from "./collections";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -28,12 +28,12 @@ export type SearchPage = {
   handle: string;
 };
 
-// Full search results return complete Product nodes (for ProductCard).
+// Search hits are rendered as ProductCards, so they carry card fields only.
 export type SearchResults = {
   totalCount: number;
   pageInfo: { hasNextPage: boolean; endCursor: string | null };
   productFilters: Filter[];
-  edges: { node: Product }[];
+  edges: { node: ProductCardData }[];
 };
 
 export type PredictiveSearchResults = {
@@ -73,24 +73,22 @@ const SEARCH_PRODUCTS = `
       edges {
         node {
           ... on Product {
-            id title handle description descriptionHtml
+            id title handle
             tags vendor productType availableForSale
             priceRange {
               minVariantPrice { amount currencyCode }
               maxVariantPrice { amount currencyCode }
             }
-            images(first: 10) { edges { node { url altText width height } } }
+            images(first: 2) { edges { node { url altText width height } } }
             variants(first: 100) {
               edges {
                 node {
-                  id title availableForSale
+                  id availableForSale
                   price { amount currencyCode }
                   compareAtPrice { amount currencyCode }
-                  selectedOptions { name value }
                 }
               }
             }
-            seo { title description }
           }
         }
       }

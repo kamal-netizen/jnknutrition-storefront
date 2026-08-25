@@ -102,14 +102,14 @@ export default async function SearchPage({ params, searchParams }: Props) {
       </h1>
 
       {results && (
-        <p className="mt-2 text-[#64748B]">
+        <p className="mt-2 text-[#55637A]">
           {results.totalCount} {f.results}
         </p>
       )}
 
       {!query ? (
         <div className="mt-10 rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-10 text-center">
-          <p className="text-[#64748B]">
+          <p className="text-[#55637A]">
             {h.startTyping}
           </p>
         </div>
@@ -140,7 +140,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
                       className={`flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm transition-colors ${
                         isSelected
                           ? "bg-white font-semibold text-[#0B0F14]"
-                          : "text-[#64748B] hover:text-[#0B0F14]"
+                          : "text-[#55637A] hover:text-[#0B0F14]"
                       }`}
                     >
                       <span
@@ -168,7 +168,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
                   </h3>
                   <Link
                     href={buildHref(query, selectedSort.id, [])}
-                    className="text-xs text-[#64748B] hover:text-[#0B0F14] underline"
+                    className="text-xs text-[#55637A] hover:text-[#0B0F14] underline"
                   >
                     {c.clearAll}
                   </Link>
@@ -279,7 +279,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
               />
             ) : (
               <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-10 text-center">
-                <p className="text-[#64748B]">
+                <p className="text-[#55637A]">
                   {h.noResultsFor}{" "}
                   <span className="text-[#0B0F14] font-semibold">
                     &quot;{query}&quot;

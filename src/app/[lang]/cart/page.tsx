@@ -41,7 +41,7 @@ export default function CartPage() {
       {lines.length === 0 ? (
         <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-16 text-center flex flex-col items-center gap-4">
           <ShoppingBag className="w-14 h-14 text-[#E2E8F0]" />
-          <p className="text-[#64748B]">{ct.empty}</p>
+          <p className="text-[#55637A]">{ct.empty}</p>
           <Button
             render={<Link href="/products" />}
             nativeButton={false}
@@ -84,7 +84,7 @@ export default function CartPage() {
                       {line.merchandise.product.title}
                     </Link>
                     {line.merchandise.title !== "Default Title" && (
-                      <p className="text-sm text-[#64748B] mt-0.5">
+                      <p className="text-sm text-[#55637A] mt-0.5">
                         {line.merchandise.title}
                       </p>
                     )}
@@ -94,7 +94,7 @@ export default function CartPage() {
                         <button
                           disabled={isLoading || line.quantity <= 1}
                           onClick={() => updateLine(line.id, line.quantity - 1)}
-                          className="p-2 text-[#64748B] hover:text-[#0B0F14] disabled:opacity-40"
+                          className="p-2 text-[#55637A] hover:text-[#0B0F14] disabled:opacity-40"
                           aria-label="Decrease quantity"
                         >
                           <Minus className="w-4 h-4" />
@@ -105,7 +105,7 @@ export default function CartPage() {
                         <button
                           disabled={isLoading}
                           onClick={() => updateLine(line.id, line.quantity + 1)}
-                          className="p-2 text-[#64748B] hover:text-[#0B0F14] disabled:opacity-40"
+                          className="p-2 text-[#55637A] hover:text-[#0B0F14] disabled:opacity-40"
                           aria-label="Increase quantity"
                         >
                           <Plus className="w-4 h-4" />
@@ -121,7 +121,7 @@ export default function CartPage() {
                         <button
                           onClick={() => removeLine(line.id)}
                           disabled={isLoading}
-                          className="text-[#64748B] hover:text-[#EF4444] transition-colors disabled:opacity-40"
+                          className="text-[#55637A] hover:text-[#EF4444] transition-colors disabled:opacity-40"
                           aria-label="Remove item"
                         >
                           <X className="w-5 h-5" />
@@ -151,7 +151,7 @@ export default function CartPage() {
                 </div>
               )}
               <div className="flex justify-between text-sm">
-                <span className="text-[#64748B]">{ct.subtotal}</span>
+                <span className="text-[#55637A]">{ct.subtotal}</span>
                 {total && (
                   <Price
                     amount={total.amount}
@@ -160,7 +160,7 @@ export default function CartPage() {
                   />
                 )}
               </div>
-              <p className="text-xs text-[#64748B]">
+              <p className="text-xs text-[#55637A]">
                 {ct.shippingNote}
               </p>
               <FreeShippingBar className="rounded-md border border-[#E2E8F0] bg-white p-3" />
@@ -178,14 +178,14 @@ export default function CartPage() {
                   </>
                 )}
               </Button>
-              <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#64748B]">
+              <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#55637A]">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#16A34A]" aria-hidden="true" />
                 <span>{ct.securePayments}</span>
               </div>
               <Button
                 variant="ghost"
                 render={<Link href="/products" />}
-                className="w-full text-[#64748B] hover:text-[#0B0F14]"
+                className="w-full text-[#55637A] hover:text-[#0B0F14]"
               >
                 {t.continueShopping}
               </Button>

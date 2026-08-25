@@ -211,7 +211,7 @@ export default async function NewsArticlePage({ params }: Props) {
                     +
                   </span>
                 </summary>
-                <p className="px-6 pb-6 pt-1 text-[#64748B] text-sm leading-relaxed border-t border-[#F1F5F9]">
+                <p className="px-6 pb-6 pt-1 text-[#55637A] text-sm leading-relaxed border-t border-[#F1F5F9]">
                   {faq.a}
                 </p>
               </details>

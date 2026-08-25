@@ -9,7 +9,11 @@ import {
   RotateCcw,
   ChevronRight,
 } from "lucide-react";
-import type { Product, ProductVariant } from "@/lib/queries/products";
+import type {
+  Product,
+  ProductCardData,
+  ProductVariant,
+} from "@/lib/queries/products";
 import { useDict, useLocale } from "@/lib/locale-context";
 import ProductGallery from "@/components/ProductGallery";
 import AddToCart from "@/components/AddToCart";
@@ -19,7 +23,7 @@ import { PRODUCT_FAQ } from "@/lib/product-faq";
 
 type Props = {
   product: Product;
-  recommendations: Product[];
+  recommendations: ProductCardData[];
   descriptionHtml: string;
 };
 
@@ -59,7 +63,7 @@ export default function ProductDetails({ product, recommendations, descriptionHt
     <>
       {/* Breadcrumb */}
       <nav aria-label="Breadcrumb" className="mb-6">
-        <ol className="flex flex-wrap items-center gap-1.5 text-xs font-medium text-[#64748B]">
+        <ol className="flex flex-wrap items-center gap-1.5 text-xs font-medium text-[#55637A]">
           <li>
             <Link href="/" className="hover:text-[#0B0F14] transition-colors">
               {c.home}
@@ -96,7 +100,7 @@ export default function ProductDetails({ product, recommendations, descriptionHt
         {/* Details */}
         <div>
           {product.vendor && (
-            <p className="text-xs font-bold uppercase tracking-widest text-[#64748B] mb-2">
+            <p className="text-xs font-bold uppercase tracking-widest text-[#55637A] mb-2">
               {product.vendor}
             </p>
           )}
@@ -110,25 +114,25 @@ export default function ProductDetails({ product, recommendations, descriptionHt
 
           {/* Trust / benefit strip */}
           <ul className="mt-6 grid grid-cols-2 gap-3">
-            <li className="flex items-center gap-2 text-sm text-[#64748B]">
+            <li className="flex items-center gap-2 text-sm text-[#55637A]">
               <BadgeCheck className="w-4 h-4 text-[#F9D20F] shrink-0" aria-hidden="true" />
               <span>{t.authentic}</span>
             </li>
-            <li className="flex items-center gap-2 text-sm text-[#64748B]">
+            <li className="flex items-center gap-2 text-sm text-[#55637A]">
               <ShieldCheck className="w-4 h-4 text-[#F9D20F] shrink-0" aria-hidden="true" />
               <span>{t.secureCheckout}</span>
             </li>
-            <li className="flex items-center gap-2 text-sm text-[#64748B]">
+            <li className="flex items-center gap-2 text-sm text-[#55637A]">
               <Truck className="w-4 h-4 text-[#F9D20F] shrink-0" aria-hidden="true" />
               <span>{t.fastShipping}</span>
             </li>
-            <li className="flex items-center gap-2 text-sm text-[#64748B]">
+            <li className="flex items-center gap-2 text-sm text-[#55637A]">
               <RotateCcw className="w-4 h-4 text-[#F9D20F] shrink-0" aria-hidden="true" />
               <span>{t.easyReturns}</span>
             </li>
           </ul>
 
-          <div className="mt-4 flex items-center gap-2 text-sm text-[#64748B]">
+          <div className="mt-4 flex items-center gap-2 text-sm text-[#55637A]">
             <Truck className="w-4 h-4 text-[#F9D20F] shrink-0" />
             <span>
               {t.freeShippingOver}{" "}
@@ -148,7 +152,7 @@ export default function ProductDetails({ product, recommendations, descriptionHt
                 </summary>
                 <div
                   dir="auto"
-                  className="mt-4 prose prose-sm max-w-none text-[#64748B] [&_a]:text-[#F9D20F] [&_strong]:text-[#0B0F14]"
+                  className="mt-4 prose prose-sm max-w-none text-[#55637A] [&_a]:text-[#F9D20F] [&_strong]:text-[#0B0F14]"
                   dangerouslySetInnerHTML={{ __html: descriptionHtml }}
                 />
               </details>
@@ -163,7 +167,7 @@ export default function ProductDetails({ product, recommendations, descriptionHt
                   aria-hidden="true"
                 />
               </summary>
-              <div className="mt-4 space-y-3 text-sm text-[#64748B]">
+              <div className="mt-4 space-y-3 text-sm text-[#55637A]">
                 <p>
                   <span className="font-bold text-[#0B0F14]">{t.fastDelivery}</span>{" "}
                   {t.fastDeliveryBody}
@@ -209,7 +213,7 @@ export default function ProductDetails({ product, recommendations, descriptionHt
                   aria-hidden="true"
                 />
               </summary>
-              <p className="mt-3 text-sm text-[#64748B]">{item.answer}</p>
+              <p className="mt-3 text-sm text-[#55637A]">{item.answer}</p>
             </details>
           ))}
         </div>

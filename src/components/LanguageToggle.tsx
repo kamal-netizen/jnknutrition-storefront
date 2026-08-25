@@ -67,7 +67,7 @@ export default function LanguageToggle({
       aria-label={
         other.htmlLang === "ar" ? "التبديل إلى العربية" : "Switch to English"
       }
-      className={`inline-flex items-center gap-1.5 text-[#64748B] transition-colors hover:text-[#0B0F14] ${className}`}
+      className={`inline-flex items-center gap-1.5 text-[#55637A] transition-colors hover:text-[#0B0F14] ${className}`}
     >
       <Globe className="h-5 w-5" />
       <span className="text-sm font-semibold">{otherLabel}</span>

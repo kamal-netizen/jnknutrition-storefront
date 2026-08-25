@@ -30,18 +30,35 @@ export type ProductVariant = {
   image: ProductImage | null;
 };
 
+/** The slice of a variant a listing needs: cheapest price, best discount, add-to-cart id. */
+export type ProductCardVariant = {
+  id: string;
+  availableForSale: boolean;
+  price: MoneyV2;
+  compareAtPrice: MoneyV2 | null;
+};
+
 export type Metafield = {
   namespace: string;
   key: string;
   value: string;
 } | null;
 
-export type Product = {
+/**
+ * Everything a listing context — card, grid, strip, search hit, recommendation —
+ * reads off a product, and nothing more.
+ *
+ * Deliberately a strict subset of `Product`, so a fully-loaded product is still
+ * assignable wherever card data is expected. The point is the other direction:
+ * list queries fetch only these fields, which keeps descriptions, secondary
+ * images, variant options and metafields out of the server-rendered RSC payload.
+ * The homepage renders ~110 cards, so the fields dropped here are the bulk of
+ * the document it ships.
+ */
+export type ProductCardData = {
   id: string;
   title: string;
   handle: string;
-  description: string;
-  descriptionHtml: string;
   tags: string[];
   vendor: string;
   productType: string;
@@ -51,6 +68,13 @@ export type Product = {
     maxVariantPrice: MoneyV2;
   };
   images: { edges: { node: ProductImage }[] };
+  variants: { edges: { node: ProductCardVariant }[] };
+};
+
+/** A product loaded in full, for the product detail page. */
+export type Product = Omit<ProductCardData, "variants"> & {
+  description: string;
+  descriptionHtml: string;
   variants: { edges: { node: ProductVariant }[] };
   seo: { title: string; description: string };
   /**
@@ -102,10 +126,54 @@ export function getCanonicalOverride(product: Product): string | null {
 
 export type ProductConnection = {
   pageInfo: { hasNextPage: boolean; endCursor: string | null };
-  edges: { node: Product }[];
+  edges: { node: ProductCardData }[];
 };
 
 // ─── Fragments ───────────────────────────────────────────────────────────────
+
+/**
+ * Listing fragment — mirrors `ProductCardData` field for field.
+ *
+ * `images(first: 2)` because a card shows one image and swaps to the second on
+ * hover; the remaining eight only ever mattered on the detail page. Variants
+ * stay uncapped-ish because the card scans them all to find the deepest
+ * discount, but each one is four scalars instead of a title, an option list and
+ * a nested image.
+ *
+ * It cannot be composed out of PRODUCT_FRAGMENT: the two disagree on the
+ * arguments to `images`, and GraphQL rejects a merged selection whose field
+ * arguments conflict.
+ */
+const PRODUCT_CARD_FRAGMENT = `
+  fragment ProductCardFragment on Product {
+    id
+    title
+    handle
+    tags
+    vendor
+    productType
+    availableForSale
+    priceRange {
+      minVariantPrice { amount currencyCode }
+      maxVariantPrice { amount currencyCode }
+    }
+    images(first: 2) {
+      edges {
+        node { url altText width height }
+      }
+    }
+    variants(first: 100) {
+      edges {
+        node {
+          id
+          availableForSale
+          price { amount currencyCode }
+          compareAtPrice { amount currencyCode }
+        }
+      }
+    }
+  }
+`;
 
 const PRODUCT_FRAGMENT = `
   fragment ProductFragment on Product {
@@ -165,7 +233,7 @@ const GET_PRODUCT = `
 `;
 
 const GET_PRODUCTS = `
-  ${PRODUCT_FRAGMENT}
+  ${PRODUCT_CARD_FRAGMENT}
   query GetProducts(
     $first: Int!
     $after: String
@@ -182,16 +250,16 @@ const GET_PRODUCTS = `
       query: $query
     ) {
       pageInfo { hasNextPage endCursor }
-      edges { node { ...ProductFragment } }
+      edges { node { ...ProductCardFragment } }
     }
   }
 `;
 
 const GET_PRODUCT_RECOMMENDATIONS = `
-  ${PRODUCT_FRAGMENT}
+  ${PRODUCT_CARD_FRAGMENT}
   query GetProductRecommendations($productId: ID!, ${IN_CONTEXT_ARGS}) ${IN_CONTEXT_DIRECTIVE} {
     productRecommendations(productId: $productId) {
-      ...ProductFragment
+      ...ProductCardFragment
     }
   }
 `;
@@ -232,7 +300,7 @@ export const getProducts = cache(async function getProducts(options: {
 });
 
 /** True when any variant is priced below its compare-at (an active discount). */
-export function isDiscounted(product: Product): boolean {
+export function isDiscounted(product: ProductCardData): boolean {
   return product.variants.edges.some(({ node }) => {
     const compare = node.compareAtPrice
       ? parseFloat(node.compareAtPrice.amount)
@@ -254,7 +322,7 @@ export function isDiscounted(product: Product): boolean {
 export const getInStockDiscountedProducts = unstable_cache(
   async (options?: { max?: number; sortKey?: string; reverse?: boolean }) => {
     const max = options?.max ?? 48;
-    const collected: Product[] = [];
+    const collected: ProductCardData[] = [];
     let after: string | undefined;
     let hasNextPage = true;
 
@@ -282,9 +350,9 @@ export const getInStockDiscountedProducts = unstable_cache(
 export const getProductRecommendations = cache(async function getProductRecommendations(
   productId: string,
   language?: string
-): Promise<Product[]> {
+): Promise<ProductCardData[]> {
   const data = await storefrontFetch<{
-    productRecommendations: Product[];
+    productRecommendations: ProductCardData[];
   }>(GET_PRODUCT_RECOMMENDATIONS, {
     productId,
     ...(language ? { language } : {}),
@@ -366,7 +434,11 @@ export async function getProductsPage(options: {
   reverse: boolean;
   query?: string;
   onSaleOnly?: boolean;
-}): Promise<{ products: Product[]; endCursor: string | null; hasNextPage: boolean }> {
+}): Promise<{
+  products: ProductCardData[];
+  endCursor: string | null;
+  hasNextPage: boolean;
+}> {
   const conn = await getProducts({
     first: options.first,
     after: options.after,
@@ -374,7 +446,7 @@ export async function getProductsPage(options: {
     reverse: options.reverse,
     query: options.query,
   });
-  let products = conn.edges.map((e) => e.node);
+  let products: ProductCardData[] = conn.edges.map((e) => e.node);
   if (options.onSaleOnly) products = products.filter(isDiscounted);
   return {
     products,

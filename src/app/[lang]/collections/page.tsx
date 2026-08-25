@@ -54,7 +54,7 @@ export default async function CollectionsPage() {
         </div>
       ) : (
         <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-10 text-center">
-          <p className="text-[#64748B]">No collections found.</p>
+          <p className="text-[#55637A]">No collections found.</p>
         </div>
       )}
     </div>

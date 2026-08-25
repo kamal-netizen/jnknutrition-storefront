@@ -258,7 +258,7 @@ export default function FloatingSearch() {
           {query.trim() && results && (
             <div className="max-h-[55vh] overflow-y-auto">
               {!hasResults ? (
-                <p className="px-4 py-6 text-center text-sm text-[#64748B]">
+                <p className="px-4 py-6 text-center text-sm text-[#55637A]">
                   No results for{" "}
                   <span className="font-semibold text-[#0B0F14]">
                     &quot;{query}&quot;
@@ -303,7 +303,7 @@ export default function FloatingSearch() {
                               currencyCode={
                                 p.priceRange.minVariantPrice.currencyCode
                               }
-                              className="text-xs font-bold text-[#64748B]"
+                              className="text-xs font-bold text-[#55637A]"
                             />
                           </span>
                         </Link>
@@ -340,7 +340,7 @@ export default function FloatingSearch() {
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0B0F14] text-white transition-colors group-hover:bg-[#F9D20F] group-hover:text-[#0B0F14]">
             <Search className="h-4 w-4" />
           </span>
-          <span className="flex items-center text-sm text-[#64748B]">
+          <span className="flex items-center text-sm text-[#55637A]">
             <span className="min-w-[7ch] text-left">
               {placeholder || "Search"}
             </span>

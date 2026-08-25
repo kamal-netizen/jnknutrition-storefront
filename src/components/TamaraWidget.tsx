@@ -31,7 +31,7 @@ export default function TamaraWidget({ amount, currencyCode }: Props) {
         height={28}
         className="h-7 w-auto shrink-0"
       />
-      <p className="text-sm text-[#64748B]">
+      <p className="text-sm text-[#55637A]">
         Or split in {TAMARA_INSTALMENTS} payments of{" "}
         <span className="font-bold text-[#0B0F14]">
           {symbol}

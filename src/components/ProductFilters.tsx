@@ -281,7 +281,7 @@ export function ProductFilterChips({
           productTypes: [],
         })}
         scroll={false}
-        className="text-xs font-semibold text-[#64748B] underline underline-offset-2 hover:text-[#0B0F14]"
+        className="text-xs font-semibold text-[#55637A] underline underline-offset-2 hover:text-[#0B0F14]"
       >
         {dict.common.clearAll}
       </Link>
@@ -322,7 +322,7 @@ export default function ProductFilters(props: Props) {
               <SheetTitle className="text-lg font-black uppercase tracking-tight text-[#0B0F14]">
                 {f.filters}
               </SheetTitle>
-              <p className="text-sm text-[#64748B]">
+              <p className="text-sm text-[#55637A]">
                 {props.resultCount} {p.products.toLowerCase()}
               </p>
             </SheetHeader>
@@ -331,7 +331,7 @@ export default function ProductFilters(props: Props) {
             </div>
           </SheetContent>
         </Sheet>
-        <span className="text-sm text-[#64748B]">
+        <span className="text-sm text-[#55637A]">
           {props.resultCount} {p.products.toLowerCase()}
         </span>
       </div>

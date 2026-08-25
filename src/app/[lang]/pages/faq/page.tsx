@@ -111,7 +111,7 @@ export default async function FaqPage() {
         {page?.body ? (
           <div
             dir="auto"
-            className="prose max-w-none text-[#64748B] mb-12 [&_a]:text-[#F9D20F] [&_h2]:text-[#0B0F14] [&_h3]:text-[#0B0F14] [&_strong]:text-[#0B0F14]"
+            className="prose max-w-none text-[#55637A] mb-12 [&_a]:text-[#F9D20F] [&_h2]:text-[#0B0F14] [&_h3]:text-[#0B0F14] [&_strong]:text-[#0B0F14]"
             dangerouslySetInnerHTML={{ __html: page.body }}
           />
         ) : null}
@@ -132,9 +132,9 @@ export default async function FaqPage() {
                       <span className="text-sm md:text-base font-bold text-[#0B0F14]">
                         {item.q}
                       </span>
-                      <Plus className="h-5 w-5 shrink-0 text-[#64748B] transition-transform group-open:rotate-45 group-open:text-[#0B0F14]" />
+                      <Plus className="h-5 w-5 shrink-0 text-[#55637A] transition-transform group-open:rotate-45 group-open:text-[#0B0F14]" />
                     </summary>
-                    <p className="px-5 pb-5 -mt-1 text-sm text-[#64748B] leading-relaxed">
+                    <p className="px-5 pb-5 -mt-1 text-sm text-[#55637A] leading-relaxed">
                       {item.a}
                     </p>
                   </details>

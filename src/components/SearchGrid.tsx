@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
-import type { Product } from "@/lib/queries/products";
+import type { ProductCardData } from "@/lib/queries/products";
 import { loadMoreSearch } from "@/app/[lang]/search/actions";
 import { useDict } from "@/lib/locale-context";
 
 type Props = {
-  initialProducts: Product[];
+  initialProducts: ProductCardData[];
   initialCursor: string | null;
   initialHasNextPage: boolean;
   query: string;

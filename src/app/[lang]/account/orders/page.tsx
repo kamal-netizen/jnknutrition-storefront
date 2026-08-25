@@ -17,7 +17,7 @@ export default async function OrdersPage() {
       <div className="flex items-center gap-3 mb-10">
         <Link
           href="/account"
-          className="text-sm text-[#64748B] hover:text-[#0B0F14] transition-colors"
+          className="text-sm text-[#55637A] hover:text-[#0B0F14] transition-colors"
         >
           ← Account
         </Link>
@@ -45,7 +45,7 @@ export default async function OrdersPage() {
                     <p className="font-bold text-[#0B0F14] text-lg">
                       Order #{order.number}
                     </p>
-                    <p className="text-sm text-[#64748B] mt-0.5">
+                    <p className="text-sm text-[#55637A] mt-0.5">
                       {new Date(order.processedAt).toLocaleDateString(undefined, {
                         year: "numeric",
                         month: "long",
@@ -74,7 +74,7 @@ export default async function OrdersPage() {
         </div>
       ) : (
         <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-10 text-center">
-          <p className="text-[#64748B]">You haven&apos;t placed any orders yet.</p>
+          <p className="text-[#55637A]">You haven&apos;t placed any orders yet.</p>
         </div>
       )}
     </div>

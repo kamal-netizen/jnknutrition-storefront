@@ -1,0 +1,43 @@
+# JNK Nutrition
+
+> Sports nutrition and supplement retailer based in Deira, Dubai, shipping across
+> the United Arab Emirates. 100% genuine products from imported and regional
+> brands: whey and mass-gain protein, creatine, pre-workouts, fat burners,
+> vitamins and general wellness, plus shakers and accessories.
+
+The storefront is bilingual. English pages live at the paths below; the Arabic
+translation of any page is the same path under `/ar` (for example
+`/collections/creatine` → `/ar/collections/creatine`). Prices are in AED.
+
+## Shop
+
+- [All products](https://www.jnknutrition.com/products): the full catalogue, filterable by brand, category and price.
+- [All collections](https://www.jnknutrition.com/collections): index of every category.
+- [Brands](https://www.jnknutrition.com/brands): directory of every brand stocked.
+- [Today's deals](https://www.jnknutrition.com/collections/today-deals): everything currently discounted.
+- [Near-expiry sale](https://www.jnknutrition.com/collections/near-expiry): genuine stock close to its best-before date, heavily reduced.
+
+## Categories
+
+- [Whey protein](https://www.jnknutrition.com/collections/whey-protein)
+- [Mass gainers and muscle building](https://www.jnknutrition.com/collections/muscle-building-products)
+- [Creatine](https://www.jnknutrition.com/collections/creatine)
+- [Pre-workouts](https://www.jnknutrition.com/collections/pre-workouts)
+- [Vegan protein](https://www.jnknutrition.com/collections/vegan-protein)
+- [Health and wellness](https://www.jnknutrition.com/collections/health-wellness)
+- [Shakers and accessories](https://www.jnknutrition.com/collections/shakers)
+
+## About the store
+
+- [About JNK Nutrition](https://www.jnknutrition.com/pages/about): who we are and how we source.
+- [Contact](https://www.jnknutrition.com/pages/contact): shop address, phone, WhatsApp and opening hours.
+- [FAQ](https://www.jnknutrition.com/pages/faq): delivery, returns, authenticity and payment questions.
+- [Wholesale](https://www.jnknutrition.com/pages/wholesale): bulk and trade enquiries.
+- [News and guides](https://www.jnknutrition.com/blogs/news): articles on supplements and training.
+
+## Notes for crawlers
+
+- A machine-readable index of every page is at [/sitemap.xml](https://www.jnknutrition.com/sitemap.xml).
+- Crawl rules are at [/robots.txt](https://www.jnknutrition.com/robots.txt). Account, cart and checkout paths are disallowed and hold no useful content.
+- Product pages carry Product structured data (price, availability, brand); the
+  site itself carries Organization, Store and WebSite structured data.

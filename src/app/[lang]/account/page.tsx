@@ -25,13 +25,13 @@ export default async function AccountPage() {
           <h1 className="text-4xl font-black text-[#0B0F14] uppercase tracking-tight">
             Hey, {name}
           </h1>
-          <p className="mt-1 text-[#64748B]">{customer.email}</p>
+          <p className="mt-1 text-[#55637A]">{customer.email}</p>
         </div>
         <form action={logoutAction}>
           <Button
             type="submit"
             variant="outline"
-            className="border-[#E2E8F0] text-[#64748B] hover:text-[#0B0F14] hover:border-[#EF4444]"
+            className="border-[#E2E8F0] text-[#55637A] hover:text-[#0B0F14] hover:border-[#EF4444]"
           >
             Sign Out
           </Button>
@@ -45,7 +45,7 @@ export default async function AccountPage() {
           className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-6 hover:border-[#F9D20F] transition-colors"
         >
           <h2 className="font-bold text-[#0B0F14] uppercase tracking-tight">Orders</h2>
-          <p className="text-sm text-[#64748B] mt-1">
+          <p className="text-sm text-[#55637A] mt-1">
             Track and manage {orders.length}{" "}
             {orders.length === 1 ? "order" : "orders"}
           </p>
@@ -57,14 +57,14 @@ export default async function AccountPage() {
           <h2 className="font-bold text-[#0B0F14] uppercase tracking-tight">
             Addresses
           </h2>
-          <p className="text-sm text-[#64748B] mt-1">Manage shipping addresses</p>
+          <p className="text-sm text-[#55637A] mt-1">Manage shipping addresses</p>
         </Link>
         <Link
           href="/products"
           className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-6 hover:border-[#F9D20F] transition-colors"
         >
           <h2 className="font-bold text-[#0B0F14] uppercase tracking-tight">Shop</h2>
-          <p className="text-sm text-[#64748B] mt-1">Browse the full range</p>
+          <p className="text-sm text-[#55637A] mt-1">Browse the full range</p>
         </Link>
       </div>
 
@@ -93,7 +93,7 @@ export default async function AccountPage() {
             >
               <div>
                 <p className="font-bold text-[#0B0F14]">Order #{order.number}</p>
-                <p className="text-sm text-[#64748B]">
+                <p className="text-sm text-[#55637A]">
                   {new Date(order.processedAt).toLocaleDateString(undefined, {
                     year: "numeric",
                     month: "short",
@@ -114,7 +114,7 @@ export default async function AccountPage() {
         </div>
       ) : (
         <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-10 text-center">
-          <p className="text-[#64748B]">You haven&apos;t placed any orders yet.</p>
+          <p className="text-[#55637A]">You haven&apos;t placed any orders yet.</p>
         </div>
       )}
     </div>

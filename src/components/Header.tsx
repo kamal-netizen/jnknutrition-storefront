@@ -252,7 +252,7 @@ export default function Header({
             {/* Mobile menu (left) */}
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger
-                className="md:hidden text-[#64748B] hover:text-[#0B0F14] bg-transparent border-0 p-0 cursor-pointer"
+                className="md:hidden text-[#55637A] hover:text-[#0B0F14] bg-transparent border-0 p-0 cursor-pointer"
                 aria-label="Open menu"
               >
                 <Menu className="w-6 h-6" />
@@ -280,7 +280,7 @@ export default function Header({
                   </Link>
                   <button
                     onClick={() => setMobileOpen(false)}
-                    className="flex items-center justify-center w-9 h-9 rounded-full text-[#64748B] hover:text-[#0B0F14] hover:bg-[#F1F5F9] transition-colors"
+                    className="flex items-center justify-center w-9 h-9 rounded-full text-[#55637A] hover:text-[#0B0F14] hover:bg-[#F1F5F9] transition-colors"
                     aria-label="Close menu"
                   >
                     <X className="w-5 h-5" />
@@ -294,7 +294,7 @@ export default function Header({
                       setMobileOpen(false);
                       setSearchOpen(true);
                     }}
-                    className="flex items-center gap-3 w-full h-11 px-4 rounded-full bg-[#F1F5F9] text-[#64748B] hover:bg-[#E8EDF3] transition-colors"
+                    className="flex items-center gap-3 w-full h-11 px-4 rounded-full bg-[#F1F5F9] text-[#55637A] hover:bg-[#E8EDF3] transition-colors"
                   >
                     <Search className="w-4 h-4" />
                     <span className="text-sm">{c.searchPlaceholder}</span>
@@ -450,7 +450,7 @@ export default function Header({
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="Instagram"
-                        className="flex items-center justify-center w-9 h-9 rounded-full bg-[#F1F5F9] text-[#64748B] hover:bg-[#F9D20F] hover:text-[#082D4C] transition-colors"
+                        className="flex items-center justify-center w-9 h-9 rounded-full bg-[#F1F5F9] text-[#55637A] hover:bg-[#F9D20F] hover:text-[#082D4C] transition-colors"
                       >
                         <svg
                           viewBox="0 0 24 24"
@@ -471,7 +471,7 @@ export default function Header({
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="YouTube"
-                        className="flex items-center justify-center w-9 h-9 rounded-full bg-[#F1F5F9] text-[#64748B] hover:bg-[#F9D20F] hover:text-[#082D4C] transition-colors"
+                        className="flex items-center justify-center w-9 h-9 rounded-full bg-[#F1F5F9] text-[#55637A] hover:bg-[#F9D20F] hover:text-[#082D4C] transition-colors"
                       >
                         <svg
                           viewBox="0 0 24 24"
@@ -517,7 +517,7 @@ export default function Header({
               <div ref={searchRef} className="relative">
                 <button
                   onClick={() => setSearchOpen((v) => !v)}
-                  className="text-[#64748B] hover:text-[#0B0F14] transition-colors"
+                  className="text-[#55637A] hover:text-[#0B0F14] transition-colors"
                   aria-label={c.search}
                 >
                   {searchOpen ? (
@@ -572,7 +572,7 @@ export default function Header({
                         {results.products.length === 0 &&
                         results.collections.length === 0 &&
                         results.pages.length === 0 ? (
-                          <p className="px-4 py-6 text-center text-sm text-[#64748B]">
+                          <p className="px-4 py-6 text-center text-sm text-[#55637A]">
                             {t.noResultsFor}{" "}
                             <span className="font-semibold text-[#0B0F14]">
                               &quot;{query}&quot;
@@ -622,7 +622,7 @@ export default function Header({
                                             p.priceRange.minVariantPrice
                                               .currencyCode
                                           }
-                                          className="text-xs font-bold text-[#64748B]"
+                                          className="text-xs font-bold text-[#55637A]"
                                         />
                                       </span>
                                     </Link>
@@ -709,7 +709,7 @@ export default function Header({
               {/* Account */}
               <Link
                 href="/account"
-                className="hidden md:block text-[#64748B] hover:text-[#0B0F14] transition-colors"
+                className="hidden md:block text-[#55637A] hover:text-[#0B0F14] transition-colors"
                 aria-label={c.account}
               >
                 <User className="w-5 h-5" />
@@ -718,7 +718,7 @@ export default function Header({
               {/* Cart */}
               <button
                 onClick={openCart}
-                className="relative hidden md:block text-[#64748B] hover:text-[#0B0F14] transition-colors"
+                className="relative hidden md:block text-[#55637A] hover:text-[#0B0F14] transition-colors"
                 aria-label={`Cart (${cartCount} items)`}
               >
                 <ShoppingBag className="w-5 h-5" />

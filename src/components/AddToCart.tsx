@@ -71,7 +71,7 @@ export default function AddToCart({ product, onVariantChange }: Props) {
           <Price
             amount={selectedVariant.compareAtPrice.amount}
             currencyCode={selectedVariant.compareAtPrice.currencyCode}
-            className="text-lg text-[#64748B] line-through"
+            className="text-lg text-[#55637A] line-through"
           />
         )}
         {discountPercent > 0 && (
@@ -90,7 +90,7 @@ export default function AddToCart({ product, onVariantChange }: Props) {
       {/* Variant selector */}
       {hasVariants && (
         <div className="space-y-2">
-          <label className="text-xs font-bold uppercase tracking-widest text-[#64748B]">
+          <label className="text-xs font-bold uppercase tracking-widest text-[#55637A]">
             {p.options}
           </label>
           <div className="flex flex-wrap gap-2">
@@ -117,7 +117,7 @@ export default function AddToCart({ product, onVariantChange }: Props) {
 
       {/* Quantity */}
       <div className="space-y-2">
-        <label className="text-xs font-bold uppercase tracking-widest text-[#64748B]">
+        <label className="text-xs font-bold uppercase tracking-widest text-[#55637A]">
           {p.quantity}
         </label>
         <div className="inline-flex items-center border border-[#E2E8F0] rounded">

@@ -31,7 +31,7 @@ export default async function ArticlePage({ params }: Props) {
       <div className="mb-6">
         <Link
           href={`/blogs/${blog}`}
-          className="text-sm text-[#64748B] hover:text-[#0B0F14] transition-colors"
+          className="text-sm text-[#55637A] hover:text-[#0B0F14] transition-colors"
         >
           ← Blog
         </Link>
@@ -40,7 +40,7 @@ export default async function ArticlePage({ params }: Props) {
       <h1 className="text-3xl md:text-5xl font-black text-[#0B0F14] uppercase tracking-tight leading-tight">
         {data.title}
       </h1>
-      <p className="mt-4 text-sm text-[#64748B]">
+      <p className="mt-4 text-sm text-[#55637A]">
         {data.author?.name && <>By {data.author.name} · </>}
         {new Date(data.publishedAt).toLocaleDateString(undefined, {
           year: "numeric",
@@ -64,7 +64,7 @@ export default async function ArticlePage({ params }: Props) {
 
       <div
         dir="auto"
-        className="prose max-w-none mt-10 text-[#64748B] [&_a]:text-[#F9D20F] [&_h2]:text-[#0B0F14] [&_h3]:text-[#0B0F14] [&_strong]:text-[#0B0F14]"
+        className="prose max-w-none mt-10 text-[#55637A] [&_a]:text-[#F9D20F] [&_h2]:text-[#0B0F14] [&_h3]:text-[#0B0F14] [&_strong]:text-[#0B0F14]"
         dangerouslySetInnerHTML={{ __html: data.contentHtml }}
       />
     </article>

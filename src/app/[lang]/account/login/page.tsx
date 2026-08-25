@@ -33,7 +33,7 @@ export default async function LoginPage({ searchParams }: Props) {
       <h1 className="text-3xl font-black text-[#0B0F14] uppercase tracking-tight text-center mb-2">
         Sign In
       </h1>
-      <p className="text-[#64748B] text-center mb-8">
+      <p className="text-[#55637A] text-center mb-8">
         Access your orders and account. We&apos;ll email you a one-time code —
         no password needed.
       </p>
@@ -77,7 +77,7 @@ export default async function LoginPage({ searchParams }: Props) {
           </p>
         </div>
       ) : (
-        <div className="rounded border border-[#E2E8F0] bg-[#F5F7FA] px-4 py-3 text-sm text-[#64748B]">
+        <div className="rounded border border-[#E2E8F0] bg-[#F5F7FA] px-4 py-3 text-sm text-[#55637A]">
           Customer accounts aren&apos;t configured yet. Set
           {" "}
           <code className="text-[#0B0F14]">SHOPIFY_SHOP_ID</code> and

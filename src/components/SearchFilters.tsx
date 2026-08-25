@@ -84,7 +84,7 @@ export default function SearchFilters({
             <SheetTitle className="text-lg font-black uppercase tracking-tight text-[#0B0F14]">
               {f.filtersAndSort}
             </SheetTitle>
-            <p className="text-sm text-[#64748B]">{resultCount} {f.results}</p>
+            <p className="text-sm text-[#55637A]">{resultCount} {f.results}</p>
           </SheetHeader>
 
           <div className="space-y-5 p-5">
@@ -104,7 +104,7 @@ export default function SearchFilters({
                       className={`flex items-center gap-2.5 rounded-md px-2 py-2 text-sm transition-colors ${
                         isSelected
                           ? "bg-white font-semibold text-[#0B0F14]"
-                          : "text-[#64748B] hover:text-[#0B0F14]"
+                          : "text-[#55637A] hover:text-[#0B0F14]"
                       }`}
                     >
                       <span
@@ -132,7 +132,7 @@ export default function SearchFilters({
                   <Link
                     href={buildHref(query, sortId, [])}
                     onClick={() => setOpen(false)}
-                    className="text-xs text-[#64748B] hover:text-[#0B0F14] underline"
+                    className="text-xs text-[#55637A] hover:text-[#0B0F14] underline"
                   >
                     {dict.common.clearAll}
                   </Link>
@@ -222,7 +222,7 @@ export default function SearchFilters({
         </SheetContent>
       </Sheet>
 
-      <span className="shrink-0 whitespace-nowrap text-sm text-[#64748B]">
+      <span className="shrink-0 whitespace-nowrap text-sm text-[#55637A]">
         {resultCount} {f.results}
       </span>
     </div>

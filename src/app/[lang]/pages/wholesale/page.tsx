@@ -236,7 +236,7 @@ export default async function WholesalePage({ params }: PageProps) {
             >
               <Icon className="w-8 h-8 text-[#F9D20F]" />
               <h3 className="mt-4 text-lg font-bold text-[#0B0F14]">{title}</h3>
-              <p className="mt-2 text-sm text-[#64748B] leading-relaxed">
+              <p className="mt-2 text-sm text-[#55637A] leading-relaxed">
                 {body}
               </p>
             </div>
@@ -250,7 +250,7 @@ export default async function WholesalePage({ params }: PageProps) {
           <h2 className="text-2xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight mb-3">
             {w.servicesTitle}
           </h2>
-          <p className="text-[#64748B] max-w-2xl mb-8">{w.servicesSub}</p>
+          <p className="text-[#55637A] max-w-2xl mb-8">{w.servicesSub}</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {SERVICES.map(({ icon: Icon, title, body }) => (
               <div
@@ -262,7 +262,7 @@ export default async function WholesalePage({ params }: PageProps) {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-[#0B0F14]">{title}</h3>
-                  <p className="mt-2 text-sm text-[#64748B] leading-relaxed">
+                  <p className="mt-2 text-sm text-[#55637A] leading-relaxed">
                     {body}
                   </p>
                 </div>
@@ -277,13 +277,13 @@ export default async function WholesalePage({ params }: PageProps) {
         <h2 className="text-2xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight mb-3">
           {w.howItWorks}
         </h2>
-        <p className="text-[#64748B] max-w-2xl mb-8">{w.howItWorksSub}</p>
+        <p className="text-[#55637A] max-w-2xl mb-8">{w.howItWorksSub}</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {STEPS.map(({ step, title, body }) => (
             <div key={step} className="relative rounded-xl border border-[#E2E8F0] bg-white p-6">
               <span className="text-3xl font-black text-[#F9D20F]">{step}</span>
               <h3 className="mt-3 text-lg font-bold text-[#0B0F14]">{title}</h3>
-              <p className="mt-2 text-sm text-[#64748B] leading-relaxed">
+              <p className="mt-2 text-sm text-[#55637A] leading-relaxed">
                 {body}
               </p>
             </div>
@@ -297,7 +297,7 @@ export default async function WholesalePage({ params }: PageProps) {
           <h2 className="text-2xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight mb-3">
             {w.faqTitle}
           </h2>
-          <p className="text-[#64748B] mb-8">{w.faqSub}</p>
+          <p className="text-[#55637A] mb-8">{w.faqSub}</p>
           <div className="flex flex-col gap-3">
             {FAQS.map(({ q, a }) => (
               <details
@@ -311,7 +311,7 @@ export default async function WholesalePage({ params }: PageProps) {
                     aria-hidden
                   />
                 </summary>
-                <p className="mt-3 text-sm text-[#64748B] leading-relaxed">
+                <p className="mt-3 text-sm text-[#55637A] leading-relaxed">
                   {a}
                 </p>
               </details>

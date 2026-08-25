@@ -7,7 +7,7 @@ import PaginatedProductGrid, {
   type LoadMoreResult,
 } from "@/components/PaginatedProductGrid";
 import { SORT_OPTIONS, type ActiveFilters } from "@/lib/product-filters";
-import type { Product } from "@/lib/queries/products";
+import type { ProductCardData } from "@/lib/queries/products";
 
 const GRID_SKELETON = Array.from({ length: 12 }, (_, i) => i);
 
@@ -16,7 +16,7 @@ type Props = {
   filters: ActiveFilters;
   vendorFacets: FacetValue[];
   typeFacets: FacetValue[];
-  products: Product[];
+  products: ProductCardData[];
   cursor: string | null;
   hasNextPage: boolean;
   loading: boolean;
@@ -78,7 +78,7 @@ export default function ProductsBrowserView({
               <p className="text-lg font-bold text-[#0B0F14]">
                 No products match your filters
               </p>
-              <p className="mt-2 text-sm text-[#64748B]">
+              <p className="mt-2 text-sm text-[#55637A]">
                 Try removing a filter or{" "}
                 <Link
                   href={basePath}

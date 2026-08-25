@@ -121,7 +121,24 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    unoptimized: true,
+    // Optimization is delegated to Shopify's CDN rather than done here — see
+    // src/lib/shopify-image-loader.ts for why. `unoptimized: true` used to sit
+    // in this block, which suppressed srcset generation entirely and shipped
+    // 2000x2000 originals into 254px product tiles.
+    //
+    // With a custom loader Next never touches the bytes, so `remotePatterns`
+    // and `formats` no longer gate anything; remotePatterns stays as the record
+    // of which host is expected, and so it is already correct if this ever
+    // moves back to the built-in optimizer.
+    loader: "custom",
+    loaderFile: "./src/lib/shopify-image-loader.ts",
+    // Trimmed from Next's defaults. Every candidate width becomes another full
+    // Shopify CDN URL in each `srcset`, and the homepage carries ~190 of them;
+    // the default ladder emitted ten candidates per image, half of them wider
+    // than anything this layout can display. 512 is here specifically for a
+    // ~254px product tile on a 2x screen, which would otherwise round up to 640.
+    deviceSizes: [640, 828, 1080, 1920],
+    imageSizes: [64, 128, 256, 512],
     remotePatterns: [
       {
         protocol: "https",
@@ -129,7 +146,6 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
-    formats: ["image/avif", "image/webp"],
   },
 };
 

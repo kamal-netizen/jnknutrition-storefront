@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "@/components/LocaleLink";
 import { Plus, Check, Loader2 } from "lucide-react";
-import type { Product } from "@/lib/queries/products";
+import type { ProductCardData } from "@/lib/queries/products";
 import { getProducts } from "@/lib/queries/products";
 import { useCartStore, useCartLines, useCartSubtotal } from "@/lib/store/cart";
 import { freeShippingRemaining, FREE_SHIPPING_CURRENCY } from "@/lib/shipping";
@@ -22,7 +22,7 @@ export default function CartSuggestions({ className, onNavigate }: Props) {
   const { addLine, isLoading } = useCartStore();
   const ct = useDict().cart;
   const locale = useLocale();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductCardData[]>([]);
   const [addedId, setAddedId] = useState<string | null>(null);
   // Stable random order, computed once per fetched batch.
   const [seed] = useState(() => Math.random());
@@ -76,7 +76,7 @@ export default function CartSuggestions({ className, onNavigate }: Props) {
   if (!subtotal || Number.isNaN(amount)) return null;
   if (suggestions.length === 0) return null;
 
-  async function handleAdd(product: Product) {
+  async function handleAdd(product: ProductCardData) {
     const variant =
       product.variants.edges.find((e) => e.node.availableForSale)?.node ??
       product.variants.edges[0]?.node;
@@ -91,7 +91,7 @@ export default function CartSuggestions({ className, onNavigate }: Props) {
       <p className="text-xs font-bold uppercase tracking-widest text-[#0B0F14]">
         {unlocked ? ct.youMightLike : ct.addForFreeShipping}
       </p>
-      <p className="mt-0.5 text-[11px] text-[#64748B]">
+      <p className="mt-0.5 text-[11px] text-[#55637A]">
         {unlocked ? (
           ct.completeStack
         ) : (

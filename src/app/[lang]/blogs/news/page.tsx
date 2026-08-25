@@ -87,7 +87,7 @@ export default function NewsPage() {
               <h2 className="mt-4 text-2xl md:text-3xl font-black text-[#0B0F14] uppercase tracking-tight leading-tight group-hover:text-[#E7BF00] transition-colors">
                 {featured.title}
               </h2>
-              <p className="mt-3 text-[#64748B] text-base md:text-lg">
+              <p className="mt-3 text-[#55637A] text-base md:text-lg">
                 {featured.excerpt}
               </p>
               <p className="mt-4 text-sm text-[#94A3B8]">
@@ -122,7 +122,7 @@ export default function NewsPage() {
                 <h3 className="mt-2 text-lg font-black text-[#0B0F14] uppercase tracking-tight leading-snug group-hover:text-[#082D4C] transition-colors">
                   {article.title}
                 </h3>
-                <p className="mt-2 text-sm text-[#64748B] line-clamp-3 flex-1">
+                <p className="mt-2 text-sm text-[#55637A] line-clamp-3 flex-1">
                   {article.excerpt}
                 </p>
                 <p className="mt-4 text-xs text-[#94A3B8]">

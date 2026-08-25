@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
@@ -77,6 +78,16 @@ export default async function RootLayout({
   params: Promise<{ lang: string }>;
 }>) {
   const { lang } = await params;
+
+  // `lang` is an internal segment, never typed by a visitor: proxy.ts rewrites
+  // un-prefixed URLs under /en-ae and /ar resolves directly. Its matcher skips
+  // any path containing a dot, though, so a request like /foo.txt arrives here
+  // unrewritten with lang="foo.txt" — and getLocale() falls back to the default
+  // locale, which rendered the full homepage at HTTP 200 for every dotted path
+  // a crawler or scanner tried (/ads.txt, /llms.txt, /index.php, …). Reject
+  // anything that is not a real locale instead.
+  if (!LOCALE_CODES.includes(lang)) notFound();
+
   const locale = getLocale(lang);
   const shopLang = locale.isDefault ? undefined : locale.shopifyLanguage;
   const collections = await getCollections(20, shopLang);

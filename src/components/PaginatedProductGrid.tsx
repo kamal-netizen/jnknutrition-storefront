@@ -2,17 +2,17 @@
 
 import { useState } from "react";
 import ProductCard from "@/components/ProductCard";
-import type { Product } from "@/lib/queries/products";
+import type { ProductCardData } from "@/lib/queries/products";
 import { useDict } from "@/lib/locale-context";
 
 export type LoadMoreResult = {
-  products: Product[];
+  products: ProductCardData[];
   endCursor: string | null;
   hasNextPage: boolean;
 };
 
 type Props = {
-  initialProducts: Product[];
+  initialProducts: ProductCardData[];
   initialCursor: string | null;
   initialHasNextPage: boolean;
   loadMore: (after: string) => Promise<LoadMoreResult>;

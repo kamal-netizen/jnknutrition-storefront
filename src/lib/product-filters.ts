@@ -1,5 +1,5 @@
 import type { ProductFilterInput } from "@/lib/queries/collections";
-import type { Product } from "@/lib/queries/products";
+import type { ProductCardData } from "@/lib/queries/products";
 
 // ─── Sort ────────────────────────────────────────────────────────────────────
 
@@ -200,7 +200,7 @@ export function toShopifyFilters(filters: ActiveFilters): ProductFilterInput[] {
 // ─── Post-fetch helpers ──────────────────────────────────────────────────────
 
 /** True when any variant is priced below its compare-at (an active discount). */
-export function productIsDiscounted(product: Product): boolean {
+export function productIsDiscounted(product: ProductCardData): boolean {
   return product.variants.edges.some(({ node }) => {
     const compare = node.compareAtPrice
       ? parseFloat(node.compareAtPrice.amount)

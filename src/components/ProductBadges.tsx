@@ -26,7 +26,7 @@ export default function ProductBadges({
     <>
       <div className="absolute top-2 start-2 flex flex-col gap-1" aria-hidden="true">
         {soldOut && (
-          <Badge className="bg-[#E2E8F0] text-[#64748B] text-[10px] uppercase font-bold tracking-wider">
+          <Badge className="bg-[#E2E8F0] text-[#55637A] text-[10px] uppercase font-bold tracking-wider">
             {c.soldOut}
           </Badge>
         )}

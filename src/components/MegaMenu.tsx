@@ -322,7 +322,7 @@ function BrandsTab({ onNavigate }: { onNavigate: () => void }) {
             key={brand.handle}
             href={collectionHref(brand.handle)}
             onClick={onNavigate}
-            className="flex h-20 items-center justify-center rounded-xl border border-[#ECECEC] bg-white px-4 text-center text-sm font-black uppercase tracking-tight text-[#64748B] transition-colors hover:border-[#F9D20F] hover:bg-white hover:text-[#0B0F14]"
+            className="flex h-20 items-center justify-center rounded-xl border border-[#ECECEC] bg-white px-4 text-center text-sm font-black uppercase tracking-tight text-[#55637A] transition-colors hover:border-[#F9D20F] hover:bg-white hover:text-[#0B0F14]"
           >
             {brand.logo ? (
               <Image

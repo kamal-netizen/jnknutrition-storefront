@@ -54,7 +54,7 @@ export default function CheckoutNotFound({
       <h1 className="text-3xl font-black text-[#0B0F14] uppercase tracking-tight">
         Checkout Unavailable
       </h1>
-      <p className="mt-3 text-[#64748B]">
+      <p className="mt-3 text-[#55637A]">
         We&apos;re having trouble routing to checkout right now. Your cart is
         still saved — please try again or contact us if this keeps happening.
       </p>

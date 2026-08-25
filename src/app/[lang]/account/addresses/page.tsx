@@ -16,7 +16,7 @@ export default async function AddressesPage() {
       <div className="flex items-center gap-3 mb-8">
         <Link
           href="/account"
-          className="text-sm text-[#64748B] hover:text-[#0B0F14] transition-colors"
+          className="text-sm text-[#55637A] hover:text-[#0B0F14] transition-colors"
         >
           ← Account
         </Link>

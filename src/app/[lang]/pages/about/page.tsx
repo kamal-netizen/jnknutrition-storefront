@@ -85,7 +85,7 @@ export default async function AboutPage({
                 <p className="text-3xl md:text-5xl font-black text-[#0B0F14] tracking-tight">
                   {stat.value}
                 </p>
-                <p className="mt-1 text-sm font-bold uppercase tracking-wide text-[#64748B]">
+                <p className="mt-1 text-sm font-bold uppercase tracking-wide text-[#55637A]">
                   {stat.label}
                 </p>
               </div>
@@ -102,11 +102,11 @@ export default async function AboutPage({
         {page?.body ? (
           <div
             dir="auto"
-            className="prose max-w-none text-[#64748B] [&_a]:text-[#F9D20F] [&_h2]:text-[#0B0F14] [&_h3]:text-[#0B0F14] [&_strong]:text-[#0B0F14]"
+            className="prose max-w-none text-[#55637A] [&_a]:text-[#F9D20F] [&_h2]:text-[#0B0F14] [&_h3]:text-[#0B0F14] [&_strong]:text-[#0B0F14]"
             dangerouslySetInnerHTML={{ __html: page.body }}
           />
         ) : (
-          <div dir="auto" className="space-y-4 text-[#64748B] text-lg leading-relaxed">
+          <div dir="auto" className="space-y-4 text-[#55637A] text-lg leading-relaxed">
             <p>{a.storyP1}</p>
             <p>{a.storyP2}</p>
           </div>
@@ -119,7 +119,7 @@ export default async function AboutPage({
           <h2 className="text-2xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight">
             {a.whyChoose}
           </h2>
-          <p className="mt-2 text-[#64748B]">
+          <p className="mt-2 text-[#55637A]">
             {a.whyChooseSub}
           </p>
         </div>
@@ -137,7 +137,7 @@ export default async function AboutPage({
                 <h3 className="mt-4 text-lg font-black uppercase tracking-tight text-[#0B0F14]">
                   {value.title}
                 </h3>
-                <p className="mt-2 text-sm text-[#64748B] leading-relaxed">
+                <p className="mt-2 text-sm text-[#55637A] leading-relaxed">
                   {value.body}
                 </p>
               </div>
@@ -153,7 +153,7 @@ export default async function AboutPage({
             <h2 className="text-2xl md:text-4xl font-black text-[#0B0F14] uppercase tracking-tight">
               {a.brandsWeCarry}
             </h2>
-            <p className="mt-2 text-[#64748B]">
+            <p className="mt-2 text-[#55637A]">
               {a.brandsWeCarrySub}
             </p>
           </div>

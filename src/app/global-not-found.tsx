@@ -74,7 +74,7 @@ export default function GlobalNotFound() {
               <h1 className="mt-4 text-3xl sm:text-4xl font-black text-[#0B0F14] uppercase tracking-tight">
                 Page Not Found
               </h1>
-              <p className="mt-3 text-[#64748B] max-w-lg mx-auto">
+              <p className="mt-3 text-[#55637A] max-w-lg mx-auto">
                 The page you&apos;re looking for doesn&apos;t exist, or it moved
                 when we rebuilt the store.
               </p>
@@ -124,7 +124,7 @@ export default function GlobalNotFound() {
                   <li key={href}>
                     <Link
                       href={href}
-                      className="text-sm font-semibold text-[#64748B] underline-offset-4 hover:text-[#0B0F14] hover:underline transition-colors"
+                      className="text-sm font-semibold text-[#55637A] underline-offset-4 hover:text-[#0B0F14] hover:underline transition-colors"
                     >
                       {label}
                     </Link>

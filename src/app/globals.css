@@ -64,7 +64,7 @@
   --secondary: #F0F4F8;
   --secondary-foreground: #0B0F14;
   --muted: #F0F4F8;
-  --muted-foreground: #64748B;
+  --muted-foreground: #55637A;
   --accent: #EEF4FF;
   --accent-foreground: #0B0F14;
   --destructive: #EF4444;
@@ -78,7 +78,7 @@
   --chart-5: #F5F7FA;
   --radius: 0.5rem;
   --sidebar: #F5F7FA;
-  --sidebar-foreground: #64748B;
+  --sidebar-foreground: #55637A;
   --sidebar-primary: #F9D20F;
   --sidebar-primary-foreground: #0B0F14;
   --sidebar-accent: #EEF4FF;
@@ -132,6 +132,9 @@
 .uae-flag-banner {
   position: relative;
   isolation: isolate;
+  /* Clips the over-wide ::before / .uae-flag-shine sweep layers. An element's
+     own outer box-shadow is not affected by its overflow. */
+  overflow: hidden;
   background:
     /* red hoist band on the left */
     linear-gradient(to right, #ef3340 0 22%, rgba(0, 0, 0, 0) 22%),
@@ -149,11 +152,21 @@
     0 6px 20px -12px rgba(0, 0, 0, 0.45);
 }
 
-/* moving fold highlights → waving-cloth look (no horizontal scroll) */
+/* moving fold highlights → waving-cloth look.
+   Both overlays below are wider than the banner and slide on `transform`
+   instead of `background-position`. background-position cannot be composited,
+   so the old version re-rasterised the banner on the main thread for the whole
+   life of the page; `overflow: hidden` on the banner is what keeps an
+   over-wide layer from producing a horizontal scrollbar. The translate
+   percentages are the background-position offsets restated against each
+   layer's own width. */
 .uae-flag-banner::before {
   content: "";
   position: absolute;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 220%;
   z-index: 1;
   background: repeating-linear-gradient(
     100deg,
@@ -162,16 +175,19 @@
     rgba(0, 0, 0, 0.18) 9%,
     rgba(255, 255, 255, 0) 15%
   );
-  background-size: 220% 100%;
   mix-blend-mode: soft-light;
   animation: uae-wave 4.5s ease-in-out infinite;
   pointer-events: none;
+  will-change: transform;
 }
 
 /* bright glancing light sweep across the flag */
 .uae-flag-shine {
   position: absolute;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 250%;
   z-index: 2;
   pointer-events: none;
   background: linear-gradient(
@@ -182,28 +198,28 @@
     transparent 62%,
     transparent 100%
   );
-  background-size: 250% 100%;
   mix-blend-mode: overlay;
   animation: uae-sweep 5.5s ease-in-out infinite;
+  will-change: transform;
 }
 
 @keyframes uae-wave {
   0%,
   100% {
-    background-position: 0% 0;
+    transform: translate3d(0, 0, 0);
   }
   50% {
-    background-position: 28% 0;
+    transform: translate3d(-15.3%, 0, 0);
   }
 }
 
 @keyframes uae-sweep {
   0% {
-    background-position: 130% 0;
+    transform: translate3d(-78%, 0, 0);
   }
   55%,
   100% {
-    background-position: -60% 0;
+    transform: translate3d(36%, 0, 0);
   }
 }
 
@@ -361,22 +377,40 @@
   }
 }
 
-/* A state change, not a scrub bar — the tick snaps on and snaps off. */
+/* A state change, not a scrub bar — the tick snaps on and snaps off.
+   The lit state is a pseudo-element cross-faded on `opacity`, because
+   animating background-color and box-shadow directly cannot be composited —
+   and there is one tick per brand, so that was six main-thread animations
+   running for as long as the page stayed open. The dim resting colour comes
+   from the element's own `bg-white/15` utility class. The delay is inherited
+   so the per-tick `style="animation-delay:…"` set in CoreChampsHero keeps
+   staggering them. */
 .cc-cycle-tick {
+  position: relative;
+}
+
+.cc-cycle-tick::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-color: #ffffff;
+  box-shadow: 0 0 14px 2px rgba(255, 255, 255, 0.5);
+  opacity: 0;
   animation: cc-cycle-tick 16.2s linear infinite;
+  animation-delay: inherit;
+  will-change: opacity;
 }
 
 @keyframes cc-cycle-tick {
   0%,
   16.6%,
   100% {
-    background-color: rgba(255, 255, 255, 0.16);
-    box-shadow: none;
+    opacity: 0;
   }
   3%,
   13.5% {
-    background-color: #ffffff;
-    box-shadow: 0 0 14px 2px rgba(255, 255, 255, 0.5);
+    opacity: 1;
   }
 }
 
@@ -432,7 +466,7 @@
   .cc-cycle-img,
   .cc-bob,
   .cc-cycle-name,
-  .cc-cycle-tick,
+  .cc-cycle-tick::after,
   .cc-spin,
   .cc-spin-reverse,
   .cc-flare,
@@ -451,7 +485,7 @@
   .cc-cycle-name:first-child {
     opacity: 1;
   }
-  .cc-cycle-tick:first-child {
-    background-color: #ffffff;
+  .cc-cycle-tick:first-child::after {
+    opacity: 1;
   }
 }

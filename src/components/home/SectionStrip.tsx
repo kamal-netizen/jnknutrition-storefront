@@ -1,5 +1,5 @@
 import Link from "@/components/LocaleLink";
-import type { Product } from "@/lib/queries/products";
+import type { ProductCardData } from "@/lib/queries/products";
 import ProductCard from "@/components/ProductCard";
 import ScrollRow from "@/components/home/ScrollRow";
 import SectionHeading from "@/components/home/SectionHeading";
@@ -19,7 +19,7 @@ type Props = {
   /** Small label above the heading (legible navy, brand-yellow bar). */
   eyebrow?: string;
   href: string;
-  products: Product[];
+  products: ProductCardData[];
   /** When true, renders a wrapping grid instead of a horizontal scroll strip. */
   grid?: boolean;
   /** Background band treatment. */
@@ -56,10 +56,17 @@ export default function SectionStrip({
       >
         <div>
           <SectionHeading eyebrow={eyebrow}>{title}</SectionHeading>
-          {subtitle && <p className="mt-3 text-[#64748B]">{subtitle}</p>}
+          {subtitle && <p className="mt-3 text-[#55637A]">{subtitle}</p>}
         </div>
+        {/*
+          Several strips share the same "View All" wording while pointing at
+          different collections, which reads as one repeated link to a screen
+          reader running a links list. The section title disambiguates them
+          without changing the visible label.
+        */}
         <Link
           href={href}
+          aria-label={`${ctaLabel}: ${title}`}
           className={
             cta === "button"
               ? "self-start sm:self-auto shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-[#F9D20F] px-6 py-3 text-sm font-bold uppercase tracking-wide text-[#0B0F14] shadow-card hover:bg-[#E7BF00] hover:shadow-card-hover transition-all"

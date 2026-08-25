@@ -32,7 +32,7 @@ export default function CartDrawer() {
             <ShoppingBag className="w-5 h-5 text-[#F9D20F]" />
             {ct.yourCart}
             {lines.length > 0 && (
-              <span className="ml-auto text-sm font-normal text-[#64748B]">
+              <span className="ml-auto text-sm font-normal text-[#55637A]">
                 {lines.length} {lines.length === 1 ? ct.item : ct.items}
               </span>
             )}
@@ -48,7 +48,7 @@ export default function CartDrawer() {
           {lines.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
               <ShoppingBag className="w-12 h-12 text-[#E2E8F0]" />
-              <p className="text-[#64748B] text-sm">{ct.empty}</p>
+              <p className="text-[#55637A] text-sm">{ct.empty}</p>
               <Button
                 variant="outline"
                 size="sm"
@@ -97,7 +97,7 @@ export default function CartDrawer() {
                         {line.merchandise.product.title}
                       </Link>
                       {line.merchandise.title !== "Default Title" && (
-                          <p className="text-xs text-[#64748B] mt-0.5">
+                          <p className="text-xs text-[#55637A] mt-0.5">
                           {line.merchandise.title}
                         </p>
                       )}
@@ -109,7 +109,7 @@ export default function CartDrawer() {
                             onClick={() =>
                               updateLine(line.id, line.quantity - 1)
                             }
-                            className="p-1.5 text-[#64748B] hover:text-[#0B0F14] disabled:opacity-40 transition-colors"
+                            className="p-1.5 text-[#55637A] hover:text-[#0B0F14] disabled:opacity-40 transition-colors"
                             aria-label="Decrease quantity"
                           >
                             <Minus className="w-3 h-3" />
@@ -122,7 +122,7 @@ export default function CartDrawer() {
                             onClick={() =>
                               updateLine(line.id, line.quantity + 1)
                             }
-                            className="p-1.5 text-[#64748B] hover:text-[#0B0F14] disabled:opacity-40 transition-colors"
+                            className="p-1.5 text-[#55637A] hover:text-[#0B0F14] disabled:opacity-40 transition-colors"
                             aria-label="Increase quantity"
                           >
                             <Plus className="w-3 h-3" />
@@ -141,7 +141,7 @@ export default function CartDrawer() {
                     <button
                       onClick={() => removeLine(line.id)}
                       disabled={isLoading}
-                      className="shrink-0 text-[#64748B] hover:text-[#EF4444] transition-colors disabled:opacity-40"
+                      className="shrink-0 text-[#55637A] hover:text-[#EF4444] transition-colors disabled:opacity-40"
                       aria-label="Remove item"
                     >
                       <X className="w-4 h-4" />
@@ -172,7 +172,7 @@ export default function CartDrawer() {
               </div>
             )}
             <div className="flex justify-between text-sm">
-              <span className="text-[#64748B]">{ct.subtotal}</span>
+              <span className="text-[#55637A]">{ct.subtotal}</span>
               {total && (
                 <Price
                   amount={total.amount}
@@ -181,7 +181,7 @@ export default function CartDrawer() {
                 />
               )}
             </div>
-            <p className="text-xs text-[#64748B]">
+            <p className="text-xs text-[#55637A]">
               {ct.shippingNote}
             </p>
             <Button
@@ -198,7 +198,7 @@ export default function CartDrawer() {
                 </>
               )}
             </Button>
-            <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#64748B]">
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#55637A]">
               <ShieldCheck className="w-3.5 h-3.5 text-[#16A34A]" aria-hidden="true" />
               <span>{ct.securePayments}</span>
             </div>
@@ -208,7 +208,7 @@ export default function CartDrawer() {
               render={<Link href="/cart" />}
               nativeButton={false}
               onClick={closeCart}
-              className="w-full text-[#64748B] hover:text-[#0B0F14]"
+              className="w-full text-[#55637A] hover:text-[#0B0F14]"
             >
               {ct.viewFullCart}
             </Button>

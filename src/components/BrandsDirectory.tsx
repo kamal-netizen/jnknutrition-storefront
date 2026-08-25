@@ -89,7 +89,7 @@ export default function BrandsDirectory({
 
       {filtered.length === 0 ? (
         <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-10 text-center">
-          <p className="text-[#64748B]">
+          <p className="text-[#55637A]">
             No brands match &ldquo;{query}&rdquo;.
           </p>
         </div>
@@ -144,7 +144,7 @@ function BrandTile({ collection }: { collection: Collection }) {
           className="max-h-20 w-auto object-contain"
         />
       ) : (
-        <span className="text-sm font-black uppercase tracking-tight text-[#64748B] group-hover:text-[#0B0F14]">
+        <span className="text-sm font-black uppercase tracking-tight text-[#55637A] group-hover:text-[#0B0F14]">
           {collection.title}
         </span>
       )}

@@ -94,7 +94,7 @@ export default async function ContactPage() {
             {page?.body ? (
               <div
                 dir="auto"
-                className="prose max-w-none text-[#64748B] mb-8 [&_a]:text-[#F9D20F] [&_h2]:text-[#0B0F14] [&_h3]:text-[#0B0F14] [&_strong]:text-[#0B0F14]"
+                className="prose max-w-none text-[#55637A] mb-8 [&_a]:text-[#F9D20F] [&_h2]:text-[#0B0F14] [&_h3]:text-[#0B0F14] [&_strong]:text-[#0B0F14]"
                 dangerouslySetInnerHTML={{ __html: page.body }}
               />
             ) : null}
@@ -108,7 +108,7 @@ export default async function ContactPage() {
                       <Icon className="h-5 w-5" />
                     </span>
                     <div className="min-w-0">
-                      <p className="text-xs font-bold uppercase tracking-wide text-[#64748B]">
+                      <p className="text-xs font-bold uppercase tracking-wide text-[#55637A]">
                         {method.title}
                       </p>
                       <p className="text-sm font-medium text-[#0B0F14] break-words">
@@ -145,7 +145,7 @@ export default async function ContactPage() {
                 <p className="text-sm font-bold text-[#0B0F14] uppercase tracking-wide">
                   Store Hours
                 </p>
-                <p className="text-sm text-[#64748B]">
+                <p className="text-sm text-[#55637A]">
                   Mon – Sat, 10:00 AM – 11:00 PM · Sun, 5:00 PM – 11:00 PM
                   (GST). We reply to messages within 24 hours.
                 </p>
@@ -166,7 +166,7 @@ export default async function ContactPage() {
       {/* ─── CTA band ─────────────────────────────────────────── */}
       <section className="bg-[#F8FAFC] border-t border-[#E2E8F0]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-14 w-full text-center">
-          <p className="text-[#64748B]">
+          <p className="text-[#55637A]">
             Looking for quick answers? Check our{" "}
             <Link
               href="/pages/faq"

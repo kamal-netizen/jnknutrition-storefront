@@ -1,13 +1,13 @@
 import Image from "next/image";
 import Link from "@/components/LocaleLink";
-import type { Product } from "@/lib/queries/products";
+import type { ProductCardData } from "@/lib/queries/products";
 import Price from "@/components/Price";
 import QuickAddButton from "@/components/QuickAddButton";
 import ProductBadges from "@/components/ProductBadges";
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/shipping";
 
 type Props = {
-  product: Product;
+  product: ProductCardData;
 };
 
 export default function ProductCard({ product }: Props) {
@@ -29,6 +29,12 @@ export default function ProductCard({ product }: Props) {
           parseFloat(b.compareAtPrice!.amount) / parseFloat(b.price.amount) -
           parseFloat(a.compareAtPrice!.amount) / parseFloat(a.price.amount)
       )[0] ?? null;
+
+  // The variant Quick Add targets: first sellable one, else the first listed.
+  const defaultVariant =
+    product.variants.edges.find((e) => e.node.availableForSale)?.node ??
+    product.variants.edges[0]?.node ??
+    null;
 
   const isOnSale = saleVariant !== null && product.availableForSale;
   const discountPercent = saleVariant
@@ -85,19 +91,30 @@ export default function ProductCard({ product }: Props) {
 
         {/* Quick Add — desktop: slides up from bottom of image on hover/focus */}
         <div className="hidden sm:block absolute bottom-0 inset-x-0 translate-y-full group-hover:translate-y-0 group-focus-within:translate-y-0 transition-transform duration-200 ease-out z-[3]">
-          <QuickAddButton product={product} />
+          <QuickAddButton
+            title={product.title}
+            variantId={defaultVariant?.id ?? null}
+            soldOut={!product.availableForSale}
+            price={minPrice}
+          />
         </div>
 
         {/* Quick Add — mobile/touch: always-visible compact button */}
         <div className="sm:hidden absolute bottom-2 right-2 z-[3]">
-          <QuickAddButton product={product} variant="icon" />
+          <QuickAddButton
+            title={product.title}
+            variantId={defaultVariant?.id ?? null}
+            soldOut={!product.availableForSale}
+            price={minPrice}
+            variant="icon"
+          />
         </div>
       </div>
 
       {/* Details */}
       <div className="flex flex-1 flex-col p-4">
         {product.vendor && (
-          <p className="text-[10px] uppercase tracking-widest text-[#64748B] mb-1 truncate" aria-hidden="true">
+          <p className="text-[10px] uppercase tracking-widest text-[#55637A] mb-1 truncate" aria-hidden="true">
             {product.vendor}
           </p>
         )}
@@ -114,7 +131,7 @@ export default function ProductCard({ product }: Props) {
             <Price
               amount={saleVariant.compareAtPrice.amount}
               currencyCode={saleVariant.compareAtPrice.currencyCode}
-              className="text-xs text-[#64748B] line-through"
+              className="text-xs text-[#55637A] line-through"
             />
           )}
         </div>

@@ -1,7 +1,7 @@
 import Link from "@/components/LocaleLink";
 import { getProducts } from "@/lib/queries/products";
 import { getCollection } from "@/lib/queries/collections";
-import type { Product } from "@/lib/queries/products";
+import type { ProductCardData } from "@/lib/queries/products";
 import ProductCard from "@/components/ProductCard";
 import SectionStrip from "@/components/home/SectionStrip";
 import ScrollRow from "@/components/home/ScrollRow";
@@ -18,6 +18,17 @@ import { getDictionary } from "@/lib/dictionaries";
 import { FREE_SHIPPING_THRESHOLD, FREE_SHIPPING_CURRENCY } from "@/lib/shipping";
 
 export const revalidate = 1800;
+
+// `/foo.txt` is the one URL shape that reaches app/[lang] with a junk locale:
+// proxy.ts skips any path containing a dot, so a single dotted segment lands
+// here as [lang] and matches no other route. The layout's LOCALE_CODES guard
+// already turns that into a 404, but only after React has rendered this page in
+// parallel and serialized it — a ~350 KB response for every scanner probing
+// /ads.txt or /index.php. This rejects the same requests during routing, before
+// any of that work happens. Scoped to this file on purpose: on the shared
+// layout it would compose into every child route, where generateStaticParams
+// covers only the first page of products and collections.
+export const dynamicParams = false;
 
 type PageProps = { params: Promise<{ lang: string }> };
 
@@ -45,8 +56,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 const nodes = (
-  data: { edges: { node: Product }[] } | null | undefined
-): Product[] =>
+  data: { edges: { node: ProductCardData }[] } | null | undefined
+): ProductCardData[] =>
   data?.edges.map((e) => e.node).filter((p) => p.availableForSale) ?? [];
 
 export default async function Home({ params }: PageProps) {
@@ -92,7 +103,7 @@ export default async function Home({ params }: PageProps) {
   const freshProducts = nodes(fresh);
   const nearExpiryProducts = nodes(nearExpiry?.products);
 
-  const hasDiscount = (p: Product) =>
+  const hasDiscount = (p: ProductCardData) =>
     p.variants.edges.some(({ node: v }) => {
       if (!v.compareAtPrice) return false;
       return parseFloat(v.compareAtPrice.amount) > parseFloat(v.price.amount);
@@ -135,7 +146,7 @@ export default async function Home({ params }: PageProps) {
         <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-[#0B0F14]">
           {t.heroTitle}
         </h1>
-        <p className="mt-2 max-w-2xl text-sm md:text-base text-[#64748B]">
+        <p className="mt-2 max-w-2xl text-sm md:text-base text-[#55637A]">
           {t.heroBody}
         </p>
       </div>
@@ -169,7 +180,7 @@ export default async function Home({ params }: PageProps) {
       <section className="order-first md:order-none max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 w-full">
         <div className="mb-8">
           <SectionHeading>{t.shopByCategory}</SectionHeading>
-          <p className="mt-3 text-[#64748B]">{t.shopByCategoryTagline}</p>
+          <p className="mt-3 text-[#55637A]">{t.shopByCategoryTagline}</p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
           {GOALS.map((goal) => (
@@ -199,7 +210,7 @@ export default async function Home({ params }: PageProps) {
               <h2 className="text-3xl md:text-5xl font-black text-[#0B0F14] uppercase tracking-tight leading-[0.95]">
                 {t.strengthStartsHere}
               </h2>
-              <p className="mt-4 text-[#64748B] leading-relaxed">{t.wheyBody}</p>
+              <p className="mt-4 text-[#55637A] leading-relaxed">{t.wheyBody}</p>
               <Link
                 href="/collections/whey-protein"
                 className="inline-flex mt-6 bg-[#F9D20F] text-[#0B0F14] font-bold uppercase tracking-wide px-6 py-3 rounded hover:bg-[#E7BF00] transition-colors"

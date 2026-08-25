@@ -1,12 +1,12 @@
 "use server";
 
 import { searchProducts } from "@/lib/queries/search";
-import type { Product } from "@/lib/queries/products";
+import type { ProductCardData } from "@/lib/queries/products";
 import type { ProductFilterInput } from "@/lib/queries/collections";
 import { resolveSort, SEARCH_PAGE_SIZE } from "./constants";
 
 export type LoadMoreResult = {
-  products: Product[];
+  products: ProductCardData[];
   endCursor: string | null;
   hasNextPage: boolean;
 };

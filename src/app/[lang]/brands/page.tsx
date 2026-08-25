@@ -27,7 +27,7 @@ export default async function BrandsPage() {
       <h1 className="text-4xl md:text-5xl font-black text-[#0B0F14] uppercase tracking-tight mb-3">
         Brands
       </h1>
-      <p className="mb-10 max-w-2xl text-[#64748B]">
+      <p className="mb-10 max-w-2xl text-[#55637A]">
         Shop 100% authentic supplements from the world&rsquo;s top brands.
       </p>
 
@@ -35,7 +35,7 @@ export default async function BrandsPage() {
         <BrandsDirectory collections={brands} />
       ) : (
         <div className="rounded-lg border border-[#E2E8F0] bg-[#F5F7FA] p-10 text-center">
-          <p className="text-[#64748B]">No brands found.</p>
+          <p className="text-[#55637A]">No brands found.</p>
         </div>
       )}
     </div>

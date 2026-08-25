@@ -3,7 +3,11 @@ import {
   type CollectionWithProducts,
   type Filter,
 } from "@/lib/queries/collections";
-import { getInStockDiscountedProducts, getProducts, type Product } from "@/lib/queries/products";
+import {
+  getInStockDiscountedProducts,
+  getProducts,
+  type ProductCardData,
+} from "@/lib/queries/products";
 import type { FacetValue } from "@/components/ProductFilters";
 import {
   COLLECTION_SORT_OPTIONS,
@@ -72,7 +76,7 @@ function extractFacets(filters: Filter[]): {
 }
 
 /** Derive vendor facets with counts from an arbitrary product list. */
-function buildVendorFacets(products: Product[]): FacetValue[] {
+function buildVendorFacets(products: ProductCardData[]): FacetValue[] {
   const counts = new Map<string, number>();
   for (const p of products) {
     if (p.vendor) counts.set(p.vendor, (counts.get(p.vendor) ?? 0) + 1);
@@ -83,7 +87,7 @@ function buildVendorFacets(products: Product[]): FacetValue[] {
 }
 
 /** Derive product-type facets with counts from an arbitrary product list. */
-function buildTypeFacets(products: Product[]): FacetValue[] {
+function buildTypeFacets(products: ProductCardData[]): FacetValue[] {
   const counts = new Map<string, number>();
   for (const p of products) {
     if (p.productType) counts.set(p.productType, (counts.get(p.productType) ?? 0) + 1);
@@ -95,7 +99,7 @@ function buildTypeFacets(products: Product[]): FacetValue[] {
 
 export type CollectionProductsView = {
   collection: CollectionWithProducts;
-  products: Product[];
+  products: ProductCardData[];
   vendors: FacetValue[];
   productTypes: FacetValue[];
   discountOnly: boolean;
@@ -135,7 +139,7 @@ export async function getCollectionProductsView(
 
   if (!collection) return null;
 
-  let products: Product[];
+  let products: ProductCardData[];
   let vendors: FacetValue[];
   let productTypes: FacetValue[];
 

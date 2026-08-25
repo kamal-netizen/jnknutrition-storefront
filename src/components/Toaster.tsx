@@ -57,7 +57,7 @@ function ToastList() {
           </Toast.Title>
         )}
         {toast.description && (
-          <Toast.Description className="mt-1 text-sm text-[#64748B]">
+          <Toast.Description className="mt-1 text-sm text-[#55637A]">
             {toast.description}
           </Toast.Description>
         )}

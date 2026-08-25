@@ -5,14 +5,14 @@ import { useSearchParams } from "next/navigation";
 import CollectionBrowserView from "@/components/CollectionBrowserView";
 import type { FacetValue } from "@/components/ProductFilters";
 import { parseProductFilters, hasAnyActiveFilter, type ActiveFilters } from "@/lib/product-filters";
-import type { Product } from "@/lib/queries/products";
+import type { ProductCardData } from "@/lib/queries/products";
 import { loadMoreCollection, getFilteredCollectionView } from "@/app/[lang]/collections/[handle]/actions";
 
 type Props = {
   handle: string;
   language?: string;
   initialFilters: ActiveFilters;
-  initialProducts: Product[];
+  initialProducts: ProductCardData[];
   initialCursor: string | null;
   initialHasNextPage: boolean;
   initialVendors: FacetValue[];
@@ -24,7 +24,7 @@ type Props = {
 
 type FetchedView = {
   key: string;
-  products: Product[];
+  products: ProductCardData[];
   cursor: string | null;
   hasNextPage: boolean;
   vendors: FacetValue[];
