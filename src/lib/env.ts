@@ -14,6 +14,15 @@ const envSchema = z.object({
   SHOPIFY_SHOP_ID: z.string().min(1).optional(),
   SHOPIFY_CUSTOMER_ACCOUNT_CLIENT_ID: z.string().min(1).optional(),
   SHOPIFY_CUSTOMER_ACCOUNT_API_VERSION: z.string().min(1).default("2025-04"),
+  // ── Admin API (order data for the monthly best-seller ranking) ────────────
+  // Server-only, and deliberately optional: without it the storefront runs
+  // exactly as before, with "Trending Now" falling back to Shopify's all-time
+  // BEST_SELLING sort. Needs only the `read_orders` scope — create it as a
+  // custom app under Settings > Apps and sales channels > Develop apps.
+  // NEVER prefix this NEXT_PUBLIC_: unlike the Storefront token it can read
+  // order and customer data, and must never reach the browser.
+  SHOPIFY_ADMIN_ACCESS_TOKEN: z.string().min(1).optional(),
+  SHOPIFY_ADMIN_API_VERSION: z.string().min(1).default("2025-01"),
 });
 
 const parsed = envSchema.safeParse({
@@ -29,6 +38,8 @@ const parsed = envSchema.safeParse({
     process.env.SHOPIFY_CUSTOMER_ACCOUNT_CLIENT_ID,
   SHOPIFY_CUSTOMER_ACCOUNT_API_VERSION:
     process.env.SHOPIFY_CUSTOMER_ACCOUNT_API_VERSION,
+  SHOPIFY_ADMIN_ACCESS_TOKEN: process.env.SHOPIFY_ADMIN_ACCESS_TOKEN,
+  SHOPIFY_ADMIN_API_VERSION: process.env.SHOPIFY_ADMIN_API_VERSION,
 });
 
 if (!parsed.success) {

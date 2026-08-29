@@ -264,6 +264,15 @@ const GET_PRODUCT_RECOMMENDATIONS = `
   }
 `;
 
+const GET_PRODUCTS_BY_IDS = `
+  ${PRODUCT_CARD_FRAGMENT}
+  query GetProductsByIds($ids: [ID!]!, ${IN_CONTEXT_ARGS}) ${IN_CONTEXT_DIRECTIVE} {
+    nodes(ids: $ids) {
+      ... on Product { ...ProductCardFragment }
+    }
+  }
+`;
+
 // ─── Fetchers ────────────────────────────────────────────────────────────────
 // `language` is a Shopify LanguageCode ("AR"); omit for the default (EN).
 //
@@ -346,6 +355,100 @@ export const getInStockDiscountedProducts = unstable_cache(
   ["in-stock-discounted-products"],
   { revalidate: 1800, tags: ["products"] }
 );
+
+/**
+ * Discount depth of a product's best-discounted variant, as a whole percent
+ * (0 when nothing is on sale). Mirrors the rounding ProductCard uses for its
+ * "-32%" badge, so a strip ranked by this value stays in badge order on screen.
+ */
+export function bestDiscountPercent(product: ProductCardData): number {
+  let best = 0;
+  for (const { node } of product.variants.edges) {
+    const compare = node.compareAtPrice
+      ? parseFloat(node.compareAtPrice.amount)
+      : 0;
+    const price = parseFloat(node.price.amount);
+    if (!(compare > price) || !(compare > 0)) continue;
+    const percent = Math.round((1 - price / compare) * 100);
+    if (percent > best) best = percent;
+  }
+  return best;
+}
+
+/**
+ * The store's deepest discounts, ranked by discount depth (biggest first).
+ *
+ * Unlike `getInStockDiscountedProducts`, which stops as soon as it has `max`
+ * discounted products in best-selling order, this walks the whole in-stock
+ * catalog before ranking — a "top discounts" strip is only true if nothing was
+ * left unscanned. The page cap is a safety valve for a catalog that grows past
+ * 2,500 products; the scan is shared through the Data Cache for 30 minutes, so
+ * it costs a handful of Storefront calls per half hour, not per request.
+ */
+export const getTopDiscountedProducts = unstable_cache(
+  async (first = 12, language?: string): Promise<ProductCardData[]> => {
+    const ranked: { product: ProductCardData; percent: number }[] = [];
+    let after: string | undefined;
+    let hasNextPage = true;
+    let pages = 0;
+
+    while (hasNextPage && pages < 10) {
+      const conn = await getProducts({
+        first: 250,
+        after,
+        query: "available_for_sale:true",
+        sortKey: "BEST_SELLING",
+        ...(language ? { language } : {}),
+      });
+      for (const { node } of conn.edges) {
+        if (!node.availableForSale) continue;
+        const percent = bestDiscountPercent(node);
+        if (percent > 0) ranked.push({ product: node, percent });
+      }
+      hasNextPage = conn.pageInfo.hasNextPage;
+      after = conn.pageInfo.endCursor ?? undefined;
+      pages++;
+    }
+
+    return ranked
+      .sort((a, b) => b.percent - a.percent)
+      .slice(0, first)
+      .map((entry) => entry.product);
+  },
+  ["top-discounted-products"],
+  { revalidate: 1800, tags: ["products"] }
+);
+
+/**
+ * Hydrate card data for an explicit list of product GIDs, returned as a Map so
+ * the caller keeps its own ordering — `nodes` preserves the requested order,
+ * but a Map makes that independent of it and skips the misses cleanly.
+ *
+ * Product IDs are shared between the Admin and Storefront APIs, which is what
+ * lets an Admin-derived ranking (see best-sellers.ts) be rendered through the
+ * same Storefront query, `@inContext` localization and card fragment as every
+ * other listing. `nodes` returns null for anything the Storefront token cannot
+ * see — an unpublished, archived or deleted product — so those simply drop out.
+ */
+export const getProductsByIds = cache(async function getProductsByIds(
+  ids: string[],
+  language?: string
+): Promise<Map<string, ProductCardData>> {
+  const found = new Map<string, ProductCardData>();
+  if (!ids.length) return found;
+
+  // `nodes` accepts at most 250 ids per call.
+  for (let i = 0; i < ids.length; i += 250) {
+    const data = await storefrontFetch<{ nodes: (ProductCardData | null)[] }>(
+      GET_PRODUCTS_BY_IDS,
+      { ids: ids.slice(i, i + 250), ...(language ? { language } : {}) }
+    );
+    for (const node of data.nodes) {
+      if (node?.id) found.set(node.id, node);
+    }
+  }
+  return found;
+});
 
 export const getProductRecommendations = cache(async function getProductRecommendations(
   productId: string,

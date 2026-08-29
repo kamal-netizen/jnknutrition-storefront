@@ -1,5 +1,10 @@
 import Link from "@/components/LocaleLink";
-import { getProducts } from "@/lib/queries/products";
+import {
+  getProducts,
+  getTopDiscountedProducts,
+  isDiscounted,
+} from "@/lib/queries/products";
+import { getMonthlyBestSellers } from "@/lib/queries/best-sellers";
 import { getCollection } from "@/lib/queries/collections";
 import type { ProductCardData } from "@/lib/queries/products";
 import ProductCard from "@/components/ProductCard";
@@ -72,7 +77,7 @@ export default async function Home({ params }: PageProps) {
   const [
     trending,
     fresh,
-    deals,
+    topDeals,
     whey,
     creatine,
     preworkout,
@@ -84,9 +89,18 @@ export default async function Home({ params }: PageProps) {
     muscleRulz,
     proscienceNutra,
   ] = await Promise.all([
-    getProducts({ first: 15, sortKey: "BEST_SELLING", query: "available_for_sale:true", language }),
+    // Shopify's BEST_SELLING sort ranks by all-time orders, with no recency in
+    // it, so a section called "Trending Now" was really showing the store's
+    // lifetime leaders. This ranks the trailing 30 days of orders instead, and
+    // falls back to the all-time sort when no Admin token is configured.
+    getMonthlyBestSellers({ first: 15, language }),
     getProducts({ first: 8, sortKey: "CREATED_AT", reverse: true, query: "available_for_sale:true", language }),
-    getCollection("today-deals", { first: 8, filters: [{ available: true }], language }),
+    // Not the curated `today-deals` collection: that list is hand-maintained
+    // and goes stale, so the strip headlined "Today's Deals" was showing
+    // whatever happened to sit in it rather than the real markdowns. This ranks
+    // the whole in-stock catalog by discount depth, so the deepest cuts in the
+    // store lead the row (the collection page aggregates the same way).
+    getTopDiscountedProducts(12, language),
     getCollection("whey-protein", { first: 4, filters: [{ available: true }], language }),
     getCollection("creatine", { first: 8, filters: [{ available: true }], language }),
     getCollection("pre-workouts", { first: 8, filters: [{ available: true }], language }),
@@ -99,24 +113,17 @@ export default async function Home({ params }: PageProps) {
     getCollection("proscience-nutra", { first: 8, filters: [{ available: true }], language }),
   ]);
 
-  const trendingProducts = nodes(trending);
+  // Already filtered to in-stock products, and already an array — the ranking
+  // returns cards directly rather than a Shopify connection.
+  const trendingProducts = trending;
   const freshProducts = nodes(fresh);
 
-  const hasDiscount = (p: ProductCardData) =>
-    p.variants.edges.some(({ node: v }) => {
-      if (!v.compareAtPrice) return false;
-      return parseFloat(v.compareAtPrice.amount) > parseFloat(v.price.amount);
-    });
-
-  const rawDealProducts = nodes(deals?.products);
-  const dealDedupIds = new Set(rawDealProducts.map((p) => p.id));
-  const discountedFallback = [...trendingProducts, ...freshProducts].filter(
-    (p) => !dealDedupIds.has(p.id) && hasDiscount(p)
-  );
-  const dealProducts =
-    rawDealProducts.length >= 6
-      ? rawDealProducts
-      : [...rawDealProducts, ...discountedFallback].slice(0, 10);
+  // Only if the catalog scan comes back empty (a Storefront hiccup, or a store
+  // with no active markdowns) does the strip fall back to whatever discounts
+  // are already loaded, so the band never renders as a headline with no row.
+  const dealProducts = topDeals.length
+    ? topDeals
+    : [...trendingProducts, ...freshProducts].filter(isDiscounted).slice(0, 10);
   const wheyProducts = nodes(whey?.products);
   const creatineProducts = nodes(creatine?.products);
   const preworkoutProducts = nodes(preworkout?.products);
