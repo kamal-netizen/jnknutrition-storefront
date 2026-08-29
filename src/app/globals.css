@@ -978,3 +978,452 @@
     display: none;
   }
 }
+
+/* ─── Muscle Rulz animated brand strip ─────────────────────── */
+/* Ported from the design handoff package (Option C). Departures from it:
+   Archivo loads through next/font inside the component — declared there rather
+   than the layout so only routes that render the banner preload it — and every
+   physical left/right became a logical inline property, with [dir="rtl"]
+   mirrors for the parts logical properties can't flip: the background
+   silhouette, the megaphone artwork and the speed-line travel direction.
+   The megaphone and bolt also carry their resting tilt as a static property,
+   so the reduced-motion composition keeps the handoff's pose instead of
+   snapping upright. Every keyframe moves only transform and opacity. */
+.mrz-wrap {
+  position: relative;
+  padding: 34px 0 26px;
+  font-family: var(--font-archivo), var(--font-sans), system-ui, sans-serif;
+  color: #0e2230;
+}
+
+.mrz-strip {
+  position: relative;
+  height: 170px;
+  margin-inline: 26px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding-inline: 178px 26px;
+}
+
+/* Not a box: an 8-point silhouette stretched to the strip's size. The -6px
+   inset lets its 7px outline overhang the content box, and non-scaling-stroke
+   keeps that outline even at any width. */
+.mrz-bg {
+  position: absolute;
+  inset: -6px;
+  width: calc(100% + 12px);
+  height: calc(100% + 12px);
+  z-index: 0;
+  overflow: visible;
+}
+
+[dir="rtl"] .mrz-bg {
+  transform: scaleX(-1);
+}
+
+.mrz-strip > *:not(.mrz-bg) {
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Copy ── */
+.mrz-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+/* word-spacing compensates for the stroke closing up the gaps between words;
+   paint-order keeps the stroke behind the letterforms so they stay crisp. */
+.mrz-title {
+  margin: 0;
+  font-size: 38px;
+  line-height: 1;
+  font-weight: 900;
+  text-transform: uppercase;
+  white-space: nowrap;
+  word-spacing: 0.14em;
+  color: #fff;
+  -webkit-text-stroke: 3px #0e2230;
+  paint-order: stroke fill;
+}
+
+.mrz-lime {
+  color: #ffd400;
+}
+
+.mrz-sub {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.mrz-sub span {
+  background: #ffd400;
+  color: #0e2230;
+  border: 3px solid #0e2230;
+  padding: 3px 10px;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+/* Archivo has no Arabic subset, so /ar renders the headline on the system
+   fallback per glyph — the 3px outline sized for Archivo's heavy caps swamps
+   the fallback's thinner strokes, and Latin word-spacing opens Arabic up. */
+[dir="rtl"] .mrz-title {
+  -webkit-text-stroke-width: 2px;
+  word-spacing: normal;
+}
+
+/* ── CTA ── */
+.mrz-cta {
+  margin-inline-start: 24px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffd400;
+  color: #0e2230;
+  border: 4px solid #0e2230;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 10px 18px;
+  text-decoration: none;
+  transition: transform 0.16s ease;
+}
+
+.mrz-cta:hover {
+  color: #0e2230;
+  transform: translate(2px, -2px);
+}
+
+[dir="rtl"] .mrz-cta:hover {
+  transform: translate(-2px, -2px);
+}
+
+/* ── Props ── */
+/* The three absolutely-placed props stay scoped under .mrz-strip so they match
+   the specificity of the `> *:not(.mrz-bg)` rule above and win on source order.
+   A bare `.mrz-mega` loses that tie and gets dragged back into the flex flow,
+   which collapses the megaphone to a ~29px sliver.
+
+   Megaphone breaks the frame at the strip's leading edge. rotate/translate/
+   scale stay independent properties on purpose: the keyframes animate rotate
+   alone, so the centering translate and the RTL mirror scale compose with it
+   instead of being overwritten. transform-origin pivots at the grip. */
+.mrz-strip .mrz-mega {
+  position: absolute;
+  inset-inline-start: -48px;
+  top: 50%;
+  translate: 0 -50%;
+  rotate: -6deg;
+  transform-origin: 80% 60%;
+  animation: mrzShout 3.6s ease-in-out infinite;
+}
+
+/* The mirror has to reflect about the horizontal centre or it also displaces
+   the element: scaleX(-1) about the 80% grip pivot slides the megaphone ~0.6 of
+   its own width toward the trailing edge, which on a phone pushes it against
+   the viewport edge. Re-centring the origin costs only a slightly different
+   pivot for the shout — a few pixels across a 5° swing. */
+[dir="rtl"] .mrz-strip .mrz-mega {
+  scale: -1 1;
+  transform-origin: 50% 60%;
+}
+
+.mrz-strip .mrz-bolt {
+  position: absolute;
+  inset-inline-start: 262px;
+  top: -30px;
+  transform: rotate(-6deg);
+  animation: mrzFlick 3.2s ease-in-out infinite;
+}
+
+.mrz-gym {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+  margin-inline-start: auto;
+}
+
+.mrz-float {
+  animation: mrzBob 4.2s ease-in-out infinite;
+}
+
+/* Same bob, coprime duration and offset phase, so the dumbbell and the
+   kettlebell never peak together. */
+.mrz-float-b {
+  animation-duration: 5.1s;
+  animation-delay: -1.4s;
+}
+
+.mrz-strip .mrz-speed {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.mrz-speed i {
+  position: absolute;
+  height: 3px;
+  border-radius: 2px;
+  animation: mrzDash 2.6s linear infinite;
+}
+
+.mrz-speed i:first-child {
+  width: 56px;
+  top: 26%;
+  inset-inline-end: 34%;
+  background: #ffd400;
+  opacity: 0.9;
+}
+
+.mrz-speed i:last-child {
+  width: 34px;
+  top: 62%;
+  inset-inline-end: 28%;
+  background: #fff;
+  opacity: 0.85;
+  animation-delay: -1.2s;
+}
+
+/* The bars streak toward the strip's trailing edge, so under RTL they run
+   the other way. */
+[dir="rtl"] .mrz-speed i {
+  animation-name: mrzDashRtl;
+}
+
+/* ── Loose accents on the strip's shoulders ── */
+.mrz-sketch {
+  position: absolute;
+  height: 4px;
+  border-radius: 3px;
+  background: #0e2230;
+  transform: rotate(-0.7deg);
+}
+
+.mrz-sk-a {
+  width: 120px;
+  top: 14px;
+  inset-inline-end: 60px;
+}
+
+.mrz-sk-b {
+  width: 66px;
+  top: 28px;
+  inset-inline-end: 36px;
+}
+
+.mrz-sk-c {
+  width: 92px;
+  bottom: 8px;
+  inset-inline-start: 196px;
+}
+
+.mrz-dot {
+  position: absolute;
+  border-radius: 50%;
+  border: 4px solid #0e2230;
+  animation: mrzBounce 2.8s ease-in-out infinite;
+}
+
+.mrz-dot-a {
+  width: 22px;
+  height: 22px;
+  background: #ffd400;
+  inset-inline-end: 52px;
+  top: 12px;
+}
+
+.mrz-dot-b {
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  inset-inline-end: 96px;
+  top: 0;
+  animation-delay: -1.3s;
+}
+
+/* ── Motion ── */
+/* Durations are deliberately coprime across the strip (3.6 / 3.2 / 2.8 / 2.6 /
+   4.2 / 5.1s) so the loops never lock into a visible beat. The megaphone rests,
+   then double-kicks — a shout, not a wobble — and the bolt holds still for 72%
+   of its cycle so the scale snap reads as a flash. */
+@keyframes mrzShout {
+  0%, 62%, 100% { rotate: -6deg; }
+  70% { rotate: -11deg; }
+  76% { rotate: -3deg; }
+  86% { rotate: -7deg; }
+}
+
+@keyframes mrzFlick {
+  0%, 72%, 100% { transform: rotate(-6deg) scale(1); }
+  78% { transform: rotate(-6deg) scale(1.09); }
+  84% { transform: rotate(-6deg) scale(0.98); }
+}
+
+@keyframes mrzBob {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-9px) rotate(-1.6deg); }
+}
+
+@keyframes mrzBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
+}
+
+@keyframes mrzDash {
+  0% { transform: translateX(26px); opacity: 0; }
+  18% { opacity: 0.6; }
+  100% { transform: translateX(-70px); opacity: 0; }
+}
+
+@keyframes mrzDashRtl {
+  0% { transform: translateX(-26px); opacity: 0; }
+  18% { opacity: 0.6; }
+  100% { transform: translateX(70px); opacity: 0; }
+}
+
+/* The weights would collide with the headline before this width. Once they are
+   gone nothing is left holding the CTA against the trailing edge — the gym is
+   what carries the `auto` margin — so the CTA takes it over and the strip keeps
+   its copy-left / action-right reading instead of leaving dead space. */
+@media (max-width: 1150px) {
+  .mrz-gym {
+    display: none;
+  }
+  .mrz-cta {
+    margin-inline-start: auto;
+  }
+}
+
+/* The page gutter steps 32px → 24px below Tailwind's `lg`, and the megaphone's
+   overhang is sized against the wider one: at 960px its horn crosses the
+   viewport edge and gets clipped. Left overflow is silent in LTR, but under RTL
+   the same overhang lands on the right, where it does give the page a
+   horizontal scrollbar. Pulling it in keeps the frame-break intact either way. */
+@media (min-width: 901px) and (max-width: 1023px) {
+  .mrz-strip .mrz-mega {
+    inset-inline-start: -34px;
+  }
+}
+
+/* Phones keep the desktop composition: megaphone breaking the leading edge,
+   headline and offer chip in the middle, CTA on the trailing side, all reading
+   straight across. The handoff instead stacked these into a wrapped block with
+   96px of top padding below 900px, which lost the horizontal strip the design
+   is built around and pushed the headline past the strip's right edge on a
+   375px viewport. Mobile is most of this store's traffic, so the row is scaled
+   down rather than rebuilt.
+
+   `min-width: 0` on the copy is what makes that possible — as a `flex: 0 0 auto`
+   item the headline sizes to max-content and overflows instead of wrapping. */
+@media (max-width: 900px) {
+  .mrz-strip {
+    height: 132px;
+    gap: 12px;
+    margin-inline: 14px;
+    padding-inline: 104px 16px;
+  }
+  .mrz-strip .mrz-mega {
+    inset-inline-start: -26px;
+    width: 126px;
+    height: auto;
+  }
+  .mrz-strip .mrz-bolt {
+    inset-inline-start: 92px;
+    top: -22px;
+    width: 34px;
+    height: auto;
+  }
+  .mrz-text {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .mrz-title {
+    font-size: 26px;
+    white-space: normal;
+    -webkit-text-stroke-width: 2.5px;
+  }
+  .mrz-sub {
+    font-size: 12px;
+  }
+  .mrz-sub span {
+    border-width: 2px;
+    padding: 2px 8px;
+  }
+  .mrz-cta {
+    flex: 0 0 auto;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 8px 12px;
+    border-width: 3px;
+  }
+  .mrz-sketch {
+    display: none;
+  }
+}
+
+/* The narrowest phones. The megaphone shrinks hard and its overhang is pulled
+   in to 8px past the strip — the page's own 16px gutter is all the room it has,
+   and in RTL an overhang wider than that hangs off the right edge of the
+   viewport. Everything it gives back goes to the copy column, which is what
+   decides whether the headline breaks over two lines or three. */
+@media (max-width: 640px) {
+  .mrz-strip {
+    height: 112px;
+    gap: 8px;
+    margin-inline: 8px;
+    padding-inline: 62px 10px;
+  }
+  .mrz-strip .mrz-mega {
+    inset-inline-start: -16px;
+    width: 78px;
+  }
+  .mrz-strip .mrz-bolt {
+    inset-inline-start: 54px;
+    top: -14px;
+    width: 24px;
+  }
+  .mrz-title {
+    font-size: 18px;
+    -webkit-text-stroke-width: 2px;
+  }
+  .mrz-sub {
+    font-size: 10px;
+  }
+  .mrz-sub span {
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .mrz-cta {
+    gap: 4px;
+    font-size: 8.5px;
+    letter-spacing: 0.04em;
+    padding: 6px 8px;
+    border-width: 2px;
+  }
+  .mrz-dot {
+    display: none;
+  }
+  /* Arabic sits on the system fallback, which runs wider at the same size. */
+  [dir="rtl"] .mrz-title {
+    font-size: 17px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mrz-wrap *,
+  .mrz-wrap *::before,
+  .mrz-wrap *::after {
+    animation: none !important;
+  }
+}

@@ -107,6 +107,14 @@ const en = {
     ccGenuine: "100% Genuine",
     ccCta: "Shop the Core Champs range",
     muscleRulzTagline: "Hardcore formulas built to fuel serious gains.",
+    // ─── Muscle Rulz animated brand strip (components/home/MuscleRulzBanner) ──
+    // The headline splits so the accent lands on the second half. English can
+    // break the brand name itself the way the design does; Arabic cannot —
+    // "Muscle Rulz" stays whole and Latin there, matching how every other brand
+    // name is handled, with the accent carrying the whole lockup instead.
+    mrHeadline: "Shop Muscle",
+    mrHeadlineAccent: "Rulz",
+    mrOffer: "Up to 52% Off",
     proscienceTagline: "Science-backed nutrition for next-level results.",
     healthWellness: "Health & Wellness",
     healthTagline: "Vitamins, fish oil and daily essentials.",
@@ -517,6 +525,10 @@ const ar: Dictionary = {
     ccGenuine: "أصلي 100%",
     ccCta: "تسوق تشكيلة Core Champs",
     muscleRulzTagline: "تركيبات قوية مصممة لتغذية المكاسب الجادة.",
+    // ─── Muscle Rulz animated brand strip (components/home/MuscleRulzBanner) ──
+    mrHeadline: "تسوق",
+    mrHeadlineAccent: "Muscle Rulz",
+    mrOffer: "خصم حتى 52%",
     proscienceTagline: "تغذية مدعومة بالعلم لنتائج استثنائية.",
     healthWellness: "الصحة والعافية",
     healthTagline: "فيتامينات وزيت سمك وأساسيات يومية.",

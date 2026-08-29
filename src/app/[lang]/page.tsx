@@ -12,6 +12,7 @@ import CoreChampsHero from "@/components/home/CoreChampsHero";
 import SectionHeading from "@/components/home/SectionHeading";
 import UAEFlagBanner from "@/components/home/UAEFlagBanner";
 import DealsBanner from "@/components/home/DealsBanner";
+import MuscleRulzBanner from "@/components/home/MuscleRulzBanner";
 import type { Metadata } from "next";
 import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, DEFAULT_KEYWORDS } from "@/lib/seo";
 import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
@@ -318,6 +319,15 @@ export default async function Home({ params }: PageProps) {
         href="/collections/muscle-rulz"
         products={muscleRulzProducts}
         ctaLabel={viewAll}
+        header={
+          <MuscleRulzBanner
+            title={t.mrHeadline}
+            highlight={t.mrHeadlineAccent}
+            offer={t.mrOffer}
+            ctaLabel={viewAll}
+            href="/collections/muscle-rulz"
+          />
+        }
       />
 
       {/* ─── Proscience Nutra ─────────────────────────────────── */}
