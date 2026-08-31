@@ -107,7 +107,7 @@ export default async function Home({ params }: PageProps) {
     getCollection("muscle-building-products", { first: 8, filters: [{ available: true }], language }),
     getCollection("health-wellness", { first: 8, filters: [{ available: true }], language }),
     getCollection("vegan-protein", { first: 4, filters: [{ available: true }], language }),
-    getCollection("shakers", { first: 8, filters: [{ available: true }], language }),
+    getCollection("accessories", { first: 8, filters: [{ available: true }], language }),
     getCollection("core-champs", { first: 8, filters: [{ available: true }], language }),
     getCollection("muscle-rulz", { first: 8, filters: [{ available: true }], language }),
     getCollection("proscience-nutra", { first: 8, filters: [{ available: true }], language }),
@@ -369,7 +369,7 @@ export default async function Home({ params }: PageProps) {
       <SectionStrip
         title={t.accessoriesTitle}
         subtitle={t.accessoriesTagline}
-        href="/collections/shakers"
+        href="/collections/accessories"
         products={accessoryProducts}
         ctaLabel={viewAll}
         grid
