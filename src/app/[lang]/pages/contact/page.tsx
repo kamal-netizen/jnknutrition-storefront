@@ -24,14 +24,22 @@ const ADDRESS =
   "Shop 6, Baniyas Complex Building, Opp. Choithrams, Deira, Dubai";
 const MAPS_URL = BUSINESS_MAPS_URL;
 
+// The highest-value snippet on the site, and until now the emptiest. Over the
+// 28 days to 2026-09-22 the Shopify twin of this page (/pages/contact-us, now
+// 308'd here — see next.config.ts) drew 1,036 impressions at position 3.9 for 4
+// clicks, under the title "CONTACT US" with no meta description at all. It
+// ranks for the store's biggest non-brand cluster — "protein shop near me"
+// (215), "supplement store near me" (156), "protein powder shop near me" (125)
+// and ~200 more — every one of which wants an address, hours and a phone
+// number. Shopify's own fields are deliberately NOT allowed to win here.
 export async function generateMetadata(): Promise<Metadata> {
-  const page = await getPage("contact");
   return {
-    title: page?.seo.title || page?.title || "Contact Us",
+    title: "Supplement Store in Deira, Dubai — Visit or Call",
+    // A shorter address than the on-page one: the full building name pushed
+    // this past the ~155 characters Google renders, losing the phone number.
     description:
-      page?.seo.description ||
-      page?.bodySummary ||
-      "Get in touch with the JNK team — we're here to help with orders, products, and anything else.",
+      "Visit JNK Nutrition: Shop 6, Baniyas Complex, opp. Choithrams, Deira, " +
+      `Dubai. Open Mon–Sat 10am–11pm. Call ${CONTACT_PHONE} or WhatsApp us.`,
   };
 }
 

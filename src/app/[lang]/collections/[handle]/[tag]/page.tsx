@@ -5,12 +5,14 @@ import { notFound } from "next/navigation";
 import { getCollection } from "@/lib/queries/collections";
 import type { ProductCardData } from "@/lib/queries/products";
 import ProductCard from "@/components/ProductCard";
-import {
-  absoluteUrl,
-  collectionFallbackDescription,
-} from "@/lib/seo";
+import { absoluteUrl } from "@/lib/seo";
+import { composeCollectionSerp } from "@/lib/seo-serp";
 import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
-import { getCollectionSeo, prettifyTag } from "@/lib/collection-seo";
+import {
+  getCollectionSeo,
+  getCollectionSeoMeta,
+  prettifyTag,
+} from "@/lib/collection-seo";
 
 export const revalidate = 1800;
 
@@ -42,12 +44,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!collection) return { title: "Collection Not Found" };
 
   const tagLabel = prettifyTag(tag);
-  const seo = locale.isDefault ? getCollectionSeo(`${handle}/${tag}`) : undefined;
-  const title = seo?.title || `${collection.title} — ${tagLabel}`;
-  const description =
-    seo?.description ||
-    collection.seo.description ||
-    collectionFallbackDescription(`${tagLabel} ${collection.title}`);
+  const curated = getCollectionSeoMeta(`${handle}/${tag}`, locale.code);
+  const { title, description } = composeCollectionSerp({
+    localeCode: locale.code,
+    // Tag first: these read as "Whey Protein — Near-Expiry", which matches how
+    // the query is typed. This family already runs 9–24% CTR.
+    name: `${tagLabel} ${collection.title}`,
+    shopifyTitle: `${collection.title} — ${tagLabel}`,
+    shopifyDescription: collection.seo.description,
+    curatedTitle: curated.title,
+    curatedDescription: curated.description,
+  });
   const basePath = `/collections/${handle}/${tag}`;
   const url = localizePath(basePath, locale);
 

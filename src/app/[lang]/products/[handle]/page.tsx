@@ -10,9 +10,13 @@ import {
 import ProductDetails from "@/components/ProductDetails";
 import {
   absoluteUrl,
-  productFallbackTitle,
-  productFallbackDescription,
+  SITE_NAME,
+  MERCHANT_RETURN_POLICY,
+  gtinFrom,
+  offerShippingDetails,
+  priceValidUntil,
 } from "@/lib/seo";
+import { composeProductSerp } from "@/lib/seo-serp";
 import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
 import { PRODUCT_FAQ } from "@/lib/product-faq";
 
@@ -37,15 +41,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) return { title: "Product Not Found" };
 
   const image = product.images.edges[0]?.node;
-  const title = product.seo.title || productFallbackTitle(product.title);
-  const description =
-    product.seo.description ||
-    productFallbackDescription({
-      name: product.title,
-      vendor: product.vendor,
-      price: product.priceRange.minVariantPrice.amount,
-      currency: product.priceRange.minVariantPrice.currencyCode,
-    });
+  // Shopify's SEO fields are candidates, not output — see seo-serp.ts for what
+  // they were putting in front of 15K product-page impressions.
+  const { title, description } = composeProductSerp({
+    localeCode: locale.code,
+    name: product.title,
+    shopifyTitle: product.seo.title,
+    shopifyDescription: product.seo.description,
+    vendor: product.vendor,
+    price: product.priceRange.minVariantPrice.amount,
+    currency: product.priceRange.minVariantPrice.currencyCode,
+  });
   const basePath = `/products/${product.handle}`;
   const selfPath = localizePath(basePath, locale);
   // Size-variant duplicates can point Google at a primary via a `seo.canonical_url`
@@ -101,7 +107,10 @@ export default async function ProductPage({ params }: Props) {
     description: product.description,
     image: images.map((i) => i.url),
     url: productUrl,
-    sku: variants[0]?.id,
+    // The merchant's SKU, not the Shopify variant GID this used to emit — a
+    // GID identifies the product to Shopify and to nobody else.
+    sku: variants[0]?.sku || undefined,
+    gtin: gtinFrom(variants[0]?.sku),
     category: product.productType || undefined,
     brand: { "@type": "Brand", name: product.vendor || "JNK Nutrition" },
     ...(rating
@@ -113,17 +122,26 @@ export default async function ProductPage({ params }: Props) {
           },
         }
       : {}),
+    // Merchant listing fields. Search Console shows 15,179 impressions in the
+    // "Product snippets" appearance at 1.79% CTR — eligible, but with nothing
+    // in them. Shipping cost, delivery window and the return period are what
+    // Google renders under a product result, and they come from here.
     offers: variants.map((variant) => ({
       "@type": "Offer",
       name: variant.title,
-      sku: variant.id,
+      sku: variant.sku || undefined,
+      gtin: gtinFrom(variant.sku),
       price: variant.price.amount,
       priceCurrency: variant.price.currencyCode,
+      priceValidUntil: priceValidUntil(),
       url: productUrl,
       availability: variant.availableForSale
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
+      seller: { "@type": "Organization", name: SITE_NAME },
+      shippingDetails: offerShippingDetails(variant.price.amount),
+      hasMerchantReturnPolicy: MERCHANT_RETURN_POLICY,
     })),
   };
 

@@ -23,6 +23,12 @@ export type ProductImage = {
 export type ProductVariant = {
   id: string;
   title: string;
+  /**
+   * The merchant's own SKU. Google's merchant listings match a product across
+   * the web by identifier; the variant GID we used to emit as `sku` is a
+   * Shopify-internal handle that matches nothing.
+   */
+  sku: string | null;
   availableForSale: boolean;
   price: MoneyV2;
   compareAtPrice: MoneyV2 | null;
@@ -200,6 +206,7 @@ const PRODUCT_FRAGMENT = `
         node {
           id
           title
+          sku
           availableForSale
           price { amount currencyCode }
           compareAtPrice { amount currencyCode }

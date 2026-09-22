@@ -9,14 +9,11 @@ import { getCollectionProductsView } from "@/lib/collection-products";
 import CollectionBrowserView from "@/components/CollectionBrowserView";
 import CollectionBrowserClient from "@/components/CollectionBrowserClient";
 import { type ActiveFilters } from "@/lib/product-filters";
-import {
-  absoluteUrl,
-  collectionFallbackTitle,
-  collectionFallbackDescription,
-} from "@/lib/seo";
+import { absoluteUrl } from "@/lib/seo";
+import { composeCollectionSerp } from "@/lib/seo-serp";
 import { getDictionary } from "@/lib/dictionaries";
 import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
-import { getCollectionSeo } from "@/lib/collection-seo";
+import { getCollectionSeo, getCollectionSeoMeta } from "@/lib/collection-seo";
 import { loadMoreCollection } from "./actions";
 
 export const revalidate = 1800;
@@ -48,15 +45,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   });
   if (!collection) return { title: "Collection Not Found" };
 
-  // Enriched English marketing copy applies to the default locale only; other
-  // locales fall through to Shopify's own translated SEO fields.
-  const seo = locale.isDefault ? getCollectionSeo(handle) : undefined;
-  const title =
-    seo?.title || collection.seo.title || collectionFallbackTitle(collection.title);
-  const description =
-    seo?.description ||
-    collection.seo.description ||
-    collectionFallbackDescription(collection.title);
+  // Curated copy wins where it exists (in this locale); otherwise the snippet is
+  // composed from Shopify's fields rather than copied out of them — several of
+  // these collections rank in the top 5 and convert under 1% on the raw ones.
+  const curated = getCollectionSeoMeta(handle, locale.code);
+  const { title, description } = composeCollectionSerp({
+    localeCode: locale.code,
+    name: collection.title,
+    shopifyTitle: collection.seo.title,
+    shopifyDescription: collection.seo.description,
+    curatedTitle: curated.title,
+    curatedDescription: curated.description,
+  });
   const basePath = `/collections/${collection.handle}`;
   const url = localizePath(basePath, locale);
 

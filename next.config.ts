@@ -118,6 +118,25 @@ const nextConfig: NextConfig = {
         destination: "/ar/:path*",
         permanent: true,
       },
+      // ─── Duplicate About/Contact ─────────────────────────────────────────
+      // Two pages exist for each: this app's own route (/pages/about,
+      // /pages/contact) and the Shopify CMS handle it also serves through
+      // pages/[handle] (/pages/about-us, /pages/contact-us). Google indexed
+      // both and split them — in the 28 days to 2026-09-22, about took 862
+      // impressions at position 2.5 and 227 at 4.3, contact took 1,036 at 3.9
+      // — while the CMS twin, which is the one ranking, renders raw Shopify
+      // body HTML with no address, no hours and no contact form. Folding the
+      // twin into the real page consolidates the ranking onto the better
+      // document; their metadata is written for that traffic in
+      // app/[lang]/pages/{about,contact}/page.tsx.
+      ...["about", "contact"].flatMap((slug) => [
+        { source: `/pages/${slug}-us`, destination: `/pages/${slug}`, permanent: true },
+        {
+          source: `/ar/pages/${slug}-us`,
+          destination: `/ar/pages/${slug}`,
+          permanent: true,
+        },
+      ]),
     ];
   },
   images: {

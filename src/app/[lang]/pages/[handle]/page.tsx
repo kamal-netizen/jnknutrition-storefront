@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPage } from "@/lib/queries/content";
+import {
+  fitSerpTitle,
+  looksHandWritten,
+  normalizeSerpText,
+} from "@/lib/seo-serp";
 
 export const revalidate = 86400;
 
@@ -18,9 +23,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { handle } = await params;
   const page = await getPage(handle);
   if (!page) return { title: "Page Not Found" };
+  // Shopify page titles arrive shouted ("CONTACT US", "ABOUT US") and their
+  // descriptions are `bodySummary` — body copy the API clipped mid-sentence,
+  // which Google then clips again. Normalize the title; only keep a description
+  // that reads like one, and say something concrete otherwise.
+  const shopifyDescription = [page.seo.description, page.bodySummary].find(
+    looksHandWritten
+  );
   return {
-    title: page.seo.title || page.title,
-    description: page.seo.description || page.bodySummary || undefined,
+    title: fitSerpTitle(page.seo.title || page.title),
+    description:
+      normalizeSerpText(shopifyDescription) ||
+      `${normalizeSerpText(page.title)} at JNK Nutrition — UAE's official ` +
+        `distributor of 100% genuine supplements, Deira, Dubai.`,
   };
 }
 

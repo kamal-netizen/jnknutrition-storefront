@@ -8,14 +8,18 @@ import BrandCard, { BRANDS } from "@/components/home/BrandCard";
 
 export const revalidate = 86400;
 
+// The Shopify twin (/pages/about-us, now 308'd here — see next.config.ts) held
+// position 2.5 on 862 impressions for 3 clicks, under "ABOUT US" over the first
+// sentence of body copy clipped mid-word. Shopify's fields are not allowed to
+// win here either: this page ranks on brand and near-brand queries, where the
+// snippet's job is to state what the store is and where it is.
 export async function generateMetadata(): Promise<Metadata> {
-  const page = await getPage("about");
   return {
-    title: page?.seo.title || page?.title || "About JNK",
+    title: "About JNK Nutrition — Genuine Supplements UAE",
     description:
-      page?.seo.description ||
-      page?.bodySummary ||
-      "JNK is your trusted source for 100% authentic sports nutrition and supplements from the world's top brands.",
+      "UAE official distributor of 100% genuine sports supplements — 2,000+ " +
+      "products, 50+ brands, a storefront in Deira, Dubai, plus wholesale and " +
+      "export.",
   };
 }
 

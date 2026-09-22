@@ -2,6 +2,11 @@
 // Single source of truth for the canonical site origin and shared metadata used
 // by the root layout, sitemap, robots, and per-route structured data.
 
+import {
+  FREE_SHIPPING_THRESHOLD,
+  FREE_SHIPPING_CURRENCY,
+} from "@/lib/shipping";
+
 export const SITE_URL = "https://www.jnknutrition.com";
 
 export const SITE_NAME = "JNK Nutrition";
@@ -96,45 +101,111 @@ export const PRIORITY_COLLECTION_HANDLES = new Set([
   "super-saver",
 ]);
 
-// ─── Metadata fallback copy (CTR optimization) ───────────────────────────────
-// Used only when Shopify's own SEO title/description is blank. The root layout
-// applies the "%s | JNK Nutrition" title template, so titles here omit the brand
-// suffix to avoid duplication.
+// ─── Metadata copy ───────────────────────────────────────────────────────────
+// Title/description composition moved to src/lib/seo-serp.ts, because the
+// fallbacks that lived here only applied when Shopify's own SEO fields were
+// blank — and Search Console showed the pages where those fields were *set*
+// were the ones bleeding clicks. That file treats them as candidates instead.
 
-/** UAE-localized fallback <title> for a product. */
-export function productFallbackTitle(name: string): string {
-  return `${name} — Buy Online in UAE`;
+// ─── Shipping & returns (published policy → structured data) ─────────────────
+// These mirror what the product page already tells shoppers on-page (the
+// `shippingReturns` block in src/lib/dictionaries.ts). They feed Google's
+// merchant listing enhancements, which print delivery speed, shipping cost and
+// the return window straight into the product result — the richest CTR lever a
+// product listing has. Never let them drift from the on-page copy, and never
+// state a policy the store does not actually publish.
+export const DELIVERY_HANDLING_DAYS_MAX = 1; // same-day dispatch before cut-off
+export const DELIVERY_TRANSIT_DAYS_MIN = 1;
+export const DELIVERY_TRANSIT_DAYS_MAX = 3;
+/** Unopened items, per the published returns copy. */
+export const RETURN_WINDOW_DAYS = 7;
+
+/**
+ * schema.org `MerchantReturnEnumeration` value for who pays return postage,
+ * e.g. "https://schema.org/FreeReturn" or
+ * "https://schema.org/ReturnShippingFees". Deliberately blank: the store's
+ * published policy does not say, and Google flags an invented value. Filling it
+ * in completes the return-policy annotation.
+ */
+export const RETURN_FEES = "";
+
+/**
+ * `shippingDetails` for one Offer. Search Console shows 15,179 impressions in
+ * the "Product snippets" appearance converting at 1.79% — the listings are
+ * eligible but bare. Shipping and return annotations are what fill them out.
+ *
+ * The free-shipping rate is only claimed on variants that actually clear the
+ * threshold; below it the block carries destination and delivery speed only,
+ * because a free-shipping claim Google can disprove at checkout costs the whole
+ * enhancement.
+ */
+export function offerShippingDetails(priceAmount: string | number) {
+  const value =
+    typeof priceAmount === "number" ? priceAmount : Number.parseFloat(priceAmount);
+  const qualifiesForFreeShipping =
+    Number.isFinite(value) && value >= FREE_SHIPPING_THRESHOLD;
+
+  return {
+    "@type": "OfferShippingDetails",
+    ...(qualifiesForFreeShipping
+      ? {
+          shippingRate: {
+            "@type": "MonetaryAmount",
+            value: 0,
+            currency: FREE_SHIPPING_CURRENCY,
+          },
+        }
+      : {}),
+    shippingDestination: {
+      "@type": "DefinedRegion",
+      addressCountry: BUSINESS_COUNTRY,
+    },
+    deliveryTime: {
+      "@type": "ShippingDeliveryTime",
+      handlingTime: {
+        "@type": "QuantitativeValue",
+        minValue: 0,
+        maxValue: DELIVERY_HANDLING_DAYS_MAX,
+        unitCode: "DAY",
+      },
+      transitTime: {
+        "@type": "QuantitativeValue",
+        minValue: DELIVERY_TRANSIT_DAYS_MIN,
+        maxValue: DELIVERY_TRANSIT_DAYS_MAX,
+        unitCode: "DAY",
+      },
+    },
+  };
 }
 
-/** UAE-localized, benefit-led fallback meta description for a product. */
-export function productFallbackDescription(opts: {
-  name: string;
-  vendor?: string;
-  price?: string;
-  currency?: string;
-}): string {
-  const brand = opts.vendor ? `${opts.vendor} ` : "";
-  const priceStr = opts.price
-    ? ` from ${opts.currency ?? "AED"} ${opts.price}`
-    : "";
-  return (
-    `Buy genuine ${brand}${opts.name}${priceStr} at JNK Nutrition — UAE's ` +
-    `official distributor of 100% authentic supplements. Fast UAE-wide ` +
-    `delivery and cash on delivery.`
-  );
+/**
+ * The SKU as a GTIN, when it is one. Many of this store's SKUs are the barcode
+ * off the tub (e.g. "784922887733"), and `gtin` is the identifier Google
+ * actually matches a product on across merchants — far stronger than a `sku`
+ * only this store uses. Anything that isn't a valid GTIN length is not one.
+ */
+export function gtinFrom(sku?: string | null): string | undefined {
+  const digits = (sku ?? "").trim();
+  return /^(\d{8}|\d{12,14})$/.test(digits) ? digits : undefined;
 }
 
-/** UAE-localized fallback <title> for a collection. */
-export function collectionFallbackTitle(name: string): string {
-  return `${name} — Buy in Dubai & UAE`;
-}
+/** `hasMerchantReturnPolicy` for an Offer, from the published returns policy. */
+export const MERCHANT_RETURN_POLICY = {
+  "@type": "MerchantReturnPolicy",
+  applicableCountry: BUSINESS_COUNTRY,
+  returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+  merchantReturnDays: RETURN_WINDOW_DAYS,
+  ...(RETURN_FEES ? { returnFees: RETURN_FEES } : {}),
+};
 
-/** UAE-localized fallback meta description for a collection. */
-export function collectionFallbackDescription(name: string): string {
-  return (
-    `Shop ${name} at JNK Nutrition, UAE's official distributor of 100% genuine ` +
-    `supplements. Best prices in Dubai, fast UAE-wide delivery and cash on delivery.`
-  );
+/**
+ * A rolling `priceValidUntil`, 90 days out. Google drops an Offer whose
+ * priceValidUntil has passed, so this must never be a fixed date.
+ */
+export function priceValidUntil(): string {
+  const until = new Date();
+  until.setDate(until.getDate() + 90);
+  return until.toISOString().slice(0, 10);
 }
 
 /** Build an absolute URL for a site-relative path. */

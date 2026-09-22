@@ -3,9 +3,14 @@ import Link from "@/components/LocaleLink";
 import Image from "next/image";
 import { getCollections } from "@/lib/queries/collections";
 
+// 877 impressions at position 4.5 over the 28 days to 2026-09-22, and not one
+// click — a top-5 ranking spent on "Collections" over "Browse JNK Nutrition
+// product collections." Neither line names a product, a price or a country.
 export const metadata: Metadata = {
-  title: "Collections",
-  description: "Browse JNK Nutrition product collections.",
+  title: "Shop Supplements by Category — Dubai & UAE",
+  description:
+    "Whey protein, mass gainers, pre-workout, creatine, vitamins and more — " +
+    "100% genuine, at the best prices in Dubai. Free UAE delivery over AED 149.",
 };
 
 export const revalidate = 1800;

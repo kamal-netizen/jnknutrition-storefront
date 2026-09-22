@@ -14,9 +14,14 @@ import {
 } from "@/lib/product-filters";
 import { loadMoreProducts } from "./actions";
 
+// 243 impressions at position 1.9 and one click. A number-one ranking earning
+// 0.41% is a snippet problem, not a ranking problem.
 export const metadata: Metadata = {
-  title: "All Products",
-  description: "Shop the full JNK Nutrition range of premium supplements.",
+  title: "All Supplements — Buy Online in Dubai & UAE",
+  description:
+    "Browse 2,000+ genuine supplements from the world's top brands — whey " +
+    "protein, gainers, pre-workout, vitamins. Free UAE delivery over AED 149, " +
+    "cash on delivery.",
 };
 
 export const revalidate = 1800;
