@@ -194,8 +194,13 @@ export default async function Home({ params }: PageProps) {
           <p className="mt-3 text-[#55637A]">{t.shopByCategoryTagline}</p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
-          {GOALS.map((goal) => (
-            <GoalCard key={goal.title} goal={goal} />
+          {/* The grid is 2-up on mobile, so the first four tiles are the two
+              rows a phone shows without scrolling, and Lighthouse picks its LCP
+              element from among them — the third tile, as it happens, since the
+              sticky header clips the top row. All four load eagerly; the last
+              two stay lazy. */}
+          {GOALS.map((goal, i) => (
+            <GoalCard key={goal.title} goal={goal} priority={i < 4} />
           ))}
         </div>
       </section>

@@ -70,6 +70,8 @@ export default function HeroBanner() {
     };
   }, []);
 
+  const firstSrc = BANNERS[0].srcByLocale?.[locale.code] ?? BANNERS[0].src;
+
   return (
     <section
       dir="ltr"
@@ -77,6 +79,21 @@ export default function HeroBanner() {
       aria-roledescription="carousel"
       aria-label="Promotional banners"
     >
+      {/*
+        This whole carousel sits inside `hidden md:block` — a phone never shows
+        it. The first slide used to carry next/image's `priority`, which emits an
+        unconditional <link rel="preload">, so every mobile visit fetched a
+        ~130 KB desktop banner at high priority, ahead of the goal tile that is
+        actually the mobile LCP element. The preload is scoped to the viewport
+        that can see it; React hoists this link into <head>.
+      */}
+      <link
+        rel="preload"
+        as="image"
+        media="(min-width: 768px)"
+        href={firstSrc}
+        fetchPriority="high"
+      />
       <div className="relative mx-auto max-w-7xl">
         {/* Clean bordered frame */}
         <div className="relative rounded-2xl border border-[#E7ECF2] p-1 shadow-[0_12px_32px_-16px_rgba(11,15,20,0.25)]">
@@ -114,7 +131,13 @@ export default function HeroBanner() {
                           src={src}
                           alt={alt}
                           fill
-                          priority={i === 0}
+                          // Left lazy on purpose — both `priority` and
+                          // `loading="eager"` make next/image emit its own
+                          // unconditional <link rel="preload">, which is the
+                          // thing being avoided. Desktop warms this image
+                          // through the media-scoped preload above instead,
+                          // and picks it up from cache the moment it lays out
+                          // in the viewport.
                           sizes="(max-width: 1280px) 100vw, 1280px"
                           className="object-cover"
                         />

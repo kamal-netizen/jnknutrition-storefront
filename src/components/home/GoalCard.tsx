@@ -47,7 +47,23 @@ export const GOALS: Goal[] = [
   },
 ];
 
-export default function GoalCard({ goal }: { goal: Goal }) {
+export default function GoalCard({
+  goal,
+  priority = false,
+}: {
+  goal: Goal;
+  /**
+   * Load this tile's image eagerly, at high priority. Set on the tiles that
+   * are above the fold on a phone.
+   *
+   * This grid carries `order-first` on mobile — it *is* the mobile hero, since
+   * the carousel above it is `hidden md:block`. Lighthouse names one of these
+   * images as the Largest Contentful Paint element, and every one of them was
+   * `loading="lazy"`: the browser therefore waited for layout before it would
+   * even request the thing LCP is measured on.
+   */
+  priority?: boolean;
+}) {
   return (
     <Link
       href={goal.href}
@@ -58,6 +74,7 @@ export default function GoalCard({ goal }: { goal: Goal }) {
         src={goal.image}
         alt={goal.title}
         fill
+        priority={priority}
         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 17vw"
         className="object-cover transition-transform duration-500 group-hover:scale-105"
       />
