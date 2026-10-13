@@ -17,6 +17,8 @@
  * replay on every click. Styled by the `.dwl-*` block in globals.css.
  */
 
+import { DIWALI_CSS } from "@/lib/seasonal";
+
 /** Width of one swag of the garland, in SVG user units (= CSS px). */
 const SWAG = 88;
 
@@ -84,6 +86,8 @@ function Knot({ x }: { x: number }) {
 export default function DiwaliToran() {
   return (
     <div className="dwl-toran" aria-hidden="true">
+      {/* Hoisted into <head> and deduped by React; see DIWALI_CSS. */}
+      <link rel="stylesheet" href={DIWALI_CSS} precedence="default" />
       <svg className="dwl-toran-garland" width="100%" height="22" focusable="false">
         <defs>
           <pattern

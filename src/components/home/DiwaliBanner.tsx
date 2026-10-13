@@ -1,6 +1,7 @@
 import Link from "@/components/LocaleLink";
 import { Kandil } from "@/components/DiwaliToran";
 import DiwaliEntrance from "@/components/home/DiwaliEntrance";
+import { DIWALI_CSS } from "@/lib/seasonal";
 
 /**
  * The Diwali greeting band on the homepage, shown while the festival window is
@@ -31,46 +32,56 @@ const DIYAS = 5;
 const ring = (count: number, offset = 0) =>
   Array.from({ length: count }, (_, i) => (360 / count) * i + offset);
 
-/** Outer and inner halves of the rangoli, turned in opposite directions. */
+/**
+ * Outer and inner halves of the rangoli, turned in opposite directions. The
+ * spans, not the svgs, carry the motion: Chrome won't composite the individual
+ * `scale` property on an SVG element (compositeFailed:
+ * SVGTargetHasIndependentTransformProperty, which Lighthouse's audit filters
+ * out), so the inner half's breathing ran a main-thread frame every frame.
+ */
 function Rangoli() {
   return (
     <>
-      <svg className="dwl-rangoli-outer" viewBox="-100 -100 200 200" aria-hidden="true" focusable="false">
-        <circle r="98" fill="none" stroke="#F9D20F" strokeWidth="1" opacity="0.35" />
-        {ring(16).map((a) => (
-          <path
-            key={`o${a}`}
-            d="M0-96C10-82 10-68 0-58-10-68-10-82 0-96z"
-            fill="#D6247A"
-            transform={`rotate(${a})`}
-          />
-        ))}
-        {ring(16, 11.25).map((a) => (
-          <circle key={`d${a}`} cy="-74" r="3" fill="#F9D20F" transform={`rotate(${a})`} />
-        ))}
-        <circle r="56" fill="none" stroke="#F9D20F" strokeWidth="1.5" opacity="0.7" />
-      </svg>
-      <svg className="dwl-rangoli-inner" viewBox="-100 -100 200 200" aria-hidden="true" focusable="false">
-        {ring(8).map((a) => (
-          <path
-            key={`m${a}`}
-            d="M0-52C16-40 16-22 0-14-16-22-16-40 0-52z"
-            fill="#FF8A00"
-            transform={`rotate(${a})`}
-          />
-        ))}
-        {ring(8, 22.5).map((a) => (
-          <path
-            key={`t${a}`}
-            d="M0-44C9-36 9-26 0-20-9-26-9-36 0-44z"
-            fill="#17A398"
-            transform={`rotate(${a})`}
-          />
-        ))}
-        <circle r="15" fill="#F9D20F" />
-        <circle r="8" fill="#D6247A" />
-        <circle r="3.5" fill="#FFF3C4" />
-      </svg>
+      <span className="dwl-rangoli-outer">
+        <svg viewBox="-100 -100 200 200" aria-hidden="true" focusable="false">
+          <circle r="98" fill="none" stroke="#F9D20F" strokeWidth="1" opacity="0.35" />
+          {ring(16).map((a) => (
+            <path
+              key={`o${a}`}
+              d="M0-96C10-82 10-68 0-58-10-68-10-82 0-96z"
+              fill="#D6247A"
+              transform={`rotate(${a})`}
+            />
+          ))}
+          {ring(16, 11.25).map((a) => (
+            <circle key={`d${a}`} cy="-74" r="3" fill="#F9D20F" transform={`rotate(${a})`} />
+          ))}
+          <circle r="56" fill="none" stroke="#F9D20F" strokeWidth="1.5" opacity="0.7" />
+        </svg>
+      </span>
+      <span className="dwl-rangoli-inner">
+        <svg viewBox="-100 -100 200 200" aria-hidden="true" focusable="false">
+          {ring(8).map((a) => (
+            <path
+              key={`m${a}`}
+              d="M0-52C16-40 16-22 0-14-16-22-16-40 0-52z"
+              fill="#FF8A00"
+              transform={`rotate(${a})`}
+            />
+          ))}
+          {ring(8, 22.5).map((a) => (
+            <path
+              key={`t${a}`}
+              d="M0-44C9-36 9-26 0-20-9-26-9-36 0-44z"
+              fill="#17A398"
+              transform={`rotate(${a})`}
+            />
+          ))}
+          <circle r="15" fill="#F9D20F" />
+          <circle r="8" fill="#D6247A" />
+          <circle r="3.5" fill="#FFF3C4" />
+        </svg>
+      </span>
     </>
   );
 }
@@ -138,6 +149,8 @@ export default function DiwaliBanner({
 }) {
   return (
     <section className="dwl-band" aria-labelledby="dwl-title" data-dwl-enter="wait">
+      {/* Hoisted into <head> and deduped by React; see DIWALI_CSS. */}
+      <link rel="stylesheet" href={DIWALI_CSS} precedence="default" />
       <DiwaliEntrance />
 
       <div className="dwl-bokeh" aria-hidden="true">

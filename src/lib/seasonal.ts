@@ -22,6 +22,13 @@ const DIWALI = {
 };
 
 /**
+ * The Diwali stylesheet, outside the global bundle so it costs nothing while
+ * the theme is off (see the header of the file itself). Served immutable for a
+ * year: an edit to the file needs a new name here as well.
+ */
+export const DIWALI_CSS = "/seasonal/diwali-2026.css";
+
+/**
  * Whether the Diwali homepage band and header garland render for `localeCode`.
  *
  * `SEASONAL_PREVIEW=diwali` forces the window open (still respecting the kill
