@@ -14,6 +14,8 @@ import { getCollections } from "@/lib/queries/collections";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SITE_TAGLINE, DEFAULT_KEYWORDS, BUSINESS_LOCALITY, BUSINESS_REGION, BUSINESS_COUNTRY, BUSINESS_PHONE, BUSINESS_STREET_ADDRESS, BUSINESS_POSTAL_CODE, BUSINESS_LATITUDE, BUSINESS_LONGITUDE, BUSINESS_OPENING_HOURS, HAS_LOCAL_BUSINESS_DATA, SOCIAL_PROFILE_URLS, absoluteUrl } from "@/lib/seo";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import Toaster from "@/components/Toaster";
+import DiwaliToran from "@/components/DiwaliToran";
+import { isDiwaliLive } from "@/lib/seasonal";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -266,6 +268,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         />
         <LocaleProvider code={locale.code} dict={dict}>
           <Header collections={collections} />
+          {/* Seasonal garland under the header — date-gated in lib/seasonal.ts. */}
+          {isDiwaliLive(locale.code) && <DiwaliToran />}
           <main className="flex-1">{children}</main>
           <Footer dict={dict} />
           <BottomNav />

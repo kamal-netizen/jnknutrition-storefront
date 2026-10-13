@@ -18,6 +18,8 @@ import SectionHeading from "@/components/home/SectionHeading";
 import UAEFlagBanner from "@/components/home/UAEFlagBanner";
 import DealsBanner from "@/components/home/DealsBanner";
 import MuscleRulzBanner from "@/components/home/MuscleRulzBanner";
+import DiwaliBanner from "@/components/home/DiwaliBanner";
+import { isDiwaliLive } from "@/lib/seasonal";
 import type { Metadata } from "next";
 import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, DEFAULT_KEYWORDS } from "@/lib/seo";
 import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
@@ -146,6 +148,22 @@ export default async function Home({ params }: PageProps) {
       <div className="mt-6 sm:mt-8">
         <UAEFlagBanner label={t.proudOfUae} />
       </div>
+
+      {/* Diwali greeting — date-gated in lib/seasonal.ts. It sits below the UAE
+          flag rather than replacing it (UAE Flag Day, 3 Nov, falls inside the
+          window) and below both LCP elements: the hero on desktop and the
+          order-first goals grid on phones. */}
+      {isDiwaliLive(locale.code) && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-6 sm:mt-8">
+          <DiwaliBanner
+            eyebrow={t.diwaliEyebrow}
+            title={t.diwaliTitle}
+            body={t.diwaliBody}
+            ctaLabel={t.shopDeals}
+            href="/collections/today-deals"
+          />
+        </div>
+      )}
 
       {/* Page H1 — local commercial intent ("supplement store dubai/uae").
           Sized above the section H2s beneath it (36px): as the page heading it
