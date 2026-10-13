@@ -285,7 +285,7 @@ const GET_PRODUCTS_BY_IDS = `
 //
 // Wrapped in React `cache()` so that identical calls within a single render
 // pass (e.g. `generateMetadata` and the page body both requesting the same
-// product) are deduplicated into one Shopify request. `graphql-request` issues
+// product) are deduplicated into one Shopify request. Storefront queries are
 // POST requests, which Next's built-in fetch memoization does not cover (it
 // only memoizes GET) — `cache()` closes that gap at the call-site level.
 

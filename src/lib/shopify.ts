@@ -1,4 +1,3 @@
-import { GraphQLClient } from "graphql-request";
 import { env } from "./env";
 
 const endpoint = `https://${env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN}/api/${env.NEXT_PUBLIC_SHOPIFY_API_VERSION}/graphql.json`;
@@ -9,19 +8,62 @@ const headers = {
     env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN,
 };
 
-const client = new GraphQLClient(endpoint, { headers });
+type GraphQLErrorish = { extensions?: { code?: string }; message?: string };
 
-// Retries go through this one. Shopify reports an internal error as HTTP 200
-// with the failure inside the GraphQL `errors` array, and Next's fetch cache
-// sees only the status — so it stores the failure as a perfectly good response.
+/**
+ * A failed Storefront request: a non-2xx status, an unreadable body, or a
+ * GraphQL `errors` array, which Shopify sends with HTTP 200. `response` keeps
+ * the shape graphql-request's ClientError had, which isTransient() reads.
+ */
+export class StorefrontError extends Error {
+  response: { status: number; errors?: GraphQLErrorish[] };
+
+  constructor(message: string, response: { status: number; errors?: GraphQLErrorish[] }) {
+    super(message);
+    this.name = "StorefrontError";
+    this.response = response;
+  }
+}
+
+// A plain fetch rather than graphql-request. This module runs in the browser
+// too (the cart store and the search box call Shopify directly), and
+// graphql-request carried the whole graphql reference implementation into that
+// bundle — it parses every query only to read its operation name, which
+// Shopify does not need. Errors surface as they did: thrown, with the response
+// status and the GraphQL errors attached.
+async function request<T>(
+  query: string,
+  variables: Record<string, unknown> | undefined,
+  init?: RequestInit
+): Promise<T> {
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ query, variables }),
+    ...init,
+  });
+  const body = (await res.json().catch(() => null)) as {
+    data?: T;
+    errors?: GraphQLErrorish[];
+  } | null;
+  if (!res.ok || !body || body.errors?.length) {
+    const errors = body?.errors;
+    throw new StorefrontError(
+      errors?.[0]?.message ?? `Storefront API responded ${res.status}`,
+      { status: res.status, errors }
+    );
+  }
+  return body.data as T;
+}
+
+// Retries skip the cache. Shopify reports an internal error as HTTP 200 with
+// the failure inside the GraphQL `errors` array, and Next's fetch cache sees
+// only the status — so it stores the failure as a perfectly good response.
 // That is not hypothetical: a single blip during one build got cached, and
 // every build afterwards replayed it and died on the same page, while the same
 // query run directly succeeded every time. Retrying against the cache would
 // just re-read the poisoned entry, so retries must reach the network.
-const uncachedClient = new GraphQLClient(endpoint, {
-  headers,
-  cache: "no-store",
-});
+const UNCACHED: RequestInit = { cache: "no-store" };
 
 // Storefront buyer context. Declaring the variables with defaults (AE/EN — the
 // store's default market) keeps every existing call byte-for-byte identical
@@ -51,7 +93,6 @@ export const IN_CONTEXT_DIRECTIVE =
 const MAX_ATTEMPTS = 3;
 const BASE_BACKOFF_MS = 300;
 
-type GraphQLErrorish = { extensions?: { code?: string }; message?: string };
 type ClientErrorish = {
   response?: { status?: number; errors?: GraphQLErrorish[] };
 };
@@ -91,8 +132,7 @@ export async function storefrontFetch<T>(
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
       // First attempt may be served from Next's fetch cache; retries never are.
-      const c = attempt === 1 ? client : uncachedClient;
-      return await c.request<T>(query, variables as Record<string, unknown>);
+      return await request<T>(query, variables, attempt === 1 ? undefined : UNCACHED);
     } catch (error) {
       lastError = error;
       if (attempt === MAX_ATTEMPTS || !isTransient(error)) throw error;
