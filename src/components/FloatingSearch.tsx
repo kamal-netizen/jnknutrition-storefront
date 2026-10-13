@@ -4,7 +4,13 @@ import Link from "@/components/LocaleLink";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { Search, X, Loader2, ArrowRight, TrendingUp } from "lucide-react";
-import { useState, useRef, useEffect, useCallback } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+} from "react";
 import { predictiveSearch } from "@/lib/queries/search";
 import type { PredictiveSearchResults } from "@/lib/queries/search";
 import { TRENDING_SEARCHES } from "@/lib/nav";
@@ -31,9 +37,50 @@ const DELETE_SPEED = 45;
 const HOLD_FULL = 1400;
 const HOLD_EMPTY = 350;
 
+// A term's animation runs this long past the moment the next term replaces it,
+// so it never ends first: settling an ended animation's fill would cost a
+// main-thread frame.
+const RUN_ON = 1000;
+
 function prefersReducedMotion() {
   if (typeof window === "undefined") return false;
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+// [time (ms), letters shown] for one pass over a term: typed letter by letter,
+// held, deleted, then left empty ("Search") until the next pass starts at the
+// last step + HOLD_EMPTY. A `lead` opens on the whole term, as server-rendered.
+function typeSteps(length: number, lead: number): [number, number][] {
+  const steps: [number, number][] = lead ? [[0, length]] : [];
+  for (let n = 1; n <= length; n++) {
+    steps.push([lead + (n - 1) * TYPE_SPEED, n]);
+  }
+  const deleteAt = lead + (length - 1) * TYPE_SPEED + HOLD_FULL;
+  for (let n = length - 1; n >= 0; n--) {
+    steps.push([deleteAt + (length - 1 - n) * DELETE_SPEED, n]);
+  }
+  return steps;
+}
+
+// Keyframes that slide the reel (rows of `row` px: the term, one letter
+// shorter each row, then "Search") so each step's row sits in the window.
+// step-end easing makes every slide a jump; the closing keyframe repeats the
+// last so the fill holds it too.
+function reelFrames(
+  steps: [number, number][],
+  length: number,
+  row: number,
+  duration: number
+): Keyframe[] {
+  const frames: Keyframe[] = [];
+  for (const [t, n] of steps) {
+    const transform = `translateY(${(n - length) * row}px)`;
+    if (frames.at(-1)?.transform !== transform) {
+      frames.push({ offset: t / duration, transform, easing: "step-end" });
+    }
+  }
+  frames.push({ offset: 1, transform: frames.at(-1)?.transform });
+  return frames;
 }
 
 export default function FloatingSearch() {
@@ -47,50 +94,102 @@ export default function FloatingSearch() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<PredictiveSearchResults | null>(null);
   const [searching, setSearching] = useState(false);
-  const [placeholder, setPlaceholder] = useState(AUTO_TYPE[0]);
+  // Typewriter passes since the pill appeared; the term is AUTO_TYPE[pass % n].
+  const [pass, setPass] = useState(0);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+  const reelRef = useRef<HTMLSpanElement>(null);
 
   const onSearchPage = pathname === "/search";
+  const term = AUTO_TYPE[pass % AUTO_TYPE.length];
+
+  // ── Pill on screen ────────────────────────────────────────────────────────
+  // False while display:none (below md) or slid out of view by the scroll
+  // hide. The typewriter only runs while the pill is on screen: in a
+  // display:none element its animations couldn't run on the compositor and
+  // would need a main-thread frame every frame. Re-observed after /search,
+  // where nothing is rendered.
+  const [pillOnScreen, setPillOnScreen] = useState(false);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) =>
+      setPillOnScreen(entry.isIntersecting)
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [onSearchPage]);
 
   // ── Typewriter placeholder (collapsed pill only) ──────────────────────────
-  useEffect(() => {
-    if (open || onSearchPage || prefersReducedMotion()) return;
+  // Every prefix of the term is rendered once per pass, as rows of a reel, and
+  // one stepped transform animation slides each into view in its turn, which
+  // the compositor runs alone. Setting the text letter by letter cost a
+  // main-thread frame per letter, and every running animation on the page was
+  // restyled in each of those frames.
+  useLayoutEffect(() => {
+    const box = textRef.current;
+    const reel = reelRef.current;
+    if (open || onSearchPage || !pillOnScreen || prefersReducedMotion()) return;
+    if (!box || !reel) return;
 
-    let termIndex = 0;
-    let charIndex = 0;
-    let deleting = false;
-    let timer: ReturnType<typeof setTimeout>;
+    const rows = [...reel.children];
+    const steps = typeSteps(term.length, pass === 0 ? TYPE_SPEED : 0);
+    const nextAt = steps[steps.length - 1][0] + HOLD_EMPTY;
+    const duration = nextAt + RUN_ON;
+    const row = reel.getBoundingClientRect().height / rows.length;
+    const animation = reel.animate(
+      reelFrames(steps, term.length, row, duration),
+      { duration, fill: "forwards" }
+    );
 
-    function tick() {
-      const term = AUTO_TYPE[termIndex];
-      if (!deleting) {
-        charIndex++;
-        setPlaceholder(term.slice(0, charIndex));
-        if (charIndex === term.length) {
-          deleting = true;
-          timer = setTimeout(tick, HOLD_FULL);
-          return;
-        }
-        timer = setTimeout(tick, TYPE_SPEED);
-      } else {
-        charIndex--;
-        setPlaceholder(term.slice(0, charIndex));
-        if (charIndex === 0) {
-          deleting = false;
-          termIndex = (termIndex + 1) % AUTO_TYPE.length;
-          timer = setTimeout(tick, HOLD_EMPTY);
-          return;
-        }
-        timer = setTimeout(tick, DELETE_SPEED);
-      }
-    }
+    // Typed past 7ch, a term widens the pill and pushes the caret. That is
+    // layout, so those few steps ("pre workout", "multivitamin") are set from
+    // here. Row term.length - n holds n letters; "" leaves a term that fits
+    // 7ch alone, "0" leaves a longer one at the 7ch min-width.
+    const minWidth = parseFloat(getComputedStyle(box).minWidth);
+    const range = document.createRange();
+    const widths = rows.map((el) => {
+      range.selectNodeContents(el);
+      return range.getBoundingClientRect().width;
+    });
+    const widthAt = (n: number) => {
+      if (widths[0] <= minWidth) return "";
+      const width = widths[term.length - n];
+      return n && width > minWidth ? `${width}px` : "0";
+    };
+    const first = widthAt(steps[0][1]);
+    if (first) box.style.width = first;
 
-    timer = setTimeout(tick, TYPE_SPEED);
-    return () => clearTimeout(timer);
-  }, [open, onSearchPage]);
+    // Timed from when the compositor actually starts the animation, a frame
+    // or more after it's created (more while the page is still busy loading),
+    // so the caret moves with the letters and each pass gets its full time.
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    animation.ready.then(
+      () => {
+        if (animation.playState === "idle") return; // cancelled meanwhile
+        const elapsed = Number(animation.currentTime);
+        const at = (t: number, run: () => void) =>
+          timers.push(setTimeout(run, t - elapsed));
+        steps.forEach(([t, n], i) => {
+          const width = widthAt(n);
+          if (i && width !== widthAt(steps[i - 1][1])) {
+            at(t, () => (box.style.width = width));
+          }
+        });
+        at(nextAt, () => setPass((p) => p + 1));
+      },
+      () => {} // cancelled before it started
+    );
+
+    return () => {
+      timers.forEach(clearTimeout);
+      animation.cancel();
+      box.style.width = "";
+    };
+  }, [pass, term, open, onSearchPage, pillOnScreen]);
 
   // ── Auto hide / reveal on scroll (open/close rules) ───────────────────────
   useEffect(() => {
@@ -160,6 +259,7 @@ export default function FloatingSearch() {
   const expand = useCallback(() => {
     setOpen(true);
     setHidden(false);
+    setPass(0);
     requestAnimationFrame(() => inputRef.current?.focus());
   }, []);
 
@@ -341,8 +441,23 @@ export default function FloatingSearch() {
             <Search className="h-4 w-4" />
           </span>
           <span className="flex items-center text-sm text-[#55637A]">
-            <span className="min-w-[7ch] text-left">
-              {placeholder || "Search"}
+            {/* A one-line window (h-5 is one line of text-sm) onto the reel:
+                the term, one letter shorter each row, then the empty state.
+                LTR so a row the box hasn't widened for yet overflows to the
+                right, into the clip, on Arabic pages too. */}
+            <span
+              ref={textRef}
+              dir="ltr"
+              className="h-5 min-w-[7ch] overflow-clip whitespace-nowrap text-left"
+            >
+              <span key={pass} ref={reelRef} className="block">
+                {Array.from(term, (_, i) => (
+                  <span key={i} className="block">
+                    {term.slice(0, term.length - i)}
+                  </span>
+                ))}
+                <span className="block">Search</span>
+              </span>
             </span>
             <span className="ml-0.5 inline-block h-4 w-px animate-pulse bg-[#94A3B8]" />
           </span>

@@ -229,30 +229,87 @@
 }
 
 /* ─── Caption ──────────────────────────────────────────────── */
+/* A green → dark → white glint → dark → red band, 220% of the caption wide,
+   slides through the letters. It used to be the caption's own background
+   (`background-clip: text`) moved with `background-position`, which Chrome
+   cannot composite, so the caption repainted on the main thread every frame.
+
+   Now the real text is plain dark and each coloured part of the band is a
+   copy of the label, revealed through a mask that has that colour's alpha
+   ramp. The masks ride a strip that slides on `transform`; each copy slides
+   the same distance back, so its letters stay exactly over the real ones and
+   only the reveal moves. The ramps reuse the old gradient's stops and the
+   strip the old timing — background-position 120% → -20% on a 220% background
+   is an offset of -144% → 24% of the caption width. */
 .uae-flag-caption {
-  background: linear-gradient(
-    100deg,
-    #00843d 0%,
-    #0b0f14 30%,
-    #0b0f14 45%,
-    #ffffff 50%,
-    #0b0f14 55%,
-    #0b0f14 70%,
-    #ef3340 100%
-  );
-  background-size: 220% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: uae-text-shine 5.5s linear infinite;
+  position: relative;
+  /* The masked copies are 440% wide; clip them to the caption. */
+  overflow: clip;
+  color: #0b0f14;
 }
 
-@keyframes uae-text-shine {
+.uae-flag-caption-sweep {
+  position: absolute;
+  inset: 0;
+  /* Hands the caption's vertical padding down to the copies. */
+  padding: inherit;
+  pointer-events: none;
+  animation: uae-caption-sweep 5.5s linear infinite;
+}
+
+/* Two 220% tiles of the band, starting half a tile left of the strip so one
+   tile seam sits on the strip's left edge (mask-position 50%) and the band
+   covers the caption at both ends of the slide. The padding puts the copy's
+   box exactly over the caption: 110% + 100% + 230% = 440%. */
+.uae-flag-caption-sweep > span {
+  position: absolute;
+  top: 0;
+  left: -110%;
+  width: 440%;
+  padding-block: inherit;
+  padding-left: 110%;
+  padding-right: 230%;
+  mask-position: 50% 0;
+  mask-size: 50% 100%;
+  mask-repeat: repeat-x;
+}
+
+.uae-flag-caption-sweep > span::before {
+  content: attr(data-text);
+  display: block;
+  animation: uae-caption-hold 5.5s linear infinite;
+}
+
+.uae-flag-caption-sweep > .uae-caption-green {
+  color: #00843d;
+  mask-image: linear-gradient(100deg, #000 0%, transparent 30%);
+}
+
+.uae-flag-caption-sweep > .uae-caption-glint {
+  color: #ffffff;
+  mask-image: linear-gradient(100deg, transparent 45%, #000 50%, transparent 55%);
+}
+
+.uae-flag-caption-sweep > .uae-caption-red {
+  color: #ef3340;
+  mask-image: linear-gradient(100deg, transparent 70%, #000 100%);
+}
+
+@keyframes uae-caption-sweep {
   0% {
-    background-position: 120% 0;
+    transform: translateX(-144%);
   }
   100% {
-    background-position: -20% 0;
+    transform: translateX(24%);
+  }
+}
+
+@keyframes uae-caption-hold {
+  0% {
+    transform: translateX(144%);
+  }
+  100% {
+    transform: translateX(-24%);
   }
 }
 
@@ -260,26 +317,37 @@
   .uae-flag-banner,
   .uae-flag-banner::before,
   .uae-flag-shine,
-  .uae-flag-caption {
+  .uae-flag-caption-sweep,
+  .uae-flag-caption-sweep > span::before {
     animation: none;
     transform: none;
   }
-  .uae-flag-caption {
-    background-position: 50% 0;
+  /* Holds the band where background-position: 50% used to: an offset of -60%. */
+  .uae-flag-caption-sweep {
+    transform: translateX(-60%);
+  }
+  .uae-flag-caption-sweep > span::before {
+    transform: translateX(60%);
   }
 }
 
 /* ─── Hero carousel ────────────────────────────────────────── */
+/* The fill stays full width and slides in from the left, so the animation runs
+   on the compositor (animating `width` restyled and relaid the dot every frame).
+   The dot's own overflow-hidden rounded-full track clips the part still parked
+   off to the left, and the fill keeps its rounded leading end, which scaleX
+   would squash. No RTL flip: HeroBanner pins the carousel to dir="ltr", so on
+   /ar the dots fill left to right too, as they always have. */
 .hero-progress-fill {
   animation: hero-progress linear forwards;
 }
 
 @keyframes hero-progress {
   from {
-    width: 0%;
+    transform: translateX(-100%);
   }
   to {
-    width: 100%;
+    transform: translateX(0);
   }
 }
 
@@ -297,12 +365,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Without the animation the fill rests at full width, untranslated. */
   .hero-progress-fill,
   .hero-slide-active img {
     animation: none;
-  }
-  .hero-progress-fill {
-    width: 100%;
   }
 }
 /* ─── Core Champs hero ─────────────────────────────────────── */
@@ -1116,15 +1182,30 @@
    Megaphone breaks the frame at the strip's leading edge. rotate/translate/
    scale stay independent properties on purpose: the keyframes animate rotate
    alone, so the centering translate and the RTL mirror scale compose with it
-   instead of being overwritten. transform-origin pivots at the grip. */
+   instead of being overwritten. transform-origin pivots at the grip.
+
+   .mrz-mega is a <span> around the artwork, not the <svg> itself. Chrome won't
+   composite individual transform properties on an SVG element (the trace's
+   compositeFailed reason is SVGTargetHasIndependentTransformProperty, which
+   Lighthouse's non-composited-animations audit filters out), so the shout
+   forced a main-thread style recalc every frame, on-screen or off. On an HTML
+   box the same properties animate on the compositor. The span is exactly the
+   svg's size, so the % translate and transform-origin resolve as before. */
 .mrz-strip .mrz-mega {
   position: absolute;
   inset-inline-start: -48px;
   top: 50%;
+  width: 200px;
   translate: 0 -50%;
   rotate: -6deg;
   transform-origin: 80% 60%;
   animation: mrzShout 3.6s ease-in-out infinite;
+}
+
+.mrz-mega svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 /* The mirror has to reflect about the horizontal centre or it also displaces
@@ -1164,11 +1245,16 @@
   animation-delay: -1.4s;
 }
 
+/* No overflow clip, though it reads like the natural guard: the bars travel
+   well inside the strip at every breakpoint, so it never cut anything, and on
+   desktop it cost a style recalc every frame while the strip was scrolled away.
+   Clipped and off-screen, the bars paint nothing, Chrome declines to composite
+   their animation (AnimationHasNoVisibleChange) and ticks it on the main thread
+   instead. Unclipped, they stay composited wherever the strip is. */
 .mrz-strip .mrz-speed {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  overflow: hidden;
 }
 
 .mrz-speed i {
@@ -1336,7 +1422,6 @@
   .mrz-strip .mrz-mega {
     inset-inline-start: -26px;
     width: 126px;
-    height: auto;
   }
   .mrz-strip .mrz-bolt {
     inset-inline-start: 92px;

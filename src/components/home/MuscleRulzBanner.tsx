@@ -75,30 +75,28 @@ export default function MuscleRulzBanner({
           />
         </svg>
 
-        {/* Megaphone: handle, cone, mouth, body, sound arc — back to front. */}
-        <svg
-          className="mrz-mega"
-          aria-hidden="true"
-          width="200"
-          height="152"
-          viewBox="0 0 200 152"
-        >
-          <g
-            stroke="#0e2230"
-            strokeWidth="6"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-          >
-            <path
-              d="M124 100l10 32c2 7-3 13-10 13h-7c-6 0-11-5-11-11l2-34z"
-              fill="#ffd400"
-            />
-            <path d="M44 26l74 30v40L44 126z" fill="#2ab5ee" />
-            <ellipse cx="44" cy="76" rx="16" ry="50" fill="#ffd400" />
-            <rect x="112" y="50" width="52" height="52" rx="14" fill="#fff" />
-            <path d="M172 54c11 8 11 40 0 46" fill="none" strokeWidth="5" />
-          </g>
-        </svg>
+        {/* Megaphone: handle, cone, mouth, body, sound arc — back to front.
+            The span, not the svg, carries the shout: Chrome can only run it
+            on the compositor on an HTML box (see .mrz-mega in globals.css). */}
+        <span className="mrz-mega" aria-hidden="true">
+          <svg width="200" height="152" viewBox="0 0 200 152">
+            <g
+              stroke="#0e2230"
+              strokeWidth="6"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            >
+              <path
+                d="M124 100l10 32c2 7-3 13-10 13h-7c-6 0-11-5-11-11l2-34z"
+                fill="#ffd400"
+              />
+              <path d="M44 26l74 30v40L44 126z" fill="#2ab5ee" />
+              <ellipse cx="44" cy="76" rx="16" ry="50" fill="#ffd400" />
+              <rect x="112" y="50" width="52" height="52" rx="14" fill="#fff" />
+              <path d="M172 54c11 8 11 40 0 46" fill="none" strokeWidth="5" />
+            </g>
+          </svg>
+        </span>
 
         <div className="mrz-text">
           <h2 className="mrz-title">
