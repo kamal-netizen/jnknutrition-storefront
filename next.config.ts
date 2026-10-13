@@ -157,9 +157,13 @@ const nextConfig: NextConfig = {
     // than anything this layout can display. 512 is here specifically for a
     // ~254px product tile on a 2x screen, which would otherwise round up to 640,
     // and 384 for the same tile at the 1.75x DPR PageSpeed's Moto G Power
-    // emulates, which was landing on 512 for a slot needing 360.
+    // emulates, which was landing on 512 for a slot needing 360. 320 is for the
+    // phone product card itself — ~180px wide, so ~318 at 1.75x — which had
+    // nothing between 256 and 384 and so downloaded 384 (Lighthouse's "Improve
+    // image delivery" listed every visible card). It also catches the ~320px
+    // desktop card at 1x.
     deviceSizes: [640, 828, 1080, 1920],
-    imageSizes: [64, 128, 256, 384, 512],
+    imageSizes: [64, 128, 256, 320, 384, 512],
     remotePatterns: [
       {
         protocol: "https",

@@ -62,7 +62,10 @@ export default function ProductCard({ product }: Props) {
               src={image.url}
               alt={image.altText ?? product.title}
               fill
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              // Phones: two-up grid cells are 50vw less the gutter and gap, and
+              // scroll-row cards (45% of the row) are narrower still. Saying
+              // 50vw made a 1.75x phone ask for 360px and land on 384.
+              sizes="(max-width: 640px) calc(50vw - 24px), (max-width: 1024px) 33vw, 25vw"
               className={`object-contain p-3 transition-opacity duration-300${secondImage ? " group-hover:opacity-0" : ""}`}
             />
             {secondImage && (

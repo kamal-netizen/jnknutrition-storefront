@@ -14,11 +14,36 @@
  * The cost is a query parameter.
  *
  * Anything not served by Shopify — local files under /public, blobs, data URIs —
- * passes through untouched. Returning one URL for every srcset candidate is
- * fine: the browser dedupes to a single request.
+ * passes through, except that local paths get the two fixes in localSrc().
+ * Returning one URL for every srcset candidate is fine: the browser dedupes to
+ * a single request.
  */
 
+import localVariants from "./image-variants.json";
+
 const SHOPIFY_CDN = "cdn.shopify.com";
+
+/**
+ * Narrower copies of local images, by `src`, ascending. Written by
+ * scripts/image-variants.mjs as `<dir>/<width>w/<name>`. Next's optimizer is
+ * off with a custom loader, so without these a local image ships at its
+ * authored size whatever the srcset says. An image missing from the manifest
+ * keeps its original.
+ */
+const LOCAL_VARIANTS: Record<string, number[]> = localVariants;
+
+function localSrc(src: string, width: number): string {
+  const widths = LOCAL_VARIANTS[src];
+  const fit = widths?.find((w) => w >= width);
+  const slash = src.lastIndexOf("/");
+  const file = fit ? `${src.slice(0, slash)}/${fit}w${src.slice(slash)}` : src;
+  // srcset and imagesrcset split candidates on whitespace, so a raw space in a
+  // path ("/feature image/…") makes every candidate invalid: the <img> falls
+  // back to `src`, and a <link rel="preload" imagesrcset> with no `href` (all
+  // next/image emits) fetches nothing. Only the space is encoded, because
+  // some srcs (lib/news.ts) arrive already percent-encoded.
+  return file.replaceAll(" ", "%20");
+}
 
 /** Shopify's CDN rejects widths above this and serves the original instead. */
 const MAX_WIDTH = 5760;
@@ -30,6 +55,7 @@ type LoaderArgs = {
 };
 
 export default function shopifyImageLoader({ src, width }: LoaderArgs): string {
+  if (src.startsWith("/") && !src.startsWith("//")) return localSrc(src, width);
   if (!src.startsWith("http")) return src;
 
   let url: URL;

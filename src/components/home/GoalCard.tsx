@@ -1,4 +1,5 @@
 import Link from "@/components/LocaleLink";
+import ImagePreload from "@/components/ImagePreload";
 import Image from "next/image";
 
 export type Goal = {
@@ -47,20 +48,31 @@ export const GOALS: Goal[] = [
   },
 ];
 
+// The tile's rendered width: 2-up below md, 3-up to lg, then 6-up inside
+// max-w-7xl (~189px). These images now have real narrower copies
+// (scripts/image-variants.mjs), so this decides which one a screen downloads.
+const SIZES =
+  "(max-width: 767px) 50vw, (max-width: 1023px) 33vw, (max-width: 1279px) 17vw, 190px";
+
+/** Where the grid is the hero: phones, where the carousel is `hidden md:block`. */
+const MOBILE = "(max-width: 767px)";
+
 export default function GoalCard({
   goal,
   priority = false,
 }: {
   goal: Goal;
   /**
-   * Load this tile's image eagerly, at high priority. Set on the tiles that
-   * are above the fold on a phone.
+   * Load this tile's image eagerly, and preload it at high priority on a
+   * phone. Set on the tiles that are above the fold there.
    *
    * This grid carries `order-first` on mobile — it *is* the mobile hero, since
    * the carousel above it is `hidden md:block`. Lighthouse names one of these
-   * images as the Largest Contentful Paint element, and every one of them was
-   * `loading="lazy"`: the browser therefore waited for layout before it would
-   * even request the thing LCP is measured on.
+   * images as the Largest Contentful Paint element. On desktop the grid sits
+   * below the carousel and the deals strip, so the preload is phone-only:
+   * next/image's `priority` preloaded these everywhere, competing with the
+   * desktop hero. (Those preloads also fetched nothing at all — the space in
+   * "/feature image" broke their srcset; see shopify-image-loader.ts.)
    */
   priority?: boolean;
 }) {
@@ -70,12 +82,15 @@ export default function GoalCard({
       className="group relative block overflow-hidden rounded-xl aspect-[3/4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F9D20F] focus-visible:ring-offset-2"
     >
       {/* Image */}
+      {priority && (
+        <ImagePreload src={goal.image} sizes={SIZES} fill media={MOBILE} fetchPriority="high" />
+      )}
       <Image
         src={goal.image}
         alt={goal.title}
         fill
-        priority={priority}
-        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 17vw"
+        loading={priority ? "eager" : "lazy"}
+        sizes={SIZES}
         className="object-cover transition-transform duration-500 group-hover:scale-105"
       />
 

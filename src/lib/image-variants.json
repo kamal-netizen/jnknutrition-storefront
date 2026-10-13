@@ -1,0 +1,14 @@
+{
+  "/feature image/EAAS_600x.webp": [256,384,512],
+  "/feature image/MULTIVITAMINS_AND_MINERALS_600x.webp": [256,384,512],
+  "/feature image/creatine.webp": [256,384,512],
+  "/feature image/fat-loss.webp": [256,384,512],
+  "/feature image/preworkout.webp": [256,384,512],
+  "/feature image/whey.webp": [256,384,512],
+  "/banners/core-champs/isolate-strawberry.webp": [256,384,512,768],
+  "/banners/core-champs/mass-gainer-chocolate.webp": [256,384,512,768],
+  "/banners/core-champs/multivitamin.webp": [256,384,512,768],
+  "/banners/core-champs/omega-3.webp": [256,384,512,768],
+  "/banners/core-champs/rdx-fruit-punch.webp": [256,384,512,768],
+  "/banners/core-champs/whey-rich-chocolate.webp": [256,384,512,768]
+}
