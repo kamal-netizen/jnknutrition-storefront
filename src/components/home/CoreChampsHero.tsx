@@ -3,8 +3,10 @@ import { Anton } from "next/font/google";
 import Link from "@/components/LocaleLink";
 
 // Anton is the display face the banner was designed around. Scoped to this
-// component, so it is only fetched on pages that render the hero.
-const anton = Anton({ weight: "400", subsets: ["latin"], display: "swap" });
+// component, so it is only fetched on pages that render the hero. Not
+// preloaded: the hero sits ~6,800px down the homepage, and a preload spent the
+// bandwidth the first screen needs on it (see the note in app/[lang]/layout.tsx).
+const anton = Anton({ weight: "400", subsets: ["latin"], display: "swap", preload: false });
 
 /** One 16.2s loop shared by six products, each offset by this much. */
 const STEP_SECONDS = 2.7;

@@ -19,7 +19,7 @@ import Link from "@/components/LocaleLink";
  */
 
 // Declared here rather than in app/[lang]/layout.tsx: this is the only surface
-// that uses Archivo, so scoping it to the component means the face is preloaded
+// that uses Archivo, so scoping it to the component means the face is loaded
 // on routes that render the banner and nowhere else. The handoff shipped a
 // Google Fonts <link>; next/font self-hosts the same family, which keeps it off
 // a third-party origin and out of the render-blocking path.
@@ -27,9 +27,14 @@ import Link from "@/components/LocaleLink";
 // No `weight`: Archivo is a variable font, so this ships one file spanning the
 // whole range instead of a separate static cut per weight. The strip asks for
 // three of them (900 headline, 800 offer chip, 700 CTA).
+//
+// Not preloaded: the strip sits ~7,700px down the homepage, and a preload spent
+// 35 KB of the bandwidth the first screen needs on it (see the note in
+// app/[lang]/layout.tsx). The browser fetches it when the strip is laid out.
 const archivo = Archivo({
   variable: "--font-archivo",
   subsets: ["latin"],
+  preload: false,
 });
 
 export default function MuscleRulzBanner({

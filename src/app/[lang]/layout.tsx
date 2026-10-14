@@ -22,9 +22,24 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+// Only Geist is preloaded. A next/font preload is a High-priority download that
+// starts as soon as <head> is parsed, so each one shares the phone's bandwidth
+// with the render-blocking stylesheet and the LCP tile. Geist sets the first
+// screen; the faces below don't, and their @font-face rules still load them
+// whenever text needs them. Dropping those preloads (118 KB down to 29 KB, five
+// files down to one) moved the homepage's mobile LCP from 4.53s to 4.25s in
+// Lighthouse (median of 5).
+//
+// Measure font changes on a Linux build: on Windows, `next build` emits no font
+// preloads at all — NextFontManifestPlugin matches the loader's module request
+// against a forward-slash path, which a Windows path never contains — so a local
+// Windows build cannot show the difference.
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  // No storefront page renders monospace (the one <code> is the account-login
+  // configuration warning), so this was 23 KB on every route that never painted.
+  preload: false,
 });
 
 // Display face for the animated deals wordmark. Self-hosted through next/font
@@ -38,6 +53,11 @@ const baloo = Baloo_2({
   variable: "--font-display",
   subsets: ["latin"],
   weight: ["800"],
+  // Only the homepage deals band uses it, and that band starts below the first
+  // screen (~990px down at 1350x940, ~1470px on a phone). Declared here, the
+  // preload went out on every route. Unpreloaded, it is requested when the band
+  // is first laid out; the size-adjusted fallback keeps the swap from shifting.
+  preload: false,
 });
 
 export const metadata: Metadata = {
