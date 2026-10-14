@@ -139,6 +139,21 @@ const nextConfig: NextConfig = {
           permanent: true,
         },
       ]),
+      // ─── Renamed local images ────────────────────────────────────────────
+      // `next start` finds a public file by its name run through
+      // encodeURIComponent, so `&` matches only as %26 and `( ) '` only
+      // literally: the FIT & LEAN logo (browsers send the `&` raw) and this
+      // blog image (lib/news.ts had it pre-encoded as %28 %29 %27) both 404'd.
+      // Each was renamed to [a-z0-9-]. This one was also the article's
+      // og:image and JSON-LD image, so its old URL may sit in Google Images
+      // and link-preview caches. `source` is matched against the raw request
+      // path, hence the encoded spelling.
+      {
+        source:
+          "/blog-image/Pre-Workout%20Ingredients%20That%20Actually%20Work%20%28And%20Ones%20That%20Don%27t%29.webp",
+        destination: "/blog-image/pre-workout-ingredients-that-work.webp",
+        permanent: true,
+      },
     ];
   },
   images: {

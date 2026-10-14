@@ -398,7 +398,7 @@ export const NEWS: NewsArticle[] = [
     publishedAt: "2026-06-05",
     readingMinutes: 9,
     image: {
-      url: "/blog-image/Pre-Workout%20Ingredients%20That%20Actually%20Work%20%28And%20Ones%20That%20Don%27t%29.webp",
+      url: "/blog-image/pre-workout-ingredients-that-work.webp",
       alt: "Pre-workout supplement powder ready to mix",
     },
     seo: {
