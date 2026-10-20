@@ -64,10 +64,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
+// Products kept off every homepage strip while staying live on their own page
+// and in collections. Google Ads checks the ads' destination (this page) and
+// limits them for "unapproved substances" while one of these shows here.
+const HOMEPAGE_HIDDEN = new Set([
+  "musclemeds-nitro-lift-pre-workout-strength-performance",
+]);
+const notHidden = (p: ProductCardData) => !HOMEPAGE_HIDDEN.has(p.handle);
+
 const nodes = (
   data: { edges: { node: ProductCardData }[] } | null | undefined
 ): ProductCardData[] =>
-  data?.edges.map((e) => e.node).filter((p) => p.availableForSale) ?? [];
+  data?.edges
+    .map((e) => e.node)
+    .filter((p) => p.availableForSale && notHidden(p)) ?? [];
 
 export default async function Home({ params }: PageProps) {
   const { lang } = await params;
@@ -117,14 +127,15 @@ export default async function Home({ params }: PageProps) {
 
   // Already filtered to in-stock products, and already an array — the ranking
   // returns cards directly rather than a Shopify connection.
-  const trendingProducts = trending;
+  const trendingProducts = trending.filter(notHidden);
   const freshProducts = nodes(fresh);
 
   // Only if the catalog scan comes back empty (a Storefront hiccup, or a store
   // with no active markdowns) does the strip fall back to whatever discounts
   // are already loaded, so the band never renders as a headline with no row.
-  const dealProducts = topDeals.length
-    ? topDeals
+  const visibleDeals = topDeals.filter(notHidden);
+  const dealProducts = visibleDeals.length
+    ? visibleDeals
     : [...trendingProducts, ...freshProducts].filter(isDiscounted).slice(0, 10);
   const wheyProducts = nodes(whey?.products);
   const creatineProducts = nodes(creatine?.products);
