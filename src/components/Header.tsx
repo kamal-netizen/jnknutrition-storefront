@@ -55,8 +55,8 @@ function buildAnnouncements(t: HeaderDict): React.ReactNode[] {
       <span className="font-bold text-[#F9D20F]">AED 149</span>
     </>,
     <>
-      <span className="font-bold text-[#F9D20F]">{t.sameDayDispatch}</span>{" "}
-      {t.beforeCutoff}
+      <span className="font-bold text-[#F9D20F]">{t.sameDayDelivery}</span>{" "}
+      {t.inDubai}
     </>,
     <>
       <span className="font-bold text-[#F9D20F]">{t.authentic}</span>{" "}

@@ -41,8 +41,8 @@ const en = {
   },
   header: {
     freeShipping: "Free shipping on orders over",
-    sameDayDispatch: "Same-day dispatch",
-    beforeCutoff: "on orders before cut-off",
+    sameDayDelivery: "Same-day delivery",
+    inDubai: "in Dubai",
     authentic: "100% authentic",
     uaeStock: "brands — UAE stock",
     downloadApp: "Download the",
@@ -464,8 +464,8 @@ const ar: Dictionary = {
   },
   header: {
     freeShipping: "شحن مجاني للطلبات التي تزيد عن",
-    sameDayDispatch: "شحن في نفس اليوم",
-    beforeCutoff: "للطلبات قبل الموعد النهائي",
+    sameDayDelivery: "توصيل في نفس اليوم",
+    inDubai: "داخل دبي",
     authentic: "أصلي 100%",
     uaeStock: "ماركات — مخزون الإمارات",
     downloadApp: "حمّل",
