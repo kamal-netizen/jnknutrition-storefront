@@ -20,6 +20,7 @@ import DealsBanner from "@/components/home/DealsBanner";
 import MuscleRulzBanner from "@/components/home/MuscleRulzBanner";
 import DiwaliBanner from "@/components/home/DiwaliBanner";
 import { isDiwaliLive } from "@/lib/seasonal";
+import { notAdHidden } from "@/lib/ad-landing";
 import type { Metadata } from "next";
 import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, DEFAULT_KEYWORDS } from "@/lib/seo";
 import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
@@ -64,13 +65,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-// Products kept off every homepage strip while staying live on their own page
-// and in collections. Google Ads checks the ads' destination (this page) and
-// limits them for "unapproved substances" while one of these shows here.
-const HOMEPAGE_HIDDEN = new Set([
-  "musclemeds-nitro-lift-pre-workout-strength-performance",
-]);
-const notHidden = (p: ProductCardData) => !HOMEPAGE_HIDDEN.has(p.handle);
+// Products kept off every homepage strip — see lib/ad-landing.ts.
+const notHidden = notAdHidden;
 
 const nodes = (
   data: { edges: { node: ProductCardData }[] } | null | undefined

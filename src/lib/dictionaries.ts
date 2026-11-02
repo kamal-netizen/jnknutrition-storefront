@@ -76,6 +76,10 @@ const en = {
     diwaliTitle: "Happy Diwali",
     diwaliBody:
       "Wishing you light, health and strength — celebrate with this season's best deals.",
+    diwaliOffersTitle: "Diwali Offers",
+    diwaliOffersBody:
+      "Every deal in the store in one place, biggest discounts first — 100% genuine supplements with fast UAE-wide delivery.",
+    diwaliOffersEmpty: "New offers are on the way",
     limitedTime: "Limited Time",
     todaysDeals: "Today's Deals",
     shopDeals: "Shop Deals",
@@ -497,6 +501,10 @@ const ar: Dictionary = {
     diwaliEyebrow: "مهرجان الأنوار",
     diwaliTitle: "ديوالي سعيد",
     diwaliBody: "نتمنى لكم النور والصحة والقوة — احتفلوا مع أفضل عروض الموسم.",
+    diwaliOffersTitle: "عروض ديوالي",
+    diwaliOffersBody:
+      "كل عروض المتجر في مكان واحد، الأكبر خصمًا أولًا — مكملات أصلية 100% مع توصيل سريع لجميع أنحاء الإمارات.",
+    diwaliOffersEmpty: "عروض جديدة في الطريق",
     limitedTime: "لوقت محدود",
     todaysDeals: "عروض اليوم",
     shopDeals: "تسوق العروض",
