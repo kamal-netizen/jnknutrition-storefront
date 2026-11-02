@@ -19,7 +19,7 @@ import UAEFlagBanner from "@/components/home/UAEFlagBanner";
 import DealsBanner from "@/components/home/DealsBanner";
 import MuscleRulzBanner from "@/components/home/MuscleRulzBanner";
 import DiwaliBanner from "@/components/home/DiwaliBanner";
-import { isDiwaliLive } from "@/lib/seasonal";
+import { isDiwaliLive, DIWALI_OFFERS_PATH } from "@/lib/seasonal";
 import { notAdHidden } from "@/lib/ad-landing";
 import type { Metadata } from "next";
 import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, DEFAULT_KEYWORDS } from "@/lib/seo";
@@ -167,7 +167,7 @@ export default async function Home({ params }: PageProps) {
             title={t.diwaliTitle}
             body={t.diwaliBody}
             ctaLabel={t.shopDeals}
-            href="/collections/today-deals"
+            href={DIWALI_OFFERS_PATH}
           />
         </div>
       )}
