@@ -148,7 +148,13 @@ export default function DiwaliBanner({
   href: string;
 }) {
   return (
-    <section className="dwl-band" aria-labelledby="dwl-title" data-dwl-enter="wait">
+    <section
+      className="dwl-band"
+      aria-labelledby="dwl-title"
+      data-dwl-enter="wait"
+      // DiwaliEntrance's inline script may flip the attributes before hydration.
+      suppressHydrationWarning
+    >
       {/* Hoisted into <head> and deduped by React; see DIWALI_CSS. */}
       <link rel="stylesheet" href={DIWALI_CSS} precedence="default" />
       <DiwaliEntrance />
