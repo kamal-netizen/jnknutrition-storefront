@@ -5,11 +5,10 @@ import { ChevronRight } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getTopDiscountedProducts } from "@/lib/queries/products";
 import ProductCard from "@/components/ProductCard";
-import { Kandil } from "@/components/DiwaliToran";
 import { absoluteUrl } from "@/lib/seo";
 import { getLocale, localizePath } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionaries";
-import { isDiwaliLive, DIWALI_CSS, DIWALI_OFFERS_CSS, DIWALI_OFFERS_PATH } from "@/lib/seasonal";
+import { isDiwaliLive, DIWALI_OFFERS_PATH } from "@/lib/seasonal";
 import { notAdHidden } from "@/lib/ad-landing";
 import { FREE_SHIPPING_THRESHOLD, FREE_SHIPPING_CURRENCY } from "@/lib/shipping";
 
@@ -44,9 +43,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 /**
  * The Diwali Offers page: every discounted in-stock product, biggest discount
- * first. Built like a collection tag page — the dark header box, then a plain
- * grid of ProductCards, which already carry the sale price, the struck-through
- * compare-at price and the "-x%" badge. Outside the festival window, and on
+ * first. A banner header, then a plain grid of ProductCards, which already
+ * carry the sale price, the struck-through compare-at price and the "-x%"
+ * badge. Outside the festival window, and on
  * locales the theme doesn't cover, it hands over to Today's Deals.
  */
 export default async function DiwaliOffersPage({ params }: PageProps) {
@@ -77,18 +76,30 @@ export default async function DiwaliOffersPage({ params }: PageProps) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-      {/* Hoisted into <head> and deduped by React; see DIWALI_OFFERS_CSS. */}
-      <link rel="stylesheet" href={DIWALI_CSS} precedence="default" />
-      <link rel="stylesheet" href={DIWALI_OFFERS_CSS} precedence="default" />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
-      {/* The page's banner, 1920 × 640 (3:1) artwork with its words baked in,
-          framed like the homepage hero. English only, like the page. It is the
-          LCP element on every viewport, so it preloads. */}
-      <div className="mb-6 rounded-2xl border border-[#E7ECF2] p-1 shadow-[0_12px_32px_-16px_rgba(11,15,20,0.25)]">
+      <nav
+        aria-label="Breadcrumb"
+        className="mb-4 flex flex-wrap items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-[#55637A]"
+      >
+        <Link href="/" className="transition-colors hover:text-[#0B0F14]">
+          {dict.common.home}
+        </Link>
+        <ChevronRight className="h-3 w-3 rtl:rotate-180" aria-hidden="true" />
+        <span className="text-[#0B0F14]">{t.diwaliOffersTitle}</span>
+      </nav>
+
+      {/* The page's header is its banner: 1920 × 640 (3:1) artwork with the
+          title and offer baked in, framed like the homepage hero. English only,
+          like the page. The heading is still in the markup, for screen readers
+          and search, but not drawn a second time under the artwork that already
+          shows it. The banner is the LCP element on every viewport, so it
+          preloads. */}
+      <h1 className="sr-only">{t.diwaliOffersTitle}</h1>
+      <div className="mb-8 rounded-2xl border border-[#E7ECF2] p-1 shadow-[0_12px_32px_-16px_rgba(11,15,20,0.25)]">
         <div className="relative aspect-[3/1] overflow-hidden rounded-xl bg-[#0B0F14]">
           <Image
             src="/banners/2026-11/diwali-offers-page-en-1920x640.webp"
@@ -98,49 +109,6 @@ export default async function DiwaliOffersPage({ params }: PageProps) {
             sizes="(max-width: 1280px) 100vw, 1280px"
             className="object-cover"
           />
-        </div>
-      </div>
-
-      <div className="dwn-offers mb-8 rounded-3xl border border-white/10 px-6 py-10 sm:px-10 sm:py-12">
-        <div className="dwl-stars" aria-hidden="true">
-          {Array.from({ length: 6 }, (_, i) => (
-            <i key={i} />
-          ))}
-        </div>
-        {(["a", "b"] as const).map((v) => (
-          <span key={v} className={`dwl-kandil dwn-offers-lantern--${v}`} aria-hidden="true">
-            <span className="dwl-kandil-swing">
-              <span className="dwl-kandil-string" />
-              <span className="dwl-kandil-glow" />
-              <Kandil />
-            </span>
-          </span>
-        ))}
-
-        <div className="dwn-offers-copy relative z-[2]">
-          <nav
-            aria-label="Breadcrumb"
-            className="mb-4 flex flex-wrap items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-white/60"
-          >
-            <Link href="/" className="transition-colors hover:text-[#F9D20F]">
-              {dict.common.home}
-            </Link>
-            <ChevronRight className="h-3 w-3 rtl:rotate-180" aria-hidden="true" />
-            <span className="text-white/90">{t.diwaliOffersTitle}</span>
-          </nav>
-          <p className="text-[11px] font-black uppercase tracking-[0.25em] text-[#F9D20F]">
-            {t.diwaliEyebrow}
-          </p>
-          <h1 className="mt-2 text-4xl md:text-5xl font-black uppercase tracking-tight text-white">
-            {t.diwaliOffersTitle}
-          </h1>
-          <span
-            aria-hidden="true"
-            className="mt-4 block h-1 w-14 rounded-full bg-gradient-to-r from-[#F9D20F] to-[#F9D20F]/30"
-          />
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/70">
-            {t.diwaliOffersBody}
-          </p>
         </div>
       </div>
 

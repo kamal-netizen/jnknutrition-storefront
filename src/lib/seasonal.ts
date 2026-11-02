@@ -28,12 +28,6 @@ const DIWALI = {
  */
 export const DIWALI_CSS = "/seasonal/diwali-2026.css";
 
-/**
- * The Diwali Offers page header, on top of DIWALI_CSS. Same caching, so the
- * same rule: an edit needs a new name here.
- */
-export const DIWALI_OFFERS_CSS = "/seasonal/diwali-2026-offers.css";
-
 /** The Diwali Offers page; it redirects to Today's Deals outside the window. */
 export const DIWALI_OFFERS_PATH = "/diwali-offers";
 
