@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "@/components/LocaleLink";
 import { ChevronRight } from "lucide-react";
 import { redirect } from "next/navigation";
@@ -83,6 +84,22 @@ export default async function DiwaliOffersPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
+
+      {/* The page's banner, 1920 × 640 (3:1) artwork with its words baked in,
+          framed like the homepage hero. English only, like the page. It is the
+          LCP element on every viewport, so it preloads. */}
+      <div className="mb-6 rounded-2xl border border-[#E7ECF2] p-1 shadow-[0_12px_32px_-16px_rgba(11,15,20,0.25)]">
+        <div className="relative aspect-[3/1] overflow-hidden rounded-xl bg-[#0B0F14]">
+          <Image
+            src="/banners/2026-11/diwali-offers-page-en-1920x640.webp"
+            alt="Diwali Offers, 1–12 Nov — up to 54% off genuine supplements"
+            fill
+            preload
+            sizes="(max-width: 1280px) 100vw, 1280px"
+            className="object-cover"
+          />
+        </div>
+      </div>
 
       <div className="dwn-offers mb-8 rounded-3xl border border-white/10 px-6 py-10 sm:px-10 sm:py-12">
         <div className="dwl-stars" aria-hidden="true">

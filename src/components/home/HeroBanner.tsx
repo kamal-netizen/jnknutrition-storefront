@@ -5,72 +5,88 @@ import Image from "next/image";
 import Link from "@/components/LocaleLink";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useDict, useLocale } from "@/lib/locale-context";
+import { DIWALI_OFFERS_PATH } from "@/lib/seasonal";
 
 type Banner = {
   src: string;
   /** Locale-specific artwork, keyed by locale code. Falls back to `src`. */
   srcByLocale?: Record<string, string>;
-  alt: string;
-  /** Localized alt text, when the artwork itself is translated. */
-  altKey?: "heroAltTopProducts";
+  /** Alt text from the dictionaries: it repeats the artwork's own words. */
+  altKey: "heroAltDiwali" | "heroAltBestSellers" | "heroAltCoreChamps" | "heroAltCreatine";
   href: string;
-  external?: boolean;
+  /** Locale-specific destination, keyed by locale code. Falls back to `href`. */
+  hrefByLocale?: Record<string, string>;
 };
 
-// Each banner is fully-designed artwork with baked-in headline and CTA,
-// supplied in both English and Arabic. The `en` art is the default `src`;
-// the Arabic typeset version is served on /ar via `srcByLocale`.
+// Each banner is fully-designed 1920 × 640 (3:1) artwork with baked-in
+// headline and CTA, supplied in both English and Arabic. The `en` art is the
+// default `src`; the Arabic typeset version is served on /ar via `srcByLocale`.
+// File names carry no spaces: see localSrc() in lib/shopify-image-loader.ts.
+
+/** Shown only while lib/seasonal.ts says the Diwali window is open. */
+const DIWALI_BANNER: Banner = {
+  src: "/banners/2026-11/diwali-deals-en-1920x640.webp",
+  srcByLocale: { ar: "/banners/2026-11/diwali-deals-ar-1920x640.webp" },
+  altKey: "heroAltDiwali",
+  href: DIWALI_OFFERS_PATH,
+  // The Diwali Offers page is English only and redirects /ar to Today's Deals;
+  // link there directly rather than through the redirect.
+  hrefByLocale: { ar: "/collections/today-deals" },
+};
+
 const BANNERS: Banner[] = [
   {
-    src: "/banners/banner/EN/top products en.webp",
-    srcByLocale: { ar: "/banners/banner/AR/top products ar.webp" },
-    alt: "Fuel Your Goals — everything you need for strength, recovery and performance",
-    altKey: "heroAltTopProducts",
-    href: "/products",
+    src: "/banners/2026-11/best-sellers-en-1920x640.webp",
+    srcByLocale: { ar: "/banners/2026-11/best-sellers-ar-1920x640.webp" },
+    altKey: "heroAltBestSellers",
+    href: "/collections/best-sellers",
   },
   {
-    src: "/banners/banner/EN/CORE CHAMPS EN.webp",
-    srcByLocale: { ar: "/banners/banner/AR/CORE CHAMPS AR.webp" },
-    alt: "Core Champs",
+    src: "/banners/2026-11/core-champs-en-1920x640.webp",
+    srcByLocale: { ar: "/banners/2026-11/core-champs-ar-1920x640.webp" },
+    altKey: "heroAltCoreChamps",
     href: "/collections/core-champs",
   },
   {
-    src: "/banners/banner/EN/ISO 100 EN.webp",
-    srcByLocale: { ar: "/banners/banner/AR/ISO 100 AR.webp" },
-    alt: "ISO 100 — hydrolyzed whey protein isolate",
-    href: "/collections/isolate-protein",
-  },
-  {
-    src: "/banners/banner/EN/DOWNLOAD APP EN.webp",
-    srcByLocale: { ar: "/banners/banner/AR/DOWNLOAD APP PUSH AR.webp" },
-    alt: "Download the App",
-    href: "https://play.google.com/store/apps/details?id=com.simicart.jnknutrition",
-    external: true,
+    src: "/banners/2026-11/creatine-en-1920x640.webp",
+    srcByLocale: { ar: "/banners/2026-11/creatine-ar-1920x640.webp" },
+    altKey: "heroAltCreatine",
+    href: "/collections/creatine",
   },
 ];
 
 const INTERVAL = 5000;
 
-export default function HeroBanner() {
+type Props = {
+  /** Lead with the Diwali slide. Decided on the server, from the date. */
+  diwali?: boolean;
+};
+
+export default function HeroBanner({ diwali = false }: Props) {
   const t = useDict().home;
   const locale = useLocale();
+  const banners = diwali ? [DIWALI_BANNER, ...BANNERS] : BANNERS;
+  const count = banners.length;
   const [index, setIndex] = useState(0);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const go = useCallback((next: number) => {
-    setIndex((next + BANNERS.length) % BANNERS.length);
-  }, []);
+  const go = useCallback(
+    (next: number) => {
+      setIndex((next + count) % count);
+    },
+    [count],
+  );
 
   useEffect(() => {
     timer.current = setInterval(() => {
-      setIndex((i) => (i + 1) % BANNERS.length);
+      setIndex((i) => (i + 1) % count);
     }, INTERVAL);
     return () => {
       if (timer.current) clearInterval(timer.current);
     };
-  }, []);
+  }, [count]);
 
-  const firstSrc = BANNERS[0].srcByLocale?.[locale.code] ?? BANNERS[0].src;
+  const firstSrc = banners[0].srcByLocale?.[locale.code] ?? banners[0].src;
 
   return (
     <section
@@ -98,20 +114,18 @@ export default function HeroBanner() {
         {/* Clean bordered frame */}
         <div className="relative rounded-2xl border border-[#E7ECF2] p-1 shadow-[0_12px_32px_-16px_rgba(11,15,20,0.25)]">
           <div className="relative overflow-hidden rounded-xl bg-[#0B0F14]">
-            {/* Aspect-ratio track (matches banner ~3.41:1 so images are never cropped) */}
-            <div className="relative w-full aspect-[41/12]">
+            {/* Aspect-ratio track (matches the 3:1 banners so images are never cropped) */}
+            <div className="relative w-full aspect-[3/1]">
               <div
                 className="flex h-full transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
                 style={{ transform: `translateX(-${index * 100}%)` }}
               >
-                {BANNERS.map((banner, i) => {
-                  const linkProps = banner.external
-                    ? { target: "_blank", rel: "noopener noreferrer" }
-                    : {};
+                {banners.map((banner, i) => {
                   // Prefer locale-specific artwork (e.g. the Arabic-typeset
-                  // banner on /ar) and its translated alt text.
+                  // banner on /ar) and destination.
                   const src = banner.srcByLocale?.[locale.code] ?? banner.src;
-                  const alt = banner.altKey ? t[banner.altKey] : banner.alt;
+                  const href = banner.hrefByLocale?.[locale.code] ?? banner.href;
+                  const alt = t[banner.altKey];
                   return (
                     <div
                       key={banner.src}
@@ -121,11 +135,10 @@ export default function HeroBanner() {
                       aria-hidden={i !== index}
                     >
                       <Link
-                        href={banner.href}
+                        href={href}
                         tabIndex={i === index ? 0 : -1}
                         aria-label={alt}
                         className="absolute inset-0"
-                        {...linkProps}
                       >
                         <Image
                           src={src}
@@ -168,7 +181,7 @@ export default function HeroBanner() {
 
             {/* Segmented progress indicators */}
             <div className="absolute bottom-4 inset-x-0 flex items-center justify-center gap-2 z-10">
-              {BANNERS.map((banner, i) => (
+              {banners.map((banner, i) => (
                 <button
                   key={banner.src}
                   type="button"

@@ -64,8 +64,10 @@ const en = {
     heroTitle: "Supplement Store in Dubai & UAE",
     heroBody:
       "JNK Nutrition is the UAE's official distributor of 100% genuine sports supplements — whey protein, pre-workout, creatine and more, with fast UAE-wide delivery and cash on delivery.",
-    heroAltTopProducts:
-      "Fuel Your Goals — everything you need for strength, recovery and performance",
+    heroAltDiwali: "Diwali Deals, 1–12 Nov — up to 54% off",
+    heroAltBestSellers: "Best sellers — what the UAE is training on. 100% genuine, same-day delivery in Dubai",
+    heroAltCoreChamps: "Core Champs — built for champs. Protein, mass and shred",
+    heroAltCreatine: "Creatine monohydrate — strength starts here, from AED 50",
     heroCtaSale: "Shop the Sale",
     heroCtaShopNow: "Shop Now",
     heroCtaCoreChamps: "Shop Core Champs",
@@ -491,7 +493,10 @@ const ar: Dictionary = {
     heroTitle: "متجر مكملات غذائية في دبي والإمارات",
     heroBody:
       "JNK Nutrition هو الموزّع الرسمي في الإمارات للمكملات الرياضية الأصلية 100% — واي بروتين، ما قبل التمرين، كرياتين والمزيد، مع توصيل سريع لكل الإمارات والدفع عند الاستلام.",
-    heroAltTopProducts: "غذّ طموحك — كل ما تحتاجه للقوة، والتعافي، والأداء",
+    heroAltDiwali: "عروض ديوالي، 1–12 نوفمبر — خصم حتى 54%",
+    heroAltBestSellers: "الأكثر مبيعًا — الأكثر طلبًا في الإمارات. أصلي 100%، توصيل في نفس اليوم داخل دبي",
+    heroAltCoreChamps: "Core Champs — صنع للأبطال. بروتين، زيادة الوزن، تنشيف",
+    heroAltCreatine: "كرياتين مونوهيدرات — القوة تبدأ من هنا، ابتداءً من 50 درهم",
     heroCtaSale: "تسوق التخفيضات",
     heroCtaShopNow: "تسوق الآن",
     heroCtaCoreChamps: "تسوق Core Champs",

@@ -19,7 +19,7 @@ import UAEFlagBanner from "@/components/home/UAEFlagBanner";
 import DealsBanner from "@/components/home/DealsBanner";
 import MuscleRulzBanner from "@/components/home/MuscleRulzBanner";
 import DiwaliBanner from "@/components/home/DiwaliBanner";
-import { isDiwaliLive, DIWALI_OFFERS_PATH } from "@/lib/seasonal";
+import { isDiwaliLive, isDiwaliWindowOpen, DIWALI_OFFERS_PATH } from "@/lib/seasonal";
 import { notAdHidden } from "@/lib/ad-landing";
 import type { Metadata } from "next";
 import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, DEFAULT_KEYWORDS } from "@/lib/seo";
@@ -146,9 +146,11 @@ export default async function Home({ params }: PageProps) {
 
   return (
     <div className="flex flex-col">
-      {/* Hero — carousel on desktop, hidden on mobile (category grid takes over) */}
+      {/* Hero — carousel on desktop, hidden on mobile (category grid takes over).
+          The Diwali slide leads it during the festival window on both locales:
+          it has its own Arabic artwork, unlike the rest of the theme. */}
       <div className="hidden md:block">
-        <HeroBanner />
+        <HeroBanner diwali={isDiwaliWindowOpen()} />
       </div>
 
       {/* UAE flag gradient banner */}

@@ -45,7 +45,16 @@ export const DIWALI_OFFERS_PATH = "/diwali-offers";
  * live. It is unset everywhere by default.
  */
 export function isDiwaliLive(localeCode: string, now = Date.now()): boolean {
-  if (!DIWALI.enabled || !DIWALI.locales.includes(localeCode)) return false;
+  return DIWALI.locales.includes(localeCode) && isDiwaliWindowOpen(now);
+}
+
+/**
+ * The date window alone, on every locale. For the homepage hero's Diwali slide,
+ * which has its own Arabic artwork, so /ar shows it too while the rest of the
+ * theme stays English only. Same kill switch and SEASONAL_PREVIEW override.
+ */
+export function isDiwaliWindowOpen(now = Date.now()): boolean {
+  if (!DIWALI.enabled) return false;
   if (process.env.SEASONAL_PREVIEW === "diwali") return true;
   return now >= DIWALI.start && now < DIWALI.end;
 }
