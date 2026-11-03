@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react";
 import Link from "@/components/LocaleLink";
 import { ShoppingBag } from "lucide-react";
+import { LOCALE_PREFIXES } from "@/lib/i18n";
 
 /**
  * Detects whether the current 404 is Shopify bouncing a checkout permalink
@@ -11,7 +12,22 @@ import { ShoppingBag } from "lucide-react";
  *
  * When that's the case we show a branded, helpful message instead of the
  * generic 404 page, with a direct link to the cart so the customer can retry.
+ *
+ * app/[lang]/cart/c/[...rest]/page.tsx exists only to throw notFound() for
+ * those paths. Without it they match no route and are answered by
+ * app/global-not-found.tsx, which bypasses the layout and never mounts this.
  */
+
+// Shopify bounces to the un-prefixed URL, but the route above matches under
+// every locale, so an /ar/cart/c/… visit gets the same treatment. The prefix
+// is stripped again for the retry link: the myshopify domain knows /cart/c/
+// only.
+const LOCALE_PREFIX = LOCALE_PREFIXES.length
+  ? `(?:/(?:${LOCALE_PREFIXES.join("|")}))?`
+  : "";
+const CHECKOUT_BOUNCE_PATH = new RegExp(`^${LOCALE_PREFIX}/cart/c/`);
+const LEADING_LOCALE_PREFIX = new RegExp(`^${LOCALE_PREFIX}`);
+
 export default function CheckoutNotFound({
   children,
 }: {
@@ -74,7 +90,7 @@ function subscribe() {
 /** The bounced checkout URL on the client, or null when this is a normal 404. */
 function getCheckoutBounceHref(): string | null {
   const { pathname, href } = window.location;
-  return pathname.startsWith("/cart/c/") ? href : null;
+  return CHECKOUT_BOUNCE_PATH.test(pathname) ? href : null;
 }
 
 function getServerSnapshot(): string | null {
@@ -92,7 +108,13 @@ function toStoreCheckoutHref(bouncedHref: string): string | null {
   }
   try {
     const url = new URL(bouncedHref);
+    // Shopify checkout is https only. The port is cleared separately because
+    // the hostname setter keeps whatever port the storefront was served on,
+    // e.g. 3001 under a local `next start`.
+    url.protocol = "https:";
     url.hostname = storeDomain;
+    url.port = "";
+    url.pathname = url.pathname.replace(LEADING_LOCALE_PREFIX, "");
     return url.toString();
   } catch {
     return null;
