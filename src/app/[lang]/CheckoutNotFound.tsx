@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "@/components/LocaleLink";
 import { ShoppingBag } from "lucide-react";
 
@@ -17,34 +17,21 @@ export default function CheckoutNotFound({
 }: {
   children: React.ReactNode;
 }) {
-  const [isCheckout, setIsCheckout] = useState(false);
-  const [checkoutHref, setCheckoutHref] = useState<string | null>(null);
+  // window.location is read through useSyncExternalStore: the server render
+  // and the hydration render both use the server snapshot (no bounce), then
+  // React re-renders once with the real client value. Same visible result as
+  // the old setState-in-an-effect, without the cascading render.
+  const bouncedHref = useSyncExternalStore(
+    subscribe,
+    getCheckoutBounceHref,
+    getServerSnapshot,
+  );
 
-  useEffect(() => {
-    const path = window.location.pathname;
-    if (!path.startsWith("/cart/c/")) {
-      return;
-    }
-
-    setIsCheckout(true);
-
-    // Reconstruct the checkout URL on the myshopify domain so the button gives
-    // the user another direct shot at Shopify's checkout engine.
-    const storeDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-    if (storeDomain) {
-      try {
-        const url = new URL(window.location.href);
-        url.hostname = storeDomain;
-        setCheckoutHref(url.toString());
-      } catch {
-        // ignore
-      }
-    }
-  }, []);
-
-  if (!isCheckout) {
+  if (bouncedHref === null) {
     return <>{children}</>;
   }
+
+  const checkoutHref = toStoreCheckoutHref(bouncedHref);
 
   return (
     <div className="text-center max-w-md">
@@ -76,4 +63,38 @@ export default function CheckoutNotFound({
       </div>
     </div>
   );
+}
+
+// The location never changes without a navigation, which remounts or
+// re-renders this component anyway, so there is nothing to subscribe to.
+function subscribe() {
+  return () => {};
+}
+
+/** The bounced checkout URL on the client, or null when this is a normal 404. */
+function getCheckoutBounceHref(): string | null {
+  const { pathname, href } = window.location;
+  return pathname.startsWith("/cart/c/") ? href : null;
+}
+
+function getServerSnapshot(): string | null {
+  return null;
+}
+
+/**
+ * Reconstruct the checkout URL on the myshopify domain so the button gives
+ * the user another direct shot at Shopify's checkout engine.
+ */
+function toStoreCheckoutHref(bouncedHref: string): string | null {
+  const storeDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  if (!storeDomain) {
+    return null;
+  }
+  try {
+    const url = new URL(bouncedHref);
+    url.hostname = storeDomain;
+    return url.toString();
+  } catch {
+    return null;
+  }
 }
