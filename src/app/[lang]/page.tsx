@@ -160,24 +160,50 @@ export default async function Home({ params }: PageProps) {
 
   return (
     <div className="flex flex-col">
+      {/* Source order is the phone order; `md:-order-1` lifts the blocks that
+          lead the desktop page back above the goals grid. The goals grid used to
+          sit after the deals strip in the HTML and jump above it with
+          `order-first` — but the HTML streams, so a phone painted the flag,
+          Diwali band and H1 first and the grid then landed ~80 KB later on top
+          of them, pushing the whole first screen down (PSI mobile CLS 0.798). */}
+
       {/* Hero — carousel on desktop, hidden on mobile (category grid takes over).
           The Diwali slide leads it during the festival window on both locales:
           it has its own Arabic artwork, unlike the rest of the theme. */}
-      <div className="hidden md:block">
+      <div className="hidden md:block md:-order-1">
         <HeroBanner diwali={isDiwaliWindowOpen()} />
       </div>
 
+      {/* ─── Shop your goal ───────────────────────────────────── */}
+      {/* First on mobile: acts as the hero in place of the carousel */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 w-full">
+        <div className="mb-8">
+          <SectionHeading>{t.shopByCategory}</SectionHeading>
+          <p className="mt-3 text-[#55637A]">{t.shopByCategoryTagline}</p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
+          {/* The grid is 2-up on mobile, so the first four tiles are the two
+              rows a phone shows without scrolling, and Lighthouse picks its LCP
+              element from among them — the third tile, as it happens, since the
+              sticky header clips the top row. All four load eagerly; the last
+              two stay lazy. */}
+          {GOALS.map((goal, i) => (
+            <GoalCard key={goal.title} goal={goal} priority={i < 4} />
+          ))}
+        </div>
+      </section>
+
       {/* UAE flag gradient banner */}
-      <div className="mt-6 sm:mt-8">
+      <div className="mt-6 sm:mt-8 md:-order-1">
         <UAEFlagBanner label={t.proudOfUae} />
       </div>
 
       {/* Diwali greeting — date-gated in lib/seasonal.ts. It sits below the UAE
           flag rather than replacing it (UAE Flag Day, 3 Nov, falls inside the
           window) and below both LCP elements: the hero on desktop and the
-          order-first goals grid on phones. */}
+          goals grid on phones. */}
       {isDiwaliLive(locale.code) && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-6 sm:mt-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-6 sm:mt-8 md:-order-1">
           <DiwaliBanner
             eyebrow={t.diwaliEyebrow}
             title={t.diwaliTitle}
@@ -195,7 +221,7 @@ export default async function Home({ params }: PageProps) {
           block into the rest of the page instead of leaving it as loose text,
           and the bottom padding stops the paragraph butting straight into the
           deals band below — it had none, so the two were touching. */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-8 pb-10 md:pt-12 md:pb-14">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-8 pb-10 md:pt-12 md:pb-14 md:-order-1">
         <h1 className="max-w-4xl text-3xl md:text-5xl font-black uppercase tracking-tight leading-[1.05] text-[#0B0F14]">
           {t.heroTitle}
         </h1>
@@ -217,6 +243,7 @@ export default async function Home({ params }: PageProps) {
         tone="accent"
         cta="button"
         ctaLabel={t.shopDeals}
+        className="md:-order-1"
         header={
           <DealsBanner
             title={t.todaysDeals}
@@ -226,25 +253,6 @@ export default async function Home({ params }: PageProps) {
           />
         }
       />
-
-      {/* ─── Shop your goal ───────────────────────────────────── */}
-      {/* order-first on mobile: acts as the hero in place of the carousel */}
-      <section className="order-first md:order-none max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 w-full">
-        <div className="mb-8">
-          <SectionHeading>{t.shopByCategory}</SectionHeading>
-          <p className="mt-3 text-[#55637A]">{t.shopByCategoryTagline}</p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
-          {/* The grid is 2-up on mobile, so the first four tiles are the two
-              rows a phone shows without scrolling, and Lighthouse picks its LCP
-              element from among them — the third tile, as it happens, since the
-              sticky header clips the top row. All four load eagerly; the last
-              two stay lazy. */}
-          {GOALS.map((goal, i) => (
-            <GoalCard key={goal.title} goal={goal} priority={i < 4} />
-          ))}
-        </div>
-      </section>
 
       {/* ─── Trending now ─────────────────────────────────────── */}
       <SectionStrip

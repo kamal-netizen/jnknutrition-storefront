@@ -66,7 +66,7 @@ export default function GoalCard({
    * Load this tile's image eagerly, and preload it at high priority on a
    * phone. Set on the tiles that are above the fold there.
    *
-   * This grid carries `order-first` on mobile — it *is* the mobile hero, since
+   * This grid comes first on mobile — it *is* the mobile hero, since
    * the carousel above it is `hidden md:block`. Lighthouse names one of these
    * images as the Largest Contentful Paint element. On desktop the grid sits
    * below the carousel and the deals strip, so the preload is phone-only:
