@@ -27,6 +27,18 @@ const nextConfig: NextConfig = {
   // unmatched path never reaches it.
   experimental: {
     globalNotFound: true,
+    // Turbopack's server-side Fast Refresh (new in 16.2) is what made `next
+    // dev` unusable here: its per-chunk HMR subscription in the Rust side
+    // re-emits an identical "issues" event for every server chunk in a tight
+    // loop, so the Node main thread does nothing but receive them. Measured on
+    // 16.2.9 against this project's dev cache: one homepage render took 15
+    // minutes, the render server pinned ~13 cores and grew past 16 GB; with
+    // this off, the same three loads took 3.4s / 0.9s / 0.8s at a flat 0.35 GB
+    // heap. Server-component edits still hot-reload — Next falls back to the
+    // require-cache clearing it used before 16.2. Same switch as the CLI's
+    // `--no-server-fast-refresh`. Dev-only: `next start` never loads the hot
+    // reloader. Re-test on a Next upgrade before removing.
+    turbopackServerFastRefresh: false,
   },
   // These lived in vercel.json until the move to Shipyard, which does not read
   // that file — verified on production, where /feature image/whey.webp came
