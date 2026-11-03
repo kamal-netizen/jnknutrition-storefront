@@ -4,7 +4,7 @@ import {
   IN_CONTEXT_ARGS,
   IN_CONTEXT_DIRECTIVE,
 } from "@/lib/shopify";
-import type { ProductCardData, MoneyV2, ProductImage } from "./products";
+import type { ProductCardData, ProductImage } from "./products";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

@@ -46,6 +46,11 @@ export default async function LoginPage({ searchParams }: Props) {
 
       {configured ? (
         <div className="space-y-3">
+          {/*
+            Plain <a>, not <Link>: /account/authorize is a route handler that
+            starts the Shopify OAuth flow, so each button must be a full
+            navigation and must never be prefetched.
+          */}
           <Button
             render={<a href="/account/authorize" />}
             nativeButton={false}

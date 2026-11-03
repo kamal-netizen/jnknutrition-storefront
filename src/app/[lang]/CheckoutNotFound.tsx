@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "@/components/LocaleLink";
 import { ShoppingBag } from "lucide-react";
+import { LOCALE_PREFIXES } from "@/lib/i18n";
 
 /**
  * Detects whether the current 404 is Shopify bouncing a checkout permalink
@@ -11,40 +12,42 @@ import { ShoppingBag } from "lucide-react";
  *
  * When that's the case we show a branded, helpful message instead of the
  * generic 404 page, with a direct link to the cart so the customer can retry.
+ *
+ * app/[lang]/cart/c/[...rest]/page.tsx exists only to throw notFound() for
+ * those paths. Without it they match no route and are answered by
+ * app/global-not-found.tsx, which bypasses the layout and never mounts this.
  */
+
+// Shopify bounces to the un-prefixed URL, but the route above matches under
+// every locale, so an /ar/cart/c/… visit gets the same treatment. The prefix
+// is stripped again for the retry link: the myshopify domain knows /cart/c/
+// only.
+const LOCALE_PREFIX = LOCALE_PREFIXES.length
+  ? `(?:/(?:${LOCALE_PREFIXES.join("|")}))?`
+  : "";
+const CHECKOUT_BOUNCE_PATH = new RegExp(`^${LOCALE_PREFIX}/cart/c/`);
+const LEADING_LOCALE_PREFIX = new RegExp(`^${LOCALE_PREFIX}`);
+
 export default function CheckoutNotFound({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [isCheckout, setIsCheckout] = useState(false);
-  const [checkoutHref, setCheckoutHref] = useState<string | null>(null);
+  // window.location is read through useSyncExternalStore: the server render
+  // and the hydration render both use the server snapshot (no bounce), then
+  // React re-renders once with the real client value. Same visible result as
+  // the old setState-in-an-effect, without the cascading render.
+  const bouncedHref = useSyncExternalStore(
+    subscribe,
+    getCheckoutBounceHref,
+    getServerSnapshot,
+  );
 
-  useEffect(() => {
-    const path = window.location.pathname;
-    if (!path.startsWith("/cart/c/")) {
-      return;
-    }
-
-    setIsCheckout(true);
-
-    // Reconstruct the checkout URL on the myshopify domain so the button gives
-    // the user another direct shot at Shopify's checkout engine.
-    const storeDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-    if (storeDomain) {
-      try {
-        const url = new URL(window.location.href);
-        url.hostname = storeDomain;
-        setCheckoutHref(url.toString());
-      } catch {
-        // ignore
-      }
-    }
-  }, []);
-
-  if (!isCheckout) {
+  if (bouncedHref === null) {
     return <>{children}</>;
   }
+
+  const checkoutHref = toStoreCheckoutHref(bouncedHref);
 
   return (
     <div className="text-center max-w-md">
@@ -76,4 +79,44 @@ export default function CheckoutNotFound({
       </div>
     </div>
   );
+}
+
+// The location never changes without a navigation, which remounts or
+// re-renders this component anyway, so there is nothing to subscribe to.
+function subscribe() {
+  return () => {};
+}
+
+/** The bounced checkout URL on the client, or null when this is a normal 404. */
+function getCheckoutBounceHref(): string | null {
+  const { pathname, href } = window.location;
+  return CHECKOUT_BOUNCE_PATH.test(pathname) ? href : null;
+}
+
+function getServerSnapshot(): string | null {
+  return null;
+}
+
+/**
+ * Reconstruct the checkout URL on the myshopify domain so the button gives
+ * the user another direct shot at Shopify's checkout engine.
+ */
+function toStoreCheckoutHref(bouncedHref: string): string | null {
+  const storeDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+  if (!storeDomain) {
+    return null;
+  }
+  try {
+    const url = new URL(bouncedHref);
+    // Shopify checkout is https only. The port is cleared separately because
+    // the hostname setter keeps whatever port the storefront was served on,
+    // e.g. 3001 under a local `next start`.
+    url.protocol = "https:";
+    url.hostname = storeDomain;
+    url.port = "";
+    url.pathname = url.pathname.replace(LEADING_LOCALE_PREFIX, "");
+    return url.toString();
+  } catch {
+    return null;
+  }
 }
