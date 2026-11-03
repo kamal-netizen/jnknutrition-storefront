@@ -106,23 +106,8 @@ const en = {
     shopByBrand: "Shop by Brand",
     allBrands: "All Brands",
     coreChampsTagline: "Championship-grade supplements for peak performance.",
-    // ─── Core Champs animated brand band (components/home/CoreChampsHero) ──
-    ccHeadlineTop: "Performance",
-    ccHeadlineBottom: "At Its Core",
     ccTagline: "Bred To Be a Champion",
-    ccOffer: "Up to 30% Off",
-    ccShippingLead: "Free shipping on orders over",
-    ccGenuine: "100% Genuine",
-    ccCta: "Shop the Core Champs range",
     muscleRulzTagline: "Hardcore formulas built to fuel serious gains.",
-    // ─── Muscle Rulz animated brand strip (components/home/MuscleRulzBanner) ──
-    // The headline splits so the accent lands on the second half. English can
-    // break the brand name itself the way the design does; Arabic cannot —
-    // "Muscle Rulz" stays whole and Latin there, matching how every other brand
-    // name is handled, with the accent carrying the whole lockup instead.
-    mrHeadline: "Shop Muscle",
-    mrHeadlineAccent: "Rulz",
-    mrOffer: "Up to 52% Off",
     proscienceTagline: "Science-backed nutrition for next-level results.",
     healthWellness: "Health & Wellness",
     healthTagline: "Vitamins, fish oil and daily essentials.",
@@ -532,19 +517,8 @@ const ar: Dictionary = {
     shopByBrand: "تسوق حسب الماركة",
     allBrands: "كل الماركات",
     coreChampsTagline: "مكملات بمستوى الأبطال لأعلى أداء.",
-    // ─── Core Champs animated brand band (components/home/CoreChampsHero) ──
-    ccHeadlineTop: "الأداء",
-    ccHeadlineBottom: "في الصميم",
     ccTagline: "وُلد ليكون بطلًا",
-    ccOffer: "خصم حتى 30%",
-    ccShippingLead: "شحن مجاني للطلبات فوق",
-    ccGenuine: "أصلي 100%",
-    ccCta: "تسوق تشكيلة Core Champs",
     muscleRulzTagline: "تركيبات قوية مصممة لتغذية المكاسب الجادة.",
-    // ─── Muscle Rulz animated brand strip (components/home/MuscleRulzBanner) ──
-    mrHeadline: "تسوق",
-    mrHeadlineAccent: "Muscle Rulz",
-    mrOffer: "خصم حتى 52%",
     proscienceTagline: "تغذية مدعومة بالعلم لنتائج استثنائية.",
     healthWellness: "الصحة والعافية",
     healthTagline: "فيتامينات وزيت سمك وأساسيات يومية.",

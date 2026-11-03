@@ -7,17 +7,15 @@ import {
 import { getMonthlyBestSellers } from "@/lib/queries/best-sellers";
 import { getCollection } from "@/lib/queries/collections";
 import type { ProductCardData } from "@/lib/queries/products";
-import ProductCard from "@/components/ProductCard";
 import SectionStrip from "@/components/home/SectionStrip";
 import ScrollRow from "@/components/home/ScrollRow";
 import GoalCard, { GOALS } from "@/components/home/GoalCard";
 import BrandCard, { BRANDS } from "@/components/home/BrandCard";
 import HeroBanner from "@/components/home/HeroBanner";
-import CoreChampsHero from "@/components/home/CoreChampsHero";
 import SectionHeading from "@/components/home/SectionHeading";
+import ShelfSection, { type ShelfScene } from "@/components/home/ShelfSection";
 import UAEFlagBanner from "@/components/home/UAEFlagBanner";
 import DealsBanner from "@/components/home/DealsBanner";
-import MuscleRulzBanner from "@/components/home/MuscleRulzBanner";
 import DiwaliBanner from "@/components/home/DiwaliBanner";
 import { isDiwaliLive, isDiwaliWindowOpen, DIWALI_OFFERS_PATH } from "@/lib/seasonal";
 import { notAdHidden } from "@/lib/ad-landing";
@@ -25,7 +23,6 @@ import type { Metadata } from "next";
 import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, DEFAULT_KEYWORDS } from "@/lib/seo";
 import { getLocale, localizePath, hreflangAlternates } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionaries";
-import { FREE_SHIPPING_THRESHOLD, FREE_SHIPPING_CURRENCY } from "@/lib/shipping";
 
 export const revalidate = 1800;
 
@@ -41,6 +38,23 @@ export const revalidate = 1800;
 export const dynamicParams = false;
 
 type PageProps = { params: Promise<{ lang: string }> };
+
+// Shelf scenes (banner-work/2026-11/shelf-crop.mjs). Each colour is sampled
+// from the render's flat floor, not the one asked for in the prompt.
+const scene = (slug: string, color: string, dark?: boolean): ShelfScene => ({
+  mobile: { src: `/shelves/2026-11/${slug}-mobile-1200x600.webp`, width: 1200, height: 600 },
+  desktop: { src: `/shelves/2026-11/${slug}-desktop-1536x512.webp`, width: 1536, height: 512 },
+  color,
+  dark,
+});
+const SCENES = {
+  whey: scene("whey", "#96D5F3"),
+  creatine: scene("creatine", "#C7BFF6"),
+  preworkout: scene("preworkout", "#FC9A80"),
+  coreChamps: scene("corechamps", "#1B1F25", true),
+  muscleRulz: scene("musclerulz", "#FED548"),
+  wellness: scene("wellness", "#9FDFBA"),
+};
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { lang } = await params;
@@ -109,7 +123,7 @@ export default async function Home({ params }: PageProps) {
     // the whole in-stock catalog by discount depth, so the deepest cuts in the
     // store lead the row (the collection page aggregates the same way).
     getTopDiscountedProducts(12, language),
-    getCollection("whey-protein", { first: 4, filters: [{ available: true }], language }),
+    getCollection("whey-protein", { first: 8, filters: [{ available: true }], language }),
     getCollection("creatine", { first: 8, filters: [{ available: true }], language }),
     getCollection("pre-workouts", { first: 8, filters: [{ available: true }], language }),
     getCollection("muscle-building-products", { first: 8, filters: [{ available: true }], language }),
@@ -241,42 +255,25 @@ export default async function Home({ params }: PageProps) {
         ctaLabel={viewAll}
       />
 
-      {/* ─── Strength starts here (whey) ──────────────────────── */}
-      {wheyProducts.length > 0 && (
-          <section className="bg-[#F5F7FA] border-y border-[#E2E8F0]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 w-full grid lg:grid-cols-[320px_1fr] gap-8 lg:gap-12 items-center">
-            <div>
-              <p className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-[#082D4C]">
-                <span aria-hidden="true" className="h-3 w-1 rounded-full bg-[#F9D20F]" />
-                {t.buyWhey}
-              </p>
-              <h2 className="text-3xl md:text-5xl font-black text-[#0B0F14] uppercase tracking-tight leading-[0.95]">
-                {t.strengthStartsHere}
-              </h2>
-              <p className="mt-4 text-[#55637A] leading-relaxed">{t.wheyBody}</p>
-              <Link
-                href="/collections/whey-protein"
-                className="inline-flex mt-6 bg-[#F9D20F] text-[#0B0F14] font-bold uppercase tracking-wide px-6 py-3 rounded hover:bg-[#E7BF00] transition-colors"
-              >
-                {t.shopWhey} <span aria-hidden="true" className="rtl:hidden">→</span>
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {wheyProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* ─── Strength starts here (whey) — scene shelf ────────── */}
+      <ShelfSection
+        title={t.strengthStartsHere}
+        eyebrow={t.buyWhey}
+        body={t.wheyBody}
+        href="/collections/whey-protein"
+        ctaLabel={t.shopWhey}
+        products={wheyProducts}
+        scene={SCENES.whey}
+      />
 
-      {/* ─── Daily creatine support ───────────────────────────── */}
-      <SectionStrip
+      {/* ─── Daily creatine support — scene shelf ─────────────── */}
+      <ShelfSection
         title={t.creatineTitle}
-        subtitle={t.creatineTagline}
+        body={t.creatineTagline}
         href="/collections/creatine"
         products={creatineProducts}
         ctaLabel={viewAll}
+        scene={SCENES.creatine}
       />
 
       {/* ─── Fresh picks ──────────────────────────────────────── */}
@@ -289,14 +286,14 @@ export default async function Home({ params }: PageProps) {
         grid
       />
 
-      {/* ─── Pre-workout power ────────────────────────────────── */}
-      <SectionStrip
+      {/* ─── Pre-workout power — scene shelf ──────────────────── */}
+      <ShelfSection
         title={t.preworkoutTitle}
         eyebrow={t.explosiveEnergy}
         href="/collections/pre-workouts"
         products={preworkoutProducts}
-        tone="accent"
         ctaLabel={viewAll}
+        scene={SCENES.preworkout}
       />
 
       {/* ─── Mass gainer / muscle building ────────────────────── */}
@@ -330,43 +327,25 @@ export default async function Home({ params }: PageProps) {
         </div>
       </section>
 
-      {/* ─── Core Champs brand band ───────────────────────────── */}
-      <CoreChampsHero
-        headlineTop={t.ccHeadlineTop}
-        headlineBottom={t.ccHeadlineBottom}
-        tagline={t.ccTagline}
-        offer={t.ccOffer}
-        shippingLead={t.ccShippingLead}
-        shippingAmount={`${FREE_SHIPPING_CURRENCY} ${FREE_SHIPPING_THRESHOLD}`}
-        genuine={t.ccGenuine}
-        ctaLabel={t.ccCta}
-      />
-
-      {/* ─── Core Champs (brand name kept in Latin) ───────────── */}
-      <SectionStrip
+      {/* ─── Core Champs — scene shelf (brand name kept in Latin) ─ */}
+      <ShelfSection
         title="Core Champs"
-        subtitle={t.coreChampsTagline}
+        eyebrow={t.ccTagline}
+        body={t.coreChampsTagline}
         href="/collections/core-champs"
         products={coreChampsProducts}
         ctaLabel={viewAll}
+        scene={SCENES.coreChamps}
       />
 
-      {/* ─── Muscle Rulz ──────────────────────────────────────── */}
-      <SectionStrip
+      {/* ─── Muscle Rulz — scene shelf ────────────────────────── */}
+      <ShelfSection
         title="Muscle Rulz"
-        subtitle={t.muscleRulzTagline}
+        body={t.muscleRulzTagline}
         href="/collections/muscle-rulz"
         products={muscleRulzProducts}
         ctaLabel={viewAll}
-        header={
-          <MuscleRulzBanner
-            title={t.mrHeadline}
-            highlight={t.mrHeadlineAccent}
-            offer={t.mrOffer}
-            ctaLabel={viewAll}
-            href="/collections/muscle-rulz"
-          />
-        }
+        scene={SCENES.muscleRulz}
       />
 
       {/* ─── Proscience Nutra ─────────────────────────────────── */}
@@ -378,13 +357,14 @@ export default async function Home({ params }: PageProps) {
         ctaLabel={viewAll}
       />
 
-      {/* ─── Health & wellness ────────────────────────────────── */}
-      <SectionStrip
+      {/* ─── Health & wellness — scene shelf ───────────────────── */}
+      <ShelfSection
         title={t.healthWellness}
-        subtitle={t.healthTagline}
+        body={t.healthTagline}
         href="/collections/health-wellness"
         products={wellnessProducts}
         ctaLabel={viewAll}
+        scene={SCENES.wellness}
       />
 
       {/* ─── Vegan & plant-based ──────────────────────────────── */}
