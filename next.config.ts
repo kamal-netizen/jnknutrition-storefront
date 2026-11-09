@@ -64,8 +64,6 @@ const nextConfig: NextConfig = {
       "/BRAND",
       "/feature image",
       "/feature%20image",
-      // Seasonal stylesheets, named per festival and year (lib/seasonal.ts).
-      "/seasonal",
     ];
 
     return [
@@ -96,6 +94,19 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // The Diwali 2026 offers page is gone; its links (hero, ads, shares) land
+      // on Today's Deals. Temporary, so browsers don't cache it and the path
+      // stays free for a future campaign.
+      {
+        source: "/diwali-offers",
+        destination: "/collections/today-deals",
+        permanent: false,
+      },
+      {
+        source: "/ar/diwali-offers",
+        destination: "/ar/collections/today-deals",
+        permanent: false,
+      },
       // Shopify's nested product URL → the flat one this app serves.
       {
         source: "/collections/:collection/products/:handle",

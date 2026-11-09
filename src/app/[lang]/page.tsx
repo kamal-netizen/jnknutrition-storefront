@@ -16,8 +16,6 @@ import SectionHeading from "@/components/home/SectionHeading";
 import ShelfSection, { type ShelfScene } from "@/components/home/ShelfSection";
 import UAEFlagBanner from "@/components/home/UAEFlagBanner";
 import DealsBanner from "@/components/home/DealsBanner";
-import DiwaliBanner from "@/components/home/DiwaliBanner";
-import { isDiwaliLive, isDiwaliWindowOpen, DIWALI_OFFERS_PATH } from "@/lib/seasonal";
 import { notAdHidden } from "@/lib/ad-landing";
 import type { Metadata } from "next";
 import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, DEFAULT_KEYWORDS } from "@/lib/seo";
@@ -164,14 +162,13 @@ export default async function Home({ params }: PageProps) {
           lead the desktop page back above the goals grid. The goals grid used to
           sit after the deals strip in the HTML and jump above it with
           `order-first` — but the HTML streams, so a phone painted the flag,
-          Diwali band and H1 first and the grid then landed ~80 KB later on top
-          of them, pushing the whole first screen down (PSI mobile CLS 0.798). */}
+          the Diwali band of the time and H1 first and the grid then landed
+          ~80 KB later on top of them, pushing the whole first screen down (PSI
+          mobile CLS 0.798). */}
 
-      {/* Hero — carousel on desktop, hidden on mobile (category grid takes over).
-          The Diwali slide leads it during the festival window on both locales:
-          it has its own Arabic artwork, unlike the rest of the theme. */}
+      {/* Hero — carousel on desktop, hidden on mobile (category grid takes over). */}
       <div className="hidden md:block md:-order-1">
-        <HeroBanner diwali={isDiwaliWindowOpen()} />
+        <HeroBanner />
       </div>
 
       {/* ─── Shop your goal ───────────────────────────────────── */}
@@ -197,22 +194,6 @@ export default async function Home({ params }: PageProps) {
       <div className="mt-6 sm:mt-8 md:-order-1">
         <UAEFlagBanner label={t.proudOfUae} />
       </div>
-
-      {/* Diwali greeting — date-gated in lib/seasonal.ts. It sits below the UAE
-          flag rather than replacing it (UAE Flag Day, 3 Nov, falls inside the
-          window) and below both LCP elements: the hero on desktop and the
-          goals grid on phones. */}
-      {isDiwaliLive(locale.code) && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-6 sm:mt-8 md:-order-1">
-          <DiwaliBanner
-            eyebrow={t.diwaliEyebrow}
-            title={t.diwaliTitle}
-            body={t.diwaliBody}
-            ctaLabel={t.shopDeals}
-            href={DIWALI_OFFERS_PATH}
-          />
-        </div>
-      )}
 
       {/* Page H1 — local commercial intent ("supplement store dubai/uae").
           Sized above the section H2s beneath it (36px): as the page heading it

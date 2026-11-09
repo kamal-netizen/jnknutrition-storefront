@@ -5,34 +5,20 @@ import Image from "next/image";
 import Link from "@/components/LocaleLink";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useDict, useLocale } from "@/lib/locale-context";
-import { DIWALI_OFFERS_PATH } from "@/lib/seasonal";
 
 type Banner = {
   src: string;
   /** Locale-specific artwork, keyed by locale code. Falls back to `src`. */
   srcByLocale?: Record<string, string>;
   /** Alt text from the dictionaries: it repeats the artwork's own words. */
-  altKey: "heroAltDiwali" | "heroAltBestSellers" | "heroAltCoreChamps" | "heroAltCreatine";
+  altKey: "heroAltBestSellers" | "heroAltCoreChamps" | "heroAltCreatine";
   href: string;
-  /** Locale-specific destination, keyed by locale code. Falls back to `href`. */
-  hrefByLocale?: Record<string, string>;
 };
 
 // Each banner is fully-designed 1920 × 640 (3:1) artwork with baked-in
 // headline and CTA, supplied in both English and Arabic. The `en` art is the
 // default `src`; the Arabic typeset version is served on /ar via `srcByLocale`.
 // File names carry no spaces: see localSrc() in lib/shopify-image-loader.ts.
-
-/** Shown only while lib/seasonal.ts says the Diwali window is open. */
-const DIWALI_BANNER: Banner = {
-  src: "/banners/2026-11/diwali-deals-en-1920x640.webp",
-  srcByLocale: { ar: "/banners/2026-11/diwali-deals-ar-1920x640.webp" },
-  altKey: "heroAltDiwali",
-  href: DIWALI_OFFERS_PATH,
-  // The Diwali Offers page is English only and redirects /ar to Today's Deals;
-  // link there directly rather than through the redirect.
-  hrefByLocale: { ar: "/collections/today-deals" },
-};
 
 const BANNERS: Banner[] = [
   {
@@ -57,15 +43,10 @@ const BANNERS: Banner[] = [
 
 const INTERVAL = 5000;
 
-type Props = {
-  /** Lead with the Diwali slide. Decided on the server, from the date. */
-  diwali?: boolean;
-};
-
-export default function HeroBanner({ diwali = false }: Props) {
+export default function HeroBanner() {
   const t = useDict().home;
   const locale = useLocale();
-  const banners = diwali ? [DIWALI_BANNER, ...BANNERS] : BANNERS;
+  const banners = BANNERS;
   const count = banners.length;
   const [index, setIndex] = useState(0);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -122,9 +103,9 @@ export default function HeroBanner({ diwali = false }: Props) {
               >
                 {banners.map((banner, i) => {
                   // Prefer locale-specific artwork (e.g. the Arabic-typeset
-                  // banner on /ar) and destination.
+                  // banner on /ar).
                   const src = banner.srcByLocale?.[locale.code] ?? banner.src;
-                  const href = banner.hrefByLocale?.[locale.code] ?? banner.href;
+                  const href = banner.href;
                   const alt = t[banner.altKey];
                   return (
                     <div
