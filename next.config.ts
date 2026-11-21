@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { LEGACY_URL_REDIRECTS } from "./src/lib/legacy-url-redirects";
 
 // ─── Legacy Shopify URL map ───────────────────────────────────────────────────
 // The old Shopify storefront is still all over Google's index and external
@@ -162,6 +163,16 @@ const nextConfig: NextConfig = {
           destination: `/ar/pages/${slug}`,
           permanent: true,
         },
+      ]),
+      // ─── Dead product and collection handles ─────────────────────────────
+      // Renamed or delisted in Shopify, still ranked in Google, all 404 until
+      // now — see src/lib/legacy-url-redirects.ts for how the list was built
+      // and why some entries land on a shelf rather than a product. The /ar
+      // twin matters as much as the English rule: Arabic product URLs carry
+      // the same handles, so the same renames killed both.
+      ...LEGACY_URL_REDIRECTS.flatMap(([from, to]) => [
+        { source: from, destination: to, permanent: true },
+        { source: `/ar${from}`, destination: `/ar${to}`, permanent: true },
       ]),
       // ─── Renamed local images ────────────────────────────────────────────
       // `next start` finds a public file by its name run through
