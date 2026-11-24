@@ -28,6 +28,9 @@ const nextConfig: NextConfig = {
   // unmatched path never reaches it.
   experimental: {
     globalNotFound: true,
+    // Marks this app as kept on the security track by `next upgrade
+    // --agent=security` (set by the 16.4.4 → 16.4.6 advisory upgrade).
+    agentUpgrade: "security",
     // `turbopackServerFastRefresh: false` used to sit here. On Next 16.2.9
     // Turbopack's server-side Fast Refresh subscribed to a per-chunk HMR event
     // stream that re-emitted an identical "issues" event for every server
