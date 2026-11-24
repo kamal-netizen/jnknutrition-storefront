@@ -16,6 +16,8 @@ import SectionHeading from "@/components/home/SectionHeading";
 import ShelfSection, { type ShelfScene } from "@/components/home/ShelfSection";
 import UAEFlagBanner from "@/components/home/UAEFlagBanner";
 import DealsBanner from "@/components/home/DealsBanner";
+import NationalDayBanner from "@/components/home/NationalDayBanner";
+import { isNationalDayLive } from "@/lib/seasonal";
 import { notAdHidden } from "@/lib/ad-landing";
 import type { Metadata } from "next";
 import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, DEFAULT_KEYWORDS } from "@/lib/seo";
@@ -194,6 +196,19 @@ export default async function Home({ params }: PageProps) {
       <div className="mt-6 sm:mt-8 md:-order-1">
         <UAEFlagBanner label={t.proudOfUae} />
       </div>
+
+      {/* National Day greeting — date-gated in lib/seasonal.ts. Below the UAE
+          flag rather than replacing it, and below both LCP elements: the hero
+          on desktop and the goals grid on phones. A greeting only, no offer. */}
+      {isNationalDayLive(locale.code) && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-6 sm:mt-8 md:-order-1">
+          <NationalDayBanner
+            eyebrow={t.nationalDayEyebrow}
+            title={t.nationalDayTitle}
+            body={t.nationalDayBody}
+          />
+        </div>
+      )}
 
       {/* Page H1 — local commercial intent ("supplement store dubai/uae").
           Sized above the section H2s beneath it (36px): as the page heading it

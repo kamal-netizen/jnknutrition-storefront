@@ -65,6 +65,8 @@ const nextConfig: NextConfig = {
       "/BRAND",
       "/feature image",
       "/feature%20image",
+      // Seasonal stylesheets, named per festival and year (lib/seasonal.ts).
+      "/seasonal",
     ];
 
     return [

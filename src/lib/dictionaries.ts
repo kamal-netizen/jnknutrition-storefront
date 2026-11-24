@@ -73,6 +73,10 @@ const en = {
     heroCtaFatBurners: "Shop Fat Burners",
     heroCtaGetApp: "Get the App",
     proudOfUae: "Proud of UAE",
+    nationalDayEyebrow: "Eid Al Etihad · 2 December",
+    nationalDayTitle: "Happy 55th National Day",
+    nationalDayBody:
+      "Celebrating 55 years of the union. Wishing everyone who calls the UAE home health and strength, from all of us at JNK Nutrition.",
     limitedTime: "Limited Time",
     todaysDeals: "Today's Deals",
     shopDeals: "Shop Deals",
@@ -478,6 +482,10 @@ const ar: Dictionary = {
     heroCtaFatBurners: "تسوق حارقات الدهون",
     heroCtaGetApp: "حمّل التطبيق",
     proudOfUae: "فخورون بالإمارات",
+    nationalDayEyebrow: "عيد الاتحاد · 2 ديسمبر",
+    nationalDayTitle: "عيد الاتحاد الـ55",
+    nationalDayBody:
+      "نحتفل بمرور 55 عامًا على قيام الاتحاد. كل عام والإمارات وكل من يعيش على أرضها بصحة وقوة، من فريق JNK Nutrition.",
     limitedTime: "لوقت محدود",
     todaysDeals: "عروض اليوم",
     shopDeals: "تسوق العروض",

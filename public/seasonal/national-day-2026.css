@@ -1,0 +1,572 @@
+/* UAE National Day 2026 (55th Eid Al Etihad): homepage band + header bunting.
+
+   Served from /public rather than bundled into globals.css. It is only needed
+   while the window is open (lib/seasonal.ts), and inside the global stylesheet
+   it would be render-blocking CSS on every page all year. NationalDayBanner and
+   NationalDayBunting each render a React <link precedence> for it, so it loads
+   only on pages that render them, once (React dedupes by href).
+
+   Cached for a year as immutable (next.config.ts): to change a rule, change
+   the file name and NATIONAL_DAY_CSS in lib/seasonal.ts. Plain CSS only —
+   nothing here goes through PostCSS or Tailwind.
+
+   Same discipline as the Diwali theme before it: every keyframe moves only
+   transform and opacity, and the band uses logical properties so /ar mirrors
+   without its own rules. */
+
+/* ── Homepage band ── */
+.ndy-band {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  border-radius: 1rem;
+  color: #fff;
+  background:
+    radial-gradient(55% 90% at 78% 115%, rgba(239, 51, 64, 0.28) 0%, rgba(239, 51, 64, 0) 70%),
+    radial-gradient(60% 80% at 20% -10%, rgba(0, 132, 61, 0.55) 0%, rgba(0, 132, 61, 0) 70%),
+    linear-gradient(120deg, #022615 0%, #04331d 48%, #0b0f14 100%);
+}
+
+/* The flag's red hoist band, down the reading edge. */
+.ndy-band::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 10px;
+  background: #ef3340;
+}
+
+.ndy-copy {
+  position: relative;
+  z-index: 3;
+  width: 56%;
+  max-width: 620px;
+  padding: 28px 36px 28px 46px;
+  padding-inline: 46px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.ndy-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+}
+
+.ndy-title {
+  margin: 0;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(38px, 4.4vw, 56px);
+  line-height: 1;
+  letter-spacing: -0.5px;
+  color: #fff;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* The four flag colours as a short accent rule under the title. */
+.ndy-ribbon {
+  display: flex;
+  gap: 3px;
+  transform-origin: left center;
+}
+
+.ndy-ribbon:dir(rtl) {
+  transform-origin: right center;
+}
+
+.ndy-ribbon i {
+  width: 16px;
+  height: 4px;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+
+.ndy-ribbon i:nth-child(1) { background: #ef3340; }
+.ndy-ribbon i:nth-child(2) { background: #00a54f; }
+.ndy-ribbon i:nth-child(3) { background: #fff; }
+.ndy-ribbon i:nth-child(4) { background: #0b0f14; }
+
+.ndy-body {
+  margin: 0;
+  max-width: 42ch;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #d3e6da;
+}
+
+/* The anniversary as outlined numerals, cropped by the far edge. */
+.ndy-number {
+  position: absolute;
+  z-index: 0;
+  top: calc(50% - 150px);
+  inset-inline-end: 2%;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 900;
+  font-size: 280px;
+  line-height: 300px;
+  letter-spacing: -8px;
+  color: rgba(255, 255, 255, 0.04);
+  -webkit-text-stroke: 2px rgba(255, 255, 255, 0.16);
+  user-select: none;
+}
+
+/* Starfield. */
+.ndy-stars i {
+  position: absolute;
+  z-index: 0;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.6);
+  animation: ndyTwinkle 2.7s ease-in-out infinite;
+}
+
+.ndy-stars i:nth-child(1) { top: 10%; inset-inline-start: 46%; animation-delay: -0.4s; }
+.ndy-stars i:nth-child(2) { top: 78%; inset-inline-start: 54%; animation-duration: 3.3s; }
+.ndy-stars i:nth-child(3) { top: 16%; inset-inline-start: 60%; animation-delay: -1.7s; }
+.ndy-stars i:nth-child(4) { top: 40%; inset-inline-start: 57%; animation-duration: 2.1s; animation-delay: -0.9s; }
+.ndy-stars i:nth-child(5) { top: 8%; inset-inline-start: 74%; animation-duration: 3.7s; }
+.ndy-stars i:nth-child(6) { top: 62%; inset-inline-start: 66%; animation-delay: -2.1s; }
+.ndy-stars i:nth-child(7) { top: 22%; inset-inline-start: 93%; animation-duration: 2.9s; animation-delay: -1.3s; }
+.ndy-stars i:nth-child(8) { top: 86%; inset-inline-start: 88%; animation-duration: 2.3s; animation-delay: -0.6s; }
+
+/* Fireworks in the flag's colours: a rocket streaks up, then bursts into a
+   ring of sparks. Rocket and burst share one duration and delay so the burst
+   lands where the rocket ends. */
+.ndy-firework {
+  position: absolute;
+  z-index: 1;
+  width: var(--ndy-size);
+  height: var(--ndy-size);
+  color: var(--ndy-color);
+}
+
+.ndy-firework--a { --ndy-size: 88px; --ndy-color: #ff5a66; --ndy-dur: 3.6s; --ndy-delay: 1.2s; top: 4%; inset-inline-start: 50%; }
+.ndy-firework--b { --ndy-size: 74px; --ndy-color: #ffffff; --ndy-dur: 4.4s; --ndy-delay: 2.3s; top: 2%; inset-inline-start: 86%; }
+.ndy-firework--c { --ndy-size: 62px; --ndy-color: #2bd47a; --ndy-dur: 3.9s; --ndy-delay: 3.1s; top: 30%; inset-inline-start: 62%; }
+
+.ndy-rocket {
+  position: absolute;
+  top: 50%;
+  left: calc(50% - 1.5px);
+  width: 3px;
+  height: 18px;
+  border-radius: 2px;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0), currentColor);
+  opacity: 0;
+  animation: ndyRocket var(--ndy-dur) ease-out var(--ndy-delay) infinite;
+}
+
+.ndy-burst {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: ndyBurst var(--ndy-dur) ease-out var(--ndy-delay) infinite;
+}
+
+.ndy-burst i {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 1px);
+  width: 2px;
+  height: 50%;
+  transform-origin: 50% 100%;
+}
+
+.ndy-burst i::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -1.5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px 1px currentColor;
+}
+
+.ndy-burst i::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  left: 0;
+  width: 2px;
+  height: 45%;
+  background: linear-gradient(currentColor, rgba(255, 255, 255, 0));
+  opacity: 0.7;
+}
+
+.ndy-burst i:nth-child(2) { transform: rotate(30deg); }
+.ndy-burst i:nth-child(3) { transform: rotate(60deg); }
+.ndy-burst i:nth-child(4) { transform: rotate(90deg); }
+.ndy-burst i:nth-child(5) { transform: rotate(120deg); }
+.ndy-burst i:nth-child(6) { transform: rotate(150deg); }
+.ndy-burst i:nth-child(7) { transform: rotate(180deg); }
+.ndy-burst i:nth-child(8) { transform: rotate(210deg); }
+.ndy-burst i:nth-child(9) { transform: rotate(240deg); }
+.ndy-burst i:nth-child(10) { transform: rotate(270deg); }
+.ndy-burst i:nth-child(11) { transform: rotate(300deg); }
+.ndy-burst i:nth-child(12) { transform: rotate(330deg); }
+
+/* The flag on its pole, rising from the bottom edge. The pole stays on the
+   left and the cloth flies right on /ar too, so the red band is always
+   against the pole. */
+.ndy-flag {
+  position: absolute;
+  z-index: 2;
+  bottom: 0;
+  inset-inline-end: 21%;
+  display: flex;
+  align-items: flex-start;
+}
+
+/* Not `direction: ltr` — that would also flip the element's own
+   inset-inline-end to the right-hand side on /ar. */
+.ndy-flag:dir(rtl) {
+  flex-direction: row-reverse;
+}
+
+.ndy-pole {
+  position: relative;
+  width: 5px;
+  height: 168px;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(to right, #8a6a2b, #f2d27a 45%, #a07d33);
+}
+
+.ndy-pole::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: -3.5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff2c2, #d4a843 60%, #8a6a2b);
+}
+
+.ndy-cloth {
+  position: relative;
+  overflow: hidden;
+  width: 132px;
+  height: 78px;
+  margin-top: 4px;
+  background:
+    linear-gradient(to right, #ef3340 0 25%, rgba(0, 0, 0, 0) 25%),
+    linear-gradient(to bottom, #00843d 0 33.333%, #fff 33.333% 66.667%, #000 66.667% 100%);
+  box-shadow: 0 8px 22px -10px rgba(0, 0, 0, 0.6);
+  transform-origin: 0 50%;
+  animation: ndyWave 3.2s ease-in-out infinite alternate;
+}
+
+/* Folds sliding across the cloth, like the homepage flag's. */
+.ndy-cloth-sheen {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 240%;
+  background: repeating-linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.24) 5%,
+    rgba(0, 0, 0, 0.22) 11%,
+    rgba(255, 255, 255, 0) 17%
+  );
+  mix-blend-mode: soft-light;
+  animation: ndyFolds 3.6s linear infinite;
+}
+
+/* ── Band entrance ── */
+/* The band is server-rendered with data-ndy-enter="wait"; NationalDayEntrance
+   flips it to "play" once the band is in view, and marks it
+   data-ndy-offscreen whenever it is scrolled fully away. Fill mode is
+   `backwards`: each entrance holds its first frame through its delay, then
+   lets go, so the element rests on its own styles and drops its layer. */
+.ndy-band[data-ndy-enter] {
+  animation: ndyBandIn 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+
+.ndy-band[data-ndy-enter] .ndy-number {
+  animation: ndyNumberIn 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s backwards;
+}
+
+.ndy-band[data-ndy-enter] .ndy-flag {
+  animation: ndyRaise 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s backwards;
+}
+
+.ndy-band[data-ndy-enter] .ndy-eyebrow {
+  animation: ndyRise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s backwards;
+}
+
+.ndy-band[data-ndy-enter] .ndy-title {
+  animation: ndyTitleIn 0.8s cubic-bezier(0.34, 1.4, 0.64, 1) 0.42s backwards;
+}
+
+.ndy-band[data-ndy-enter] .ndy-ribbon {
+  animation: ndyRibbonIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.7s backwards;
+}
+
+.ndy-band[data-ndy-enter] .ndy-body {
+  animation: ndyRise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.6s backwards;
+}
+
+.ndy-band[data-ndy-enter] .ndy-stars {
+  animation: ndyFadeIn 1s ease-out 0.5s backwards;
+}
+
+/* Everything holds — entrances and loops alike — until the band is in view,
+   and again whenever it is scrolled away, so a page that is still loading or
+   reading further down spends nothing on it. */
+.ndy-band[data-ndy-enter="wait"],
+.ndy-band[data-ndy-enter="wait"] *,
+.ndy-band[data-ndy-enter="wait"] *::before,
+.ndy-band[data-ndy-enter="wait"] *::after,
+.ndy-band[data-ndy-offscreen] *,
+.ndy-band[data-ndy-offscreen] *::before,
+.ndy-band[data-ndy-offscreen] *::after {
+  animation-play-state: paused !important;
+}
+
+@media (scripting: none) {
+  .ndy-band[data-ndy-enter],
+  .ndy-band[data-ndy-enter] *,
+  .ndy-band[data-ndy-enter] *::before,
+  .ndy-band[data-ndy-enter] *::after {
+    animation-play-state: running !important;
+  }
+}
+
+/* ── Header bunting ── */
+.ndy-bunting {
+  position: relative;
+  height: 28px;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  animation: ndyBuntingIn 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+
+.ndy-bunting > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: block;
+}
+
+.ndy-bunting svg {
+  display: block;
+}
+
+.ndy-bunting-cord {
+  z-index: 1;
+}
+
+/* Each layer carries every other flag and flutters as a whole, half a beat
+   from the other (see NationalDayBunting.tsx). Origin on the cord. */
+.ndy-bunting-flags {
+  height: 28px;
+  transform-origin: 50% 5px;
+  animation: ndyFlutter 2.2s ease-in-out infinite alternate;
+}
+
+.ndy-bunting-flags--b {
+  animation-duration: 2.6s;
+  animation-delay: -1.3s;
+}
+
+/* ── Keyframes ── */
+@keyframes ndyTwinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.7); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+@keyframes ndyRocket {
+  0% { opacity: 0; transform: translateY(120px); }
+  5% { opacity: 1; }
+  22% { opacity: 1; transform: translateY(0); }
+  26%, 100% { opacity: 0; transform: translateY(-4px); }
+}
+
+@keyframes ndyBurst {
+  0%, 22% { opacity: 0; transform: scale(0.15); }
+  26% { opacity: 1; }
+  55% { opacity: 1; transform: scale(1); }
+  80%, 100% { opacity: 0; transform: translateY(8px) scale(1.1); }
+}
+
+@keyframes ndyWave {
+  from { transform: skewY(-2deg) scaleX(1); }
+  to { transform: skewY(3deg) scaleX(0.95); }
+}
+
+@keyframes ndyFolds {
+  from { transform: translateX(0); }
+  /* Two repeats of the 17% pattern, so the loop has no seam. */
+  to { transform: translateX(-34%); }
+}
+
+@keyframes ndyFlutter {
+  from { transform: scaleY(1) skewX(0deg); }
+  to { transform: scaleY(0.84) skewX(-7deg); }
+}
+
+/* Entrances: each runs once and comes to rest on the element's own styles. */
+@keyframes ndyBandIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+}
+
+@keyframes ndyNumberIn {
+  from { opacity: 0; transform: scale(0.8); }
+}
+
+@keyframes ndyRaise {
+  from { opacity: 0; transform: translateY(60%); }
+}
+
+@keyframes ndyRise {
+  from { opacity: 0; transform: translateY(14px); }
+}
+
+@keyframes ndyTitleIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.9); }
+}
+
+@keyframes ndyRibbonIn {
+  from { opacity: 0; transform: scaleX(0); }
+}
+
+@keyframes ndyFadeIn {
+  from { opacity: 0; }
+}
+
+@keyframes ndyBuntingIn {
+  from { opacity: 0; transform: translateY(-12px); }
+}
+
+/* Tablets: the flag and fireworks move clear of a narrower copy column. */
+@media (max-width: 1023px) {
+  .ndy-copy {
+    width: 62%;
+  }
+  .ndy-flag {
+    inset-inline-end: 12%;
+  }
+  .ndy-number {
+    inset-inline-end: -20px;
+  }
+  .ndy-firework--c {
+    display: none;
+  }
+  .ndy-firework--a {
+    inset-inline-start: 60%;
+  }
+}
+
+/* Phones: the copy takes most of the width; a smaller flag in the far corner,
+   one firework. */
+@media (max-width: 640px) {
+  .ndy-band {
+    min-height: 196px;
+  }
+  .ndy-band::before {
+    width: 6px;
+  }
+  .ndy-copy {
+    width: 72%;
+    padding: 18px 10px 18px 24px;
+    padding-inline: 24px 10px;
+    gap: 7px;
+  }
+  .ndy-eyebrow {
+    height: 20px;
+    padding: 0 8px;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+  .ndy-title {
+    font-size: 28px;
+  }
+  .ndy-ribbon i {
+    width: 12px;
+    height: 3px;
+  }
+  .ndy-body {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+  .ndy-number {
+    top: calc(50% - 85px);
+    inset-inline-end: -14px;
+    font-size: 150px;
+    line-height: 170px;
+    letter-spacing: -4px;
+    -webkit-text-stroke-width: 1.5px;
+  }
+  .ndy-flag {
+    inset-inline-end: 5%;
+  }
+  .ndy-pole {
+    width: 3px;
+    height: 104px;
+  }
+  .ndy-pole::before {
+    top: -6px;
+    left: -2.5px;
+    width: 8px;
+    height: 8px;
+  }
+  .ndy-cloth {
+    width: 62px;
+    height: 38px;
+    margin-top: 2px;
+  }
+  .ndy-firework--a,
+  .ndy-stars i:nth-child(1),
+  .ndy-stars i:nth-child(4) {
+    display: none;
+  }
+  .ndy-firework--b {
+    --ndy-size: 56px;
+    top: 2%;
+    inset-inline-start: 76%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ndy-band,
+  .ndy-band *,
+  .ndy-band *::before,
+  .ndy-band *::after,
+  .ndy-bunting,
+  .ndy-bunting * {
+    animation: none !important;
+  }
+  /* Stars rest invisible between beats — without the animation they would
+     never appear, so they come to rest lit instead. */
+  .ndy-stars i {
+    opacity: 0.8;
+  }
+  .ndy-fireworks {
+    display: none;
+  }
+}
